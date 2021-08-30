@@ -1,9 +1,7 @@
 # Tests
 
 function(add_relative_test test_name)
-    get_property(test_output_dir TARGET "${test_name}" PROPERTY RUNTIME_OUTPUT_DIRECTORY)
-    get_property(test_output_file TARGET "${test_name}" PROPERTY RUNTIME_OUTPUT_NAME)
-    file(RELATIVE_PATH rel_path "${CMAKE_CURRENT_BINARY_DIR}" "${test_output_dir}/${test_output_name}")
+    file(RELATIVE_PATH rel_path "${CMAKE_BINARY_DIR}/test" "${CMAKE_CURRENT_BINARY_DIR}/${test_name}")
     add_test(NAME "${test_name}" COMMAND "./${rel_path}")
 endfunction()
 
