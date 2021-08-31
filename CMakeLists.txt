@@ -153,20 +153,12 @@ endif()
 rocm_setup_version( VERSION "2.10.9" )
 set ( hiprand_VERSION ${hipRAND_VERSION} )
 # Old-style version number used within the library's API. rocrand_get_version should be modified.
-math(EXPR temp "${hipRAND_VERSION_MAJOR} * 100000 + ${hipRAND_VERSION_MINOR} * 100 + ${hipRAND_VERSION_PATCH}")
-set(hiprand_VERSION_NUMBER ${temp})
+math(EXPR hiprand_VERSION_NUMBER "${hipRAND_VERSION_MAJOR} * 100000 + ${hipRAND_VERSION_MINOR} * 100 + ${hipRAND_VERSION_PATCH}")
+set(hiprand_SOVERSION 1.1)
 
 # Print configuration summary
 include(cmake/Summary.cmake)
 print_configuration_summary()
-
-set(RUNTIME_COMPONENT "COMPONENT;Unspecified")
-if(ROCM_USE_DEV_COMPONENT)
-    set(DEVEL_COMPONENT "COMPONENT;devel")
-else()
-    set(DEVEL_COMPONENT "COMPONENT;Unspecified")
-endif()
-
 
 # Tools
 add_subdirectory(tools)
