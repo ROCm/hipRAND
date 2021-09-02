@@ -37,10 +37,10 @@ if (WIN32)
   SET( CPACK_PACKAGING_INSTALL_PREFIX "" )
   set( CPACK_INCLUDE_TOPLEVEL_DIRECTORY OFF )
 else()
-  set(CMAKE_INSTALL_PREFIX "${ROCM_PATH}" CACHE PATH "Install path prefix, prepended onto install directories")
+  set(CMAKE_INSTALL_PREFIX "$ENV{ROCM_PATH}" CACHE PATH "Install path prefix, prepended onto install directories")
 
   #Adding CMAKE_PREFIX_PATH
-  list( APPEND CMAKE_PREFIX_PATH ${ROCM_PATH}/llvm ${ROCM_PATH} )
+  list( APPEND CMAKE_PREFIX_PATH $ENV{ROCM_PATH}/llvm $ENV{ROCM_PATH} )
   if(NOT CPACK_PACKAGING_INSTALL_PREFIX)
       set(CPACK_PACKAGING_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
   endif()
@@ -49,8 +49,8 @@ endif()
 list(APPEND CMAKE_MODULE_PATH
     ${CMAKE_CURRENT_SOURCE_DIR}/cmake
     ${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules
-    ${HIP_PATH}/cmake ${ROCM_PATH}/hip/cmake # FindHIP.cmake
-    ${ROCM_PATH}/llvm
+    ${HIP_PATH}/cmake $ENV{ROCM_PATH}/hip/cmake # FindHIP.cmake
+    $ENV{ROCM_PATH}/llvm
 )
 
 #
@@ -115,8 +115,8 @@ endif()
 if (NOT WIN32)
   include(cmake/VerifyCompiler.cmake)
 else()
-  list(APPEND CMAKE_PREFIX_PATH ${ROCM_PATH} ${ROCM_PATH}/hip ${ROCM_PATH}/llvm)
-  find_package(hip REQUIRED CONFIG PATHS ${HIP_DIR} ${ROCM_PATH})
+  list(APPEND CMAKE_PREFIX_PATH $ENV{ROCM_PATH} $ENV{ROCM_PATH}/hip $ENV{ROCM_PATH}/llvm)
+  find_package(hip REQUIRED CONFIG PATHS ${HIP_DIR} $ENV{ROCM_PATH})
 endif()
 
 # Build option to disable -Werror
