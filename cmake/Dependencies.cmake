@@ -30,12 +30,12 @@ find_package(Git REQUIRED)
 
 # Either rocRAND or hipRAND is required
 if(NOT BUILD_CUDA)
-  find_package(hip REQUIRED CONFIG PATHS ${HIP_PATH} ${ROCM_PATH})
+  find_package(hip REQUIRED CONFIG PATHS ${HIP_PATH} $ENV{ROCM_PATH})
   find_package(rocrand CONFIG)
   if(WIN32)
     find_package(rocrand REQUIRED CONFIG PATHS ${ROCRAND_PATH})
   else()
-    find_package(rocrand REQUIRED CONFIG PATHS ${ROCM_PATH} ${ROCM_PATH}/rocsparse)
+    find_package(rocrand REQUIRED CONFIG PATHS $ENV{ROCM_PATH} $ENV{ROCM_PATH}/rocsparse)
   endif()
 else()
   find_package(HIP MODULE REQUIRED)
@@ -88,7 +88,7 @@ if(BUILD_TEST)
 endif()
 
 # Find or download/install rocm-cmake project
-find_package(ROCM 0.7 QUIET CONFIG PATHS ${ROCM_PATH})
+find_package(ROCM 0.7 QUIET CONFIG PATHS $ENV{ROCM_PATH})
 if(NOT ROCM_FOUND)
     set(PROJECT_EXTERN_DIR "${CMAKE_CURRENT_BINARY_DIR}/deps")
     file( TO_NATIVE_PATH "${PROJECT_EXTERN_DIR}" PROJECT_EXTERN_DIR_NATIVE)
