@@ -21,4 +21,4 @@ set_target_properties(${test_hiprand}
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/test"
 )
 
-add_relative_test(${test_hiprand})
+add_relative_test(${test_hiprand} ${test_hiprand})
