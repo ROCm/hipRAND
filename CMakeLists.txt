@@ -22,12 +22,6 @@
 
 cmake_minimum_required(VERSION 3.10.2 FATAL_ERROR)
 
-if(WIN32)
-    set(ROCM_USE_DEV_COMPONENT OFF CACHE BOOL "Whether to generate the devel package.")
-else()
-    set(ROCM_USE_DEV_COMPONENT ON CACHE BOOL "Whether to generate the devel package.")
-endif()
-
 # Install prefix
 if (WIN32)
   SET( CMAKE_INSTALL_PREFIX "C:/hipSDK" CACHE PATH "Install path" FORCE )
@@ -70,7 +64,6 @@ set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE CACHE BOOL "Add paths to linker searc
 set(BUILD_SHARED_LIBS ON CACHE BOOL "Build shared")
 
 # Include cmake scripts
-include(cmake/Common.cmake)
 include(cmake/Dependencies.cmake)
 
 # Detect compiler support for target ID
@@ -85,18 +78,9 @@ endif()
 
 set( AMDGPU_TARGETS "all" CACHE STRING "Compile for which gpu architectures?")
 # Set the AMDGPU_TARGETS with backward compatiblity
-if(COMMAND rocm_check_target_ids)
-   rocm_check_target_ids(DEFAULT_AMDGPU_TARGETS
-       TARGETS "gfx803;gfx900:xnack-;gfx906:xnack-;gfx908:xnack-;gfx90a:xnack-;gfx90a:xnack+;gfx1030"
-   )
-else()
-    # Use target ID syntax if supported for AMDGPU_TARGETS
-    if(TARGET_ID_SUPPORT)
-        set(DEFAULT_AMDGPU_TARGETS "gfx803;gfx900:xnack-;gfx906:xnack-;gfx908:xnack-;gfx1030")
-    else()
-        set(DEFAULT_AMDGPU_TARGETS "gfx803;gfx900;gfx906;gfx908")
-    endif()
-endif()
+rocm_check_target_ids(DEFAULT_AMDGPU_TARGETS
+    TARGETS "gfx803;gfx900:xnack-;gfx906:xnack-;gfx908:xnack-;gfx90a:xnack-;gfx90a:xnack+;gfx1030"
+)
 if (AMDGPU_TARGETS)
     if( AMDGPU_TARGETS STREQUAL "all" )
       set( gpus "${DEFAULT_AMDGPU_TARGETS}")
@@ -163,8 +147,8 @@ print_configuration_summary()
 # Tools
 add_subdirectory(tools)
 
-# rocRAND and hipRAND libraries
-# This adds library targets: rocrand, hiprand,
+# hipRAND library
+# This adds library targets: hiprand,
 # also includes Fortran wrapper
 add_subdirectory(library)
 

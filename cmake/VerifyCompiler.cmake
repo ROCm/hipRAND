@@ -20,12 +20,19 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-if(BUILD_CUDA)
-    if((HIP_COMPILER STREQUAL "hcc") OR (HIP_COMPILER STREQUAL "clang"))
-        set(HIP_COMPILER "nvcc" CACHE STRING "HIP Compiler" FORCE)
+list(APPEND CMAKE_PREFIX_PATH $ENV{ROCM_PATH} $ENV{ROCM_PATH}/hip)
+if(CMAKE_CXX_COMPILER MATCHES ".*/nvcc$" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    find_package(hip QUIET CONFIG PATHS $ENV{ROCM_PATH})
+    if(NOT hip_FOUND)
+        find_package(HIP REQUIRED)
     endif()
+    if((HIP_COMPILER STREQUAL "hcc") OR (HIP_COMPILER STREQUAL "clang"))
+       # TODO: The HIP package on NVIDIA platform is incorrect at few versions
+       set(HIP_COMPILER "nvcc" CACHE STRING "HIP Compiler" FORCE)
+    endif()
+else()
+  find_package(hip REQUIRED CONFIG PATHS $ENV{ROCM_PATH})
 endif()
-
 
 if(HIP_COMPILER STREQUAL "nvcc")
     if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
@@ -37,7 +44,7 @@ elseif(HIP_COMPILER STREQUAL "hcc" OR HIP_COMPILER STREQUAL "clang")
     if(NOT (CMAKE_CXX_COMPILER MATCHES ".*/hcc$" OR CMAKE_CXX_COMPILER MATCHES ".*/hipcc$"))
         message(FATAL_ERROR "On ROCm platform 'hcc' or 'clang' must be used as C++ compiler.")
     elseif(NOT CXX_VERSION_STRING MATCHES "clang")
-        list(APPEND CMAKE_PREFIX_PATH /opt/rocm/hcc)
+        list(APPEND CMAKE_PREFIX_PATH $ENV{ROCM_PATH}/hcc)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-command-line-argument")
     endif()
 else()

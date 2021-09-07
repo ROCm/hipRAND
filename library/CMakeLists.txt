@@ -21,13 +21,6 @@ endif()
 add_library(hiprand ${hipRAND_SRCS})
 add_library(hip::hiprand ALIAS hiprand)
 
-target_include_directories(hiprand
-    PUBLIC
-        $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/library/include>
-        $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/library/include>
-        $<INSTALL_INTERFACE:hiprand/include>
-)
-
 if(HIP_COMPILER STREQUAL "nvcc")
     target_link_libraries(hiprand
         ${CUDA_curand_LIBRARY}
@@ -61,13 +54,12 @@ if (BUILD_TEST AND WIN32)
   )
 endif()
 
-set(hiprandtargets hiprand)
-
 rocm_install(
-    TARGETS ${hiprandtargets}
+    TARGETS hiprand
     INCLUDE 
         "${CMAKE_SOURCE_DIR}/library/include"
         "${CMAKE_BINARY_DIR}/library/include"
+    INCLUDE_SUBDIR hiprand
     PREFIX hiprand
 )
 
@@ -91,12 +83,12 @@ if (WIN32)
   install (TARGETS hiprand DESTINATION "${CMAKE_INSTALL_PREFIX}/bin")
 endif()
 
-rocm_install_symlink_subdir(hiprand)
-
 # Fortran wrappers for hipRAND and rocRAND
 if(BUILD_FORTRAN_WRAPPER)
     add_subdirectory(src/fortran)
 endif()
+
+rocm_install_symlink_subdir(hiprand)
 
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/../LICENSE.txt")
 if(WIN32)
