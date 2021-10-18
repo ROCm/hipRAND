@@ -40,7 +40,7 @@ set_target_properties(hiprand
     PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/library"
         DEBUG_POSTFIX "-d"
-        INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/rocrand/lib"
+        INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/hiprand/lib"
 )
 
 # In windows, we require the DLLs to be in the same directory as test executables
