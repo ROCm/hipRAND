@@ -128,9 +128,6 @@ set(hiprand_SOVERSION 1.1)
 include(cmake/Summary.cmake)
 print_configuration_summary()
 
-# Tools
-add_subdirectory(tools)
-
 # hipRAND library
 # This adds library targets: hiprand,
 # also includes Fortran wrapper
