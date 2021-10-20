@@ -63,11 +63,18 @@ rocm_install(
     PREFIX hiprand
 )
 
+set(FORTRAN_SRCS_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/hiprand/src/fortran")
+configure_file(
+    src/hiprand-fortran-config.cmake.in
+    ${CMAKE_CURRENT_BINARY_DIR}/hiprand-fortran-config.cmake
+)
+
 if(HIP_COMPILER STREQUAL "nvcc")
     rocm_export_targets(
         TARGETS hip::hiprand
         PREFIX hiprand
         NAMESPACE hip::
+        INCLUDE "${CMAKE_CURRENT_BINARY_DIR}/hiprand-fortran-config.cmake"
     )
 else()
     rocm_export_targets(
@@ -75,6 +82,7 @@ else()
         PREFIX hiprand
         NAMESPACE hip::
         DEPENDS PACKAGE hip
+        INCLUDE "${CMAKE_CURRENT_BINARY_DIR}/hiprand-fortran-config.cmake"
     )
 endif()
 
