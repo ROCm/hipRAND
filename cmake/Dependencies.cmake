@@ -89,21 +89,6 @@ if (AMDGPU_TARGETS)
     set( AMDGPU_TARGETS "${gpus}" CACHE STRING "AMD GPU targets to compile for" FORCE )
 endif()
 
-# Either rocRAND or hipRAND is required
-if(HIP_COMPILER STREQUAL "nvcc")
-  find_package(HIP MODULE REQUIRED)
-  set(HIP_INCLUDE_DIRS "${HIP_ROOT_DIR}/include")
-  find_package(CUDA REQUIRED)
-else()
-  find_package(hip REQUIRED CONFIG PATHS ${HIP_PATH} $ENV{ROCM_PATH})
-  find_package(rocrand CONFIG)
-  if(WIN32)
-    find_package(rocrand REQUIRED CONFIG PATHS ${ROCRAND_PATH})
-  else()
-    find_package(rocrand REQUIRED CONFIG PATHS $ENV{ROCM_PATH} $ENV{ROCM_PATH}/rocsparse)
-  endif()
-endif()
-
 # For downloading, building, and installing required dependencies
 include(cmake/DownloadProject.cmake)
 
