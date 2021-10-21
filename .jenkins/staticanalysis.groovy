@@ -15,7 +15,6 @@ def runCompileCommand(platform, project, jobName, boolean debug=false)
 
     def command = """#!/usr/bin/env bash
             set -ex
-            make -C ${project.paths.project_build_prefix}/python/rocrand/docs html
             make -C ${project.paths.project_build_prefix}/python/hiprand/docs html
             """
 
@@ -31,7 +30,7 @@ def runCompileCommand(platform, project, jobName, boolean debug=false)
     publishHTML([allowMissing: false,
                 alwaysLinkToLastBuild: false,
                 keepAll: false,
-                reportDir: "${project.paths.project_build_prefix}/python/rocrand/docs/build/html",
+                reportDir: "${project.paths.project_build_prefix}/python/hiprand/docs/build/html",
                 reportFiles: "index.html",
                 reportName: "Documentation",
                 reportTitles: "Documentation"])
@@ -41,7 +40,7 @@ def runCI =
 {
     nodeDetails, jobName->
 
-    def prj  = new rocProject('rocRAND', 'StaticAnalysis')
+    def prj  = new rocProject('hipRAND', 'StaticAnalysis')
 
     // Define test architectures, optional rocm version argument is available
     def nodes = new dockerNodes(nodeDetails, jobName, prj)

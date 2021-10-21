@@ -34,15 +34,14 @@ else()
     target_link_libraries(hiprand_fortran
         PRIVATE
             hiprand
-            rocrand
+            roc::rocrand
             "-L${HIP_ROOT_DIR}/lib -lhip_hcc -Wl,-rpath,${HIP_ROOT_DIR}/lib"
     )
 endif()
 
 # Install Fortran sources
-install(
+rocm_install(
     FILES ${FORTRAN_HIPRAND_SRCS}
     DESTINATION hiprand/src/fortran
     PERMISSIONS OWNER_WRITE OWNER_READ GROUP_READ WORLD_READ
-    ${DEVEL_COMPONENT}
 )
