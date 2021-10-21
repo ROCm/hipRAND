@@ -45,7 +45,7 @@ function(add_hiprand_link_test TEST_SOURCES)
         PROPERTIES
             RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/test"
     )
-    add_relative_test(${TEST_TARGET})
+    add_relative_test(${TEST_TARGET} ${TEST_TARGET})
 endfunction()
 
 add_hiprand_link_test("test_hiprand_linkage.cpp;get_hiprand_version.cpp")
