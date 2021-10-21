@@ -90,7 +90,7 @@ endif()
 # Either rocRAND or hipRAND is required
 if(NOT HIP_COMPILER STREQUAL "nvcc")
   find_package(rocrand QUIET CONFIG)
-  if(not rocrand_FOUND)
+  if(NOT rocrand_FOUND)
     if(WIN32)
       find_package(rocrand REQUIRED CONFIG PATHS ${ROCRAND_PATH})
     else()
