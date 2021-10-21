@@ -87,6 +87,18 @@ else()
   find_package(hip REQUIRED CONFIG PATHS ${HIP_DIR} $ENV{ROCM_PATH})
 endif()
 
+# Either rocRAND or hipRAND is required
+if(NOT HIP_COMPILER STREQUAL "nvcc")
+  find_package(rocrand QUIET CONFIG)
+  if(not rocrand_FOUND)
+    if(WIN32)
+      find_package(rocrand REQUIRED CONFIG PATHS ${ROCRAND_PATH})
+    else()
+      find_package(rocrand REQUIRED CONFIG PATHS $ENV{ROCM_PATH} $ENV{ROCM_PATH}/rocrand)
+    endif()
+  endif()
+endif()
+
 # Build option to disable -Werror
 option(DISABLE_WERROR "Disable building with Werror" ON)
 
