@@ -73,6 +73,8 @@ foreach(test_src ${hipRAND_TEST_SRCS})
       LIST_DIRECTORIES ON
       CONFIGURE_DEPENDS
       ${HIP_DIR}/bin/*.dll
+      ${HIP_DIR}/bin/hipinfo.exe
+      ${ROCRAND_PATH}/bin/rocrand.dll
       ${CMAKE_SOURCE_DIR}/rtest.*
       )
       foreach( file_i ${third_party_dlls})

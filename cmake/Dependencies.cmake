@@ -29,7 +29,7 @@
 find_package(Git REQUIRED)
 
 # Find or download/install rocm-cmake project
-find_package(ROCM 0.7 QUIET CONFIG PATHS $ENV{ROCM_PATH})
+find_package(ROCM 0.7 QUIET CONFIG PATHS ${ROCM_PATH})
 if(NOT ROCM_FOUND)
     set(PROJECT_EXTERN_DIR "${CMAKE_CURRENT_BINARY_DIR}/deps")
     file( TO_NATIVE_PATH "${PROJECT_EXTERN_DIR}" PROJECT_EXTERN_DIR_NATIVE)
