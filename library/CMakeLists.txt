@@ -46,7 +46,7 @@ set_target_properties(hiprand
 # In windows, we require the DLLs to be in the same directory as test executables
 if (BUILD_TEST AND WIN32)
   add_custom_command(
-      TARGET hiprand 
+      TARGET hiprand
       POST_BUILD
       COMMAND ${CMAKE_COMMAND} -E copy
           $<TARGET_FILE:hiprand>
@@ -56,7 +56,7 @@ endif()
 
 rocm_install(
     TARGETS hiprand
-    INCLUDE 
+    INCLUDE
         "${CMAKE_SOURCE_DIR}/library/include"
         "${CMAKE_BINARY_DIR}/library/include"
     INCLUDE_SUBDIR hiprand
@@ -89,6 +89,9 @@ endif()
 # install library to C:\hipSDK\bin
 if (WIN32)
   install (TARGETS hiprand DESTINATION "${CMAKE_INSTALL_PREFIX}/bin")
+  if (BUILD_TEST)
+      install (TARGETS hiprand DESTINATION "${PROJECT_BINARY_DIR}/test")
+  endif()
 endif()
 
 # Fortran wrappers for hipRAND and rocRAND

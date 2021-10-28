@@ -6,7 +6,7 @@ project(hiprand_package_test CXX)
 # CMake modules
 list(APPEND CMAKE_PREFIX_PATH $ENV{ROCM_PATH} $ENV{ROCM_PATH}/hip)
 list(APPEND CMAKE_MODULE_PATH
-    ${HIP_PATH}/cmake $ENV{ROCM_PATH}/hip/cmake # FindHIP.cmake
+    ${HIP_DIR}/cmake ${ROCM_PATH}/hip/cmake # FindHIP.cmake
 )
 
 # Find HIP
@@ -99,5 +99,5 @@ foreach(test_src ${hiprand_pkg_TEST_SRCS})
       foreach( file_i ${third_party_dlls})
         add_custom_command( TARGET ${test_name} POST_BUILD COMMAND ${CMAKE_COMMAND} ARGS -E copy_if_different ${file_i} ${PROJECT_BINARY_DIR}/test/package )
       endforeach( file_i )
-    endif()         
+    endif()
 endforeach()
