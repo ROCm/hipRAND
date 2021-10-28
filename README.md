@@ -1,7 +1,7 @@
 # hipRAND
 
 hipRAND is a RAND marshalling library, with multiple supported backends. 
-It sits between the application and the backend FFT library, 
+It sits between the application and the backend RAND library, 
 marshalling inputs into the backend and results back to the application.
 hipRAND exports an interface that does not require the client to change, regardless of the chosen backend.
 Currently, hipRAND supports either [rocRAND](https://github.com/ROCmSoftwarePlatform/rocRAND) 
@@ -16,6 +16,16 @@ Release notes are available for each release on the releases tab.
 - `sudo apt update && sudo apt install hiprand`
 
 ## Quickstart hipRAND build
+
+### Requirements
+- Git
+- CMake (3.10.2 or later)
+- For AMD GPUs:
+  - AMD ROCm platform (5.0.0 or later)
+  - rocRAND library
+- For NVIDIA GPUs:
+  - CUDA Toolkit
+  - cuRAND library
 
 #### Bash helper build script (Ubuntu only)
 The root of this repository has a helper bash script `install` to build and install hipRAND on Ubuntu with a single command.  It does not take a lot of options and hard-codes configuration that can be specified through invoking cmake directly, but it's a great way to get started quickly and can serve as an example of how to build/install. A few commands in the script need sudo access, so it may prompt you for a password.
