@@ -22,6 +22,10 @@
 
 cmake_minimum_required(VERSION 3.10.2 FATAL_ERROR)
 
+if(DEFINED ENV{ROCM_PATH})
+  set (ROCM_PATH "$ENV{ROCM_PATH}" CACHE PATH "The path to the ROCm installation.")
+endif()
+
 # Install prefix
 if (WIN32)
   SET( CMAKE_INSTALL_PREFIX "C:/hipSDK" CACHE PATH "Install path" FORCE )
@@ -43,8 +47,8 @@ endif()
 list(APPEND CMAKE_MODULE_PATH
     ${CMAKE_CURRENT_SOURCE_DIR}/cmake
     ${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules
-    ${HIP_PATH}/cmake $ENV{ROCM_PATH}/hip/cmake # FindHIP.cmake
-    $ENV{ROCM_PATH}/llvm
+    ${HIP_DIR}/cmake ${ROCM_PATH}/hip/cmake # FindHIP.cmake
+    ${ROCM_PATH}/llvm
 )
 
 #
@@ -95,6 +99,18 @@ if(NOT HIP_COMPILER STREQUAL "nvcc")
       find_package(rocrand REQUIRED CONFIG PATHS ${ROCRAND_PATH})
     else()
       find_package(rocrand REQUIRED CONFIG PATHS $ENV{ROCM_PATH} $ENV{ROCM_PATH}/rocrand)
+    endif()
+  endif()
+endif()
+
+# Either rocRAND or hipRAND is required
+if(NOT HIP_COMPILER STREQUAL "nvcc")
+  find_package(rocrand QUIET CONFIG)
+  if(NOT rocrand_FOUND)
+    if(WIN32)
+      find_package(rocrand REQUIRED CONFIG PATHS ${ROCRAND_PATH})
+    else()
+      find_package(rocrand REQUIRED CONFIG PATHS ${ROCM_PATH} ${ROCM_PATH}/rocrand)
     endif()
   endif()
 endif()

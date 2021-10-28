@@ -39,6 +39,7 @@ def parse_args():
                         help='Set GPU architectures, e.g. all, gfx000, gfx803, gfx906:xnack-;gfx1030 (optional, default: all)')
     parser.add_argument('-v', '--verbose', required=False, default=False, action='store_true',
                         help='Verbose build (default: False)')
+    parser.add_argument('--rocrand-path', dest='rocrand_path', type=str, default="C:/hipSDK/rocrand", help="Set specific path to custom build rocRAND (optional)")
     return parser.parse_args()
 
 def os_detect():
@@ -128,6 +129,8 @@ def config_cmd():
         deps_dir = args.deps_dir
     cmake_base_options = f"-DROCM_PATH={rocm_path} -DCMAKE_PREFIX_PATH:PATH={rocm_path} -Dhiprand_EXPORTS=1"
     cmake_options.append( cmake_base_options )
+
+    cmake_options.append(f"-DROCRAND_PATH={args.rocrand_path}")
 
     print( cmake_options )
 
