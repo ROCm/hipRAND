@@ -128,25 +128,12 @@ test:rocm_python:
 
   script:
     - export ROCRAND_PATH=$CI_PROJECT_DIR/build/library/
-    # rocRAND Wrapper with Python 2
-    - cd $CI_PROJECT_DIR/python/rocrand
-    - $SUDO_CMD python2 setup.py test
-    - pip2 install . --user
-    - $SUDO_CMD python2 tests/rocrand_test.py
-    - pip2 uninstall --yes rocrand
     # hipRAND Wrapper with Python 2
     - cd $CI_PROJECT_DIR/python/hiprand
     - $SUDO_CMD python2 setup.py test
     - pip2 install . --user
     - $SUDO_CMD python2 tests/hiprand_test.py
     - pip2 uninstall --yes hiprand
-    # rocRAND Wrapper with Python 3
-    - pip3 --version
-    - cd $CI_PROJECT_DIR/python/rocrand
-    - $SUDO_CMD python3 setup.py test
-    - pip3 install . --user
-    - $SUDO_CMD python3 tests/rocrand_test.py
-    - pip3 uninstall --yes rocrand
     # hipRAND Wrapper with Python 3
     - cd $CI_PROJECT_DIR/python/hiprand
     - $SUDO_CMD python3 setup.py test
@@ -297,25 +284,12 @@ test:nvcc_python:
 
   script:
     - export ROCRAND_PATH=$CI_PROJECT_DIR/build/library/
-    # rocRAND Wrapper with Python 2
-    - cd $CI_PROJECT_DIR/python/rocrand
-    - $SUDO_CMD python2 setup.py test
-    - pip2 install . --user
-    - $SUDO_CMD python2 tests/rocrand_test.py
-    - pip2 uninstall --yes rocrand
     # hipRAND Wrapper with Python 2
     - cd $CI_PROJECT_DIR/python/hiprand
     - $SUDO_CMD python2 setup.py test
     - pip2 install . --user
     - $SUDO_CMD python2 tests/hiprand_test.py
     - pip2 uninstall --yes hiprand
-    # rocRAND Wrapper with Python 3
-    - pip3 --version
-    - cd $CI_PROJECT_DIR/python/rocrand
-    - $SUDO_CMD python3 setup.py test
-    - pip3 install . --user
-    - $SUDO_CMD python3 tests/rocrand_test.py
-    - pip3 uninstall --yes rocrand
     # hipRAND Wrapper with Python 3
     - cd $CI_PROJECT_DIR/python/hiprand
     - $SUDO_CMD python3 setup.py test
@@ -355,3 +329,21 @@ test:nvcc_install:
     - make VERBOSE=1
     - $SUDO_CMD ctest --output-on-failure
     - ldd ./test_hiprand
+
+test:doc:
+  variables:
+    SUDO_CMD: "sudo -E"
+  tags:
+    - rocm # Do it on rocm machine
+  image: rocm/rocm-terminal:latest
+  stage: test
+  needs: []
+  before_script:
+    - $SUDO_CMD rm /etc/apt/sources.list.d/rocm.list
+    - $SUDO_CMD apt-get update -qq
+    - $SUDO_CMD apt-get install -y -qq doxygen python3-sphinx python3-pip
+    - $SUDO_CMD -H pip3 install numpy
+  script:
+    - cd doc
+    - $SUDO_CMD doxygen Doxyfile
+    - $SUDO_CMD make -C ../python/hiprand/docs html
