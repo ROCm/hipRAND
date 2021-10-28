@@ -40,8 +40,6 @@ except ImportError:
   from backports.weakref import finalize
 
 
-hiprand = None
-
 HIPRAND_PATHS = [
         os.getenv("HIPRAND_PATH"),
         os.getenv("ROCRAND_PATH")
@@ -57,7 +55,15 @@ def load_hiprand():
 
     load_hip()
 
-load_hiprand()
+# Delay the loading of hiprand to the first use
+# so no code is executed when loading this module 
+class _load_hiprand_on_access(object):
+    def __getattribute__(self, name):
+        global hiprand
+        load_hiprand()
+        return getattr(hiprand, name)
+
+hiprand = _load_hiprand_on_access()
 
 HIPRAND_RNG_PSEUDO_DEFAULT = 400
 HIPRAND_RNG_PSEUDO_XORWOW = 401
