@@ -25,6 +25,7 @@ cmake_minimum_required(VERSION 3.10.2 FATAL_ERROR)
 if(DEFINED ENV{ROCM_PATH})
   set (ROCM_PATH "$ENV{ROCM_PATH}" CACHE PATH "The path to the ROCm installation.")
 endif()
+set (ROCM_PATH "/opt/rocm" CACHE PATH "The path to the ROCm installation.")
 
 # Install prefix
 if (WIN32)
