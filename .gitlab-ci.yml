@@ -89,7 +89,7 @@ deps:rocrand:
     expire_in: 2 weeks
 
 .install_rocrand: &install_rocrand
-    - dpkg -i rocRAND/build/rocrand*.deb
+    - $SUDO_CMD dpkg -i rocRAND/build/rocrand*.deb
     - find -L $ROCM_PATH | grep rand | sort
 
 .rocm:
