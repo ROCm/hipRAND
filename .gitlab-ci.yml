@@ -343,14 +343,14 @@ test:nvcc_package:
     - build:nvcc
   script:
     - cd build
-    - $SUDO_CMD dpkg -i rocrand*.deb
+    - $SUDO_CMD dpkg -i hiprand*.deb
     - find -L $ROCM_PATH | grep rand | sort
     - mkdir ../build_package_test && cd ../build_package_test
     - cmake ../test/package/.
     - make VERBOSE=1
     - $SUDO_CMD ctest --output-on-failure
     - ldd ./test_hiprand
-    - $SUDO_CMD dpkg -r rocrand
+    - $SUDO_CMD dpkg -r hiprand
 
 test:nvcc_install:
   extends: .nvcc
