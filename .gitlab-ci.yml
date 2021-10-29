@@ -86,7 +86,8 @@ build:rocrand:
 
 .rocm:
   extends: .setup_rocm
-  needs: build:rocrand
+  needs:
+   - build:rocrand
   before_script:
     - !reference [.setup_rocm, before_script]
     # Install rocRAND
