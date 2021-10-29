@@ -1,6 +1,11 @@
 # Package test
 cmake_minimum_required(VERSION 3.5.1 FATAL_ERROR)
 
+if(DEFINED ENV{ROCM_PATH})
+  set (ROCM_PATH "$ENV{ROCM_PATH}" CACHE PATH "The path to the ROCm installation.")
+endif()
+set (ROCM_PATH "/opt/rocm" CACHE PATH "The path to the ROCm installation.")
+
 project(hiprand_package_test CXX)
 
 # CMake modules
