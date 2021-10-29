@@ -177,15 +177,15 @@ test:rocm_python:
     - export HIPRAND_PATH=$CI_PROJECT_DIR/build/library/
     # hipRAND Wrapper with Python 2
     - cd $CI_PROJECT_DIR/python/hiprand
-    - $SUDO_CMD python2 setup.py test
+    - python2 setup.py test
     - pip2 install . --user
-    - $SUDO_CMD python2 tests/hiprand_test.py
+    - python2 tests/hiprand_test.py
     - pip2 uninstall --yes hiprand
     # hipRAND Wrapper with Python 3
     - cd $CI_PROJECT_DIR/python/hiprand
-    - $SUDO_CMD python3 setup.py test
+    - python3 setup.py test
     - pip3 install . --user
-    - $SUDO_CMD python3 tests/hiprand_test.py
+    - python3 tests/hiprand_test.py
     - pip3 uninstall --yes hiprand
 
 test:rocm_package:
@@ -204,7 +204,7 @@ test:rocm_package:
     - make VERBOSE=1
     - $SUDO_CMD ctest --output-on-failure
     - ldd ./test_hiprand
-    - $SUDO_CMD dpkg -r hiprand
+    - $SUDO_CMD dpkg -r hiprand-dev hiprand
 
 test:rocm_install:
   extends: .rocm
@@ -325,15 +325,15 @@ test:nvcc_python:
     - export ROCRAND_PATH=$CI_PROJECT_DIR/build/library/
     # hipRAND Wrapper with Python 2
     - cd $CI_PROJECT_DIR/python/hiprand
-    - $SUDO_CMD python2 setup.py test
+    - python2 setup.py test
     - pip2 install . --user
-    - $SUDO_CMD python2 tests/hiprand_test.py
+    - python2 tests/hiprand_test.py
     - pip2 uninstall --yes hiprand
     # hipRAND Wrapper with Python 3
     - cd $CI_PROJECT_DIR/python/hiprand
-    - $SUDO_CMD python3 setup.py test
+    - python3 setup.py test
     - pip3 install . --user
-    - $SUDO_CMD python3 tests/hiprand_test.py
+    - python3 tests/hiprand_test.py
     - pip3 uninstall --yes hiprand
 
 test:nvcc_package:
@@ -350,7 +350,7 @@ test:nvcc_package:
     - make VERBOSE=1
     - $SUDO_CMD ctest --output-on-failure
     - ldd ./test_hiprand
-    - $SUDO_CMD dpkg -r hiprand
+    - $SUDO_CMD dpkg -r hiprand-dev hiprand
 
 test:nvcc_install:
   extends: .nvcc
