@@ -79,7 +79,6 @@ deps:rocrand:
       -D BUILD_TEST=OFF
       -D BUILD_EXAMPLE=OFF
       -D ROCM_DEP_ROCMCORE=OFF
-      -B build
       ../.
     - cmake --build . --parallel 16
     - $SUDO_CMD cpack
