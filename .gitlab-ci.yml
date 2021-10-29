@@ -74,7 +74,6 @@ deps:rocrand:
     - mkdir build
     - cd build
     - cmake
-      -G Ninja
       -D CMAKE_CXX_COMPILER=hipcc
       -D CMAKE_BUILD_TYPE=Release
       -D BUILD_TEST=OFF
@@ -82,7 +81,7 @@ deps:rocrand:
       -D ROCM_DEP_ROCMCORE=OFF
       -B build
       ../.
-    - cmake --build .
+    - cmake --build . --parallel 16
     - $SUDO_CMD cpack
       -G "DEB"
   artifacts:
