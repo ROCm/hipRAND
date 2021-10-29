@@ -34,7 +34,7 @@ variables:
 
 # ROCm
 
-.rocm:
+.setup_rocm:
   variables:
     SUDO_CMD: "sudo -E"
     SUDO_CMD_HOME: "sudo -E -H"
@@ -53,6 +53,45 @@ variables:
     - export CXXFLAGS=$CXXFLAGS" "$LOCAL_CXXFLAGS
     - export CMAKE_OPTIONS=$CXXFLAGS" "$LOCAL_CMAKE_OPTIONS
     - export ROCM_PATH=/opt/rocm
+
+# Build rocRAND package from source to be used by other jobds
+build:rocrand:
+  extends: .setup_rocm
+  variables:
+    ROCRAND_GIT_BRANCH: "develop_stream"
+  script:
+    - branch_name="$ROCRAND_GIT_BRANCH"
+    - if [ $CI_COMMIT_BRANCH == develop ] || [ $CI_COMMIT_BRANCH == master ]; then branch_name=$CI_COMMIT_BRANCH;
+    - fi;
+    - git clone -b $branch_name https://gitlab-ci-token:${CI_JOB_TOKEN}@${ROCRAND_GIT_URL}
+    - cd rocRAND
+    - mkdir build
+    - cd build
+    - cmake
+      -G Ninja
+      -D CMAKE_CXX_COMPILER=hipcc
+      -D CMAKE_BUILD_TYPE=Release
+      -D BUILD_TEST=OFF
+      -D BUILD_EXAMPLE=OFF
+      -D ROCM_DEP_ROCMCORE=OFF
+      -B build
+      ../.
+    - cmake --build .
+    - $SUDO_CMD cpack
+      -G "DEB"
+  artifacts:
+    paths:
+      - rocRAND/build/rocrand*.deb
+    expire_in: 2 weeks
+
+.rocm:
+  extends: .setup_rocm
+  needs: build:rocrand
+  before_script:
+    - !reference [.setup_rocm, before_script]
+    # Install rocRAND
+    - dpkg -i rocRAND/build/rocrand*.deb
+    - find -L $ROCM_PATH | grep rand | sort
 
 build:rocm:
   extends: .rocm
@@ -110,10 +149,12 @@ test:rocm_python:
   extends: .rocm
   stage: test
   needs:
+    - !reference [.rocm, needs]
     - build:rocm
   tags:
     - rocm-stable
   before_script:
+    - !reference [.rocm, before_script]
     - $SUDO_CMD apt-get update -qq
     - $SUDO_CMD apt-get install -y -qq python python-pip python-numpy
     - $SUDO_CMD apt-get install -y -qq python3 python3-pip python3-numpy
@@ -125,9 +166,8 @@ test:rocm_python:
     - wget https://bootstrap.pypa.io/pip/2.7/get-pip.py -O get-pip-2.7.py
     - $SUDO_CMD_HOME python get-pip-2.7.py
     - $SUDO_CMD_HOME python3 get-pip-3.6+.py
-
   script:
-    - export ROCRAND_PATH=$CI_PROJECT_DIR/build/library/
+    - export HIPRAND_PATH=$CI_PROJECT_DIR/build/library/
     # hipRAND Wrapper with Python 2
     - cd $CI_PROJECT_DIR/python/hiprand
     - $SUDO_CMD python2 setup.py test
@@ -145,26 +185,25 @@ test:rocm_package:
   extends: .rocm
   stage: test
   needs:
+    - !reference [.rocm, needs]
     - build:rocm
   tags:
     - rocm-stable
   script:
     - cd build
-    - $SUDO_CMD dpkg -i rocrand*.deb
-    - find -L $ROCM_PATH | grep rand | sort
+    - $SUDO_CMD dpkg -i hiprand*.deb
     - mkdir ../build_package_test && cd ../build_package_test
     - CXX=hipcc cmake ../test/package/.
     - make VERBOSE=1
     - $SUDO_CMD ctest --output-on-failure
     - ldd ./test_hiprand
-    - $SUDO_CMD dpkg -r rocrand
+    - $SUDO_CMD dpkg -r hiprand
 
 test:rocm_install:
   extends: .rocm
   stage: test
   tags:
     - rocm-stable
-  needs: []
   script:
     - mkdir build_only_install
     - cd build_only_install
@@ -245,10 +284,6 @@ test:nvcc_titanv:
     - export CUDA_VISIBLE_DEVICES=0
     - cd build
     - $SUDO_CMD ctest --output-on-failure
-    - $SUDO_CMD ./benchmark/benchmark_rocrand_generate --dis all --engine all --trials 5
-    - $SUDO_CMD ./benchmark/benchmark_rocrand_kernel --dis all --engine all --trials 5
-    - $SUDO_CMD ./benchmark/benchmark_curand_generate --dis all --engine all --trials 5
-    - $SUDO_CMD ./benchmark/benchmark_curand_kernel --dis all --engine all --trials 5
 
 test:nvcc_980:
   extends: .nvcc
@@ -259,10 +294,6 @@ test:nvcc_980:
     - export CUDA_VISIBLE_DEVICES=1
     - cd build
     - $SUDO_CMD ctest --output-on-failure
-    - $SUDO_CMD ./benchmark/benchmark_rocrand_generate --dis all --engine all --trials 5
-    - $SUDO_CMD ./benchmark/benchmark_rocrand_kernel --dis all --engine all --trials 5
-    - $SUDO_CMD ./benchmark/benchmark_curand_generate --dis all --engine all --trials 5
-    - $SUDO_CMD ./benchmark/benchmark_curand_kernel --dis all --engine all --trials 5
 
 test:nvcc_python:
   extends: .nvcc
