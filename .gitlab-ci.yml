@@ -32,6 +32,11 @@ variables:
   LOCAL_CMAKE_OPTIONS: ""
   ROCM_LATEST_PATH: "/opt/rocm-4.5.0"
 
+stages:
+  - deps
+  - build
+  - test
+
 # ROCm
 
 .setup_rocm:
@@ -41,7 +46,7 @@ variables:
   tags:
     - rocm
   image: rocm/rocm-terminal:latest
-  before_script:
+  before_script: &setup_rocm
     - $SUDO_CMD apt-get update -qq
     - $SUDO_CMD apt-get install -y -qq libidn11 git wget tar xz-utils bzip2 build-essential pkg-config ca-certificates kmod gfortran findutils
     - hipconfig
@@ -55,7 +60,8 @@ variables:
     - export ROCM_PATH=/opt/rocm
 
 # Build rocRAND package from source to be used by other jobds
-build:rocrand:
+deps:rocrand:
+  stage: deps
   extends: .setup_rocm
   variables:
     ROCRAND_GIT_BRANCH: "develop_stream"
@@ -84,15 +90,17 @@ build:rocrand:
       - rocRAND/build/rocrand*.deb
     expire_in: 2 weeks
 
+.install_rocrand: &install_rocrand
+    - dpkg -i rocRAND/build/rocrand*.deb
+    - find -L $ROCM_PATH | grep rand | sort
+
 .rocm:
   extends: .setup_rocm
   needs:
-   - build:rocrand
+   - deps:rocrand
   before_script:
-    - !reference [.setup_rocm, before_script]
-    # Install rocRAND
-    - dpkg -i rocRAND/build/rocrand*.deb
-    - find -L $ROCM_PATH | grep rand | sort
+    - *setup_rocm
+    - *install_rocrand
 
 build:rocm:
   extends: .rocm
@@ -155,7 +163,7 @@ test:rocm_python:
   tags:
     - rocm-stable
   before_script:
-    - !reference [.rocm, before_script]
+    - *install_rocrand
     - $SUDO_CMD apt-get update -qq
     - $SUDO_CMD apt-get install -y -qq python python-pip python-numpy
     - $SUDO_CMD apt-get install -y -qq python3 python3-pip python3-numpy
@@ -253,6 +261,7 @@ test:rocm_install:
 
 build:nvcc:
   extends: .nvcc
+  needs: []
   stage: build
   script:
     - mkdir build
