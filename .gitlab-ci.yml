@@ -112,13 +112,8 @@ build:rocm:
   artifacts:
     paths:
       - build/library/
-      - build/test/crush_test_*
       - build/test/test_*
-      - build/test/stat_test_*
       - build/test/CTestTestfile.cmake
-      - build/benchmark/benchmark_*
-      - build/gtest/
-      - build/testu01/
       - build/CMakeCache.txt
       - build/CTestTestfile.cmake
       - build/*.deb
@@ -137,13 +132,8 @@ build:rocm-static:
   artifacts:
     paths:
       - build/library/
-      - build/test/crush_test_*
       - build/test/test_*
-      - build/test/stat_test_*
       - build/test/CTestTestfile.cmake
-      - build/benchmark/benchmark_*
-      - build/gtest/
-      - build/testu01/
       - build/CMakeCache.txt
       - build/CTestTestfile.cmake
       - build/*.deb
@@ -270,13 +260,8 @@ build:nvcc:
   artifacts:
     paths:
       - build/library/
-      - build/test/crush_test_*
       - build/test/test_*
-      - build/test/stat_test_*
       - build/test/CTestTestfile.cmake
-      - build/benchmark/benchmark_*
-      - build/gtest/
-      - build/testu01/
       - build/CMakeCache.txt
       - build/CTestTestfile.cmake
       - build/*.deb
