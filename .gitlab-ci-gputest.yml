@@ -26,10 +26,10 @@ test:rocm_s9300:
   allow_failure: true
 
 test:rocm_mi25:
-  extends: .rocm
+  extends: .rocm_static
   stage: test
   needs:
-    - !reference [.rocm, needs]
+    - !reference [.rocm_static, needs]
     - build:rocm-static
   tags:
     - mi25
