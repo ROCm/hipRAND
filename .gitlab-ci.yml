@@ -59,20 +59,24 @@ stages:
     - export CMAKE_OPTIONS=$CXXFLAGS" "$LOCAL_CMAKE_OPTIONS
     - export ROCM_PATH=/opt/rocm
 
-# Build rocRAND package from source to be used by other jobds
+# Build rocRAND package from source to be used by other jobs
+
+.checkout_rocrand: &checkout_rocrand
+  - branch_name="$ROCRAND_GIT_BRANCH"
+  - if [ $CI_COMMIT_BRANCH == develop ] || [ $CI_COMMIT_BRANCH == master ]; then branch_name=$CI_COMMIT_BRANCH;
+  - fi;
+  - git clone -b $branch_name https://gitlab-ci-token:${CI_JOB_TOKEN}@${ROCRAND_GIT_URL}
+  - cd rocRAND
+  - mkdir build
+  - cd build
+
 deps:rocrand:
   stage: deps
   extends: .setup_rocm
   variables:
     ROCRAND_GIT_BRANCH: "develop_stream"
   script:
-    - branch_name="$ROCRAND_GIT_BRANCH"
-    - if [ $CI_COMMIT_BRANCH == develop ] || [ $CI_COMMIT_BRANCH == master ]; then branch_name=$CI_COMMIT_BRANCH;
-    - fi;
-    - git clone -b $branch_name https://gitlab-ci-token:${CI_JOB_TOKEN}@${ROCRAND_GIT_URL}
-    - cd rocRAND
-    - mkdir build
-    - cd build
+    - *checkout_rocrand
     - cmake
       -D CMAKE_CXX_COMPILER=hipcc
       -D CMAKE_BUILD_TYPE=Release
@@ -88,6 +92,23 @@ deps:rocrand:
       - rocRAND/build/rocrand*.deb
     expire_in: 2 weeks
 
+deps:rocrand_static:
+  extends: deps:rocrand
+  script:
+    - *checkout_rocrand
+    - cmake
+      -D CMAKE_CXX_COMPILER=hipcc
+      -D CMAKE_BUILD_TYPE=Release
+      -D BUILD_SHARED_LIBS=OFF
+      -D BUILD_TEST=OFF
+      -D BUILD_EXAMPLE=OFF
+      -D ROCM_DEP_ROCMCORE=OFF
+      ../.
+    - cmake --build . --parallel 16
+    - $SUDO_CMD cpack
+      -G "DEB"
+
+
 .install_rocrand: &install_rocrand
     - $SUDO_CMD dpkg -i rocRAND/build/rocrand*.deb
     - find -L $ROCM_PATH | grep rand | sort
@@ -99,6 +120,11 @@ deps:rocrand:
   before_script:
     - *setup_rocm
     - *install_rocrand
+
+.rocm_static:
+  extends: .rocm
+  needs:
+    - deps:rocrand_static
 
 build:rocm:
   extends: .rocm
@@ -121,7 +147,7 @@ build:rocm:
     expire_in: 2 weeks
 
 build:rocm-static:
-  extends: .rocm
+  extends: .rocm_static
   stage: build
   script:
     - mkdir build
