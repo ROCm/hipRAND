@@ -61,7 +61,6 @@ if(HIP_COMPILER STREQUAL "nvcc")
     rocm_export_targets(
         TARGETS hip::hiprand
         NAME hiprand
-        PREFIX hiprand
         NAMESPACE hip::
         INCLUDE "${CMAKE_CURRENT_BINARY_DIR}/hiprand-fortran-config.cmake"
     )
@@ -69,7 +68,6 @@ else()
     rocm_export_targets(
         TARGETS hip::hiprand
         NAME hiprand
-        PREFIX hiprand
         NAMESPACE hip::
         DEPENDS PACKAGE hip
         INCLUDE "${CMAKE_CURRENT_BINARY_DIR}/hiprand-fortran-config.cmake"
