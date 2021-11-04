@@ -81,7 +81,7 @@ endif()
 if (WIN32)
   install (TARGETS hiprand DESTINATION "${CMAKE_INSTALL_PREFIX}/bin")
   if (BUILD_TEST)
-      install (TARGETS hiprand DESTINATION "${PROJECT_BINARY_DIR}/test")
+      install (TARGETS hiprand DESTINATION "${CMAKE_BINARY_DIR}/test")
   endif()
 endif()
 
