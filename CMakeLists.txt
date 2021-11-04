@@ -137,21 +137,17 @@ if (NOT HIPRAND_SUBMODULE)
     add_link_options(-fuse-ld=lld)
   endif()
 
-  # Set version variables
-  rocm_setup_version( VERSION "2.10.9" )
-
-  set(VERSION_VARIABLE "hipRAND_VERSION")
-
   # Print configuration summary
   include(cmake/Summary.cmake)
   print_configuration_summary()
-else()
-  set(VERSION_VARIABLE "rocRAND_VERSION")
 endif()
 
-set ( hiprand_VERSION ${${VERSION_VARIABLE}} )
+# Set version variables
+rocm_setup_version( VERSION "2.10.9" )
+
+set ( hiprand_VERSION ${hipRAND_VERSION} )
 # Old-style version number used within the library's API. rocrand_get_version should be modified.
-math(EXPR hiprand_VERSION_NUMBER "${${VERSION_VARIABLE}_MAJOR} * 100000 + ${${VERSION_VARIABLE}_MINOR} * 100 + ${${VERSION_VARIABLE}_PATCH}")
+math(EXPR hiprand_VERSION_NUMBER "${hipRAND_VERSION_MAJOR} * 100000 + ${hipRAND_VERSION_MINOR} * 100 + ${hipRAND_VERSION_PATCH}")
 set(hiprand_SOVERSION 1.1)
 
 
