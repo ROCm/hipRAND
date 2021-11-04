@@ -48,7 +48,6 @@ rocm_install(
     INCLUDE 
         "${PROJECT_SOURCE_DIR}/library/include"
         "${PROJECT_BINARY_DIR}/library/include"
-    PREFIX hiprand
     EXPORT hiprand-targets
 )
 
