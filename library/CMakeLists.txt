@@ -8,8 +8,8 @@ endif()
 
 # Configure a header file to pass the hipRAND version
 configure_file(
-    "${PROJECT_SOURCE_DIR}/library/include/hiprand_version.h.in"
-    "${PROJECT_BINARY_DIR}/library/include/hiprand_version.h"
+    "${PROJECT_SOURCE_DIR}/library/include/hiprand/hiprand_version.h.in"
+    "${PROJECT_BINARY_DIR}/library/include/hiprand/hiprand_version.h"
     @ONLY
 )
 
@@ -43,24 +43,13 @@ set_target_properties(hiprand
         INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/hiprand/lib"
 )
 
-# In windows, we require the DLLs to be in the same directory as test executables
-if (BUILD_TEST AND WIN32)
-  add_custom_command(
-      TARGET hiprand 
-      POST_BUILD
-      COMMAND ${CMAKE_COMMAND} -E copy
-          $<TARGET_FILE:hiprand>
-          ${PROJECT_BINARY_DIR}/test/$<TARGET_FILE_NAME:hiprand>
-  )
-endif()
-
 rocm_install(
     TARGETS hiprand
     INCLUDE 
-        "${CMAKE_SOURCE_DIR}/library/include"
-        "${CMAKE_BINARY_DIR}/library/include"
-    INCLUDE_SUBDIR hiprand
+        "${PROJECT_SOURCE_DIR}/library/include/hiprand"
+        "${PROJECT_BINARY_DIR}/library/include/hiprand"
     PREFIX hiprand
+    EXPORT hiprand-targets
 )
 
 set(FORTRAN_SRCS_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/hiprand/src/fortran")
@@ -72,6 +61,7 @@ configure_file(
 if(HIP_COMPILER STREQUAL "nvcc")
     rocm_export_targets(
         TARGETS hip::hiprand
+        NAME hiprand
         PREFIX hiprand
         NAMESPACE hip::
         INCLUDE "${CMAKE_CURRENT_BINARY_DIR}/hiprand-fortran-config.cmake"
@@ -79,6 +69,7 @@ if(HIP_COMPILER STREQUAL "nvcc")
 else()
     rocm_export_targets(
         TARGETS hip::hiprand
+        NAME hiprand
         PREFIX hiprand
         NAMESPACE hip::
         DEPENDS PACKAGE hip
@@ -99,44 +90,74 @@ if(BUILD_FORTRAN_WRAPPER)
     add_subdirectory(src/fortran)
 endif()
 
-rocm_install_symlink_subdir(hiprand)
-
-set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/../LICENSE.txt")
-if(WIN32)
-    set(CPACK_SOURCE_GENERATOR "ZIP")
-    set(CPACK_GENERATOR "ZIP")
-    set(CMAKE_INSTALL_PREFIX "C:/hipSDK" CACHE PATH "Install path" FORCE)
-    set(INSTALL_PREFIX "C:/hipSDK")
-    set(CPACK_SET_DESTDIR OFF)
-    set(CPACK_PACKAGE_INSTALL_DIRECTORY "C:/hipSDK")
-    set(CPACK_PACKAGING_INSTALL_PREFIX "")
-    set(CPACK_INCLUDE_TOPLEVEL_DIRECTORY OFF)
-else()
-    if(NOT CPACK_PACKAGING_INSTALL_PREFIX)
-        set(CPACK_PACKAGING_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
+function(install_symlinks SRC_DIR DEST_DIR)
+    # TODO: Check if SUBDIR is relative path Copy instead of symlink on windows
+    if(CMAKE_HOST_WIN32)
+        set(SYMLINK_CMD "file(COPY \${SRC} DESTINATION \${DEST_DIR})")
+    else()
+        set(SYMLINK_CMD "execute_process(COMMAND ln -sf \${SRC_REL} \${DEST})")
     endif()
+
+    set(INSTALL_CMD "
+        set(SRC_DIR \$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${SRC_DIR})
+        set(DEST_DIR \$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${DEST_DIR})
+        file(GLOB_RECURSE FILES FOLLOW_SYMLINKS RELATIVE \${SRC_DIR} \${SRC_DIR}/*)
+        foreach(FILE \${FILES})
+            set(SRC \${SRC_DIR}/\${FILE})
+            set(DEST \${DEST_DIR}/\${FILE})
+            get_filename_component(DEST_PARENT \${DEST} DIRECTORY)
+            file(MAKE_DIRECTORY \${DEST_PARENT})
+            file(RELATIVE_PATH SRC_REL \${DEST_PARENT} \${SRC})
+            message(STATUS \"symlink: \${SRC_REL} -> \${DEST}\")
+            ${SYMLINK_CMD}
+        endforeach()
+    ")
+    rocm_install(CODE "${INSTALL_CMD}")
+    install(CODE "${INSTALL_CMD}")
+endfunction()
+
+install_symlinks(hiprand/include/hiprand hiprand/include)
+
+install_symlinks(hiprand .)
+
+if(NOT HIPRAND_SUBMODULE)
+    set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/../LICENSE.txt")
+    if(WIN32)
+        set(CPACK_SOURCE_GENERATOR "ZIP")
+        set(CPACK_GENERATOR "ZIP")
+        set(CMAKE_INSTALL_PREFIX "C:/hipSDK" CACHE PATH "Install path" FORCE)
+        set(INSTALL_PREFIX "C:/hipSDK")
+        set(CPACK_SET_DESTDIR OFF)
+        set(CPACK_PACKAGE_INSTALL_DIRECTORY "C:/hipSDK")
+        set(CPACK_PACKAGING_INSTALL_PREFIX "")
+        set(CPACK_INCLUDE_TOPLEVEL_DIRECTORY OFF)
+    else()
+        if(NOT CPACK_PACKAGING_INSTALL_PREFIX)
+            set(CPACK_PACKAGING_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
+        endif()
+    endif()
+
+    if( HIP_RUNTIME_LOWER STREQUAL "rocclr" )
+        rocm_package_add_dependencies("hip-rocclr >= 3.5.0")
+    elseif( HIP_RUNTIME STREQUAL "cuda" )
+        rocm_package_add_dependencies("hip-nvcc >= 3.5.0")
+    endif( )
+
+    set(CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST_ADDITION "\${CPACK_PACKAGING_INSTALL_PREFIX}" "\${CPACK_PACKAGING_INSTALL_PREFIX}/include")
+
+    if(HIP_COMPILER STREQUAL "nvcc")
+        set(package_name hiprand-alt)
+    else()
+        set(package_name hiprand)
+    endif()
+
+    set(HIPRAND_CONFIG_DIR "\${CPACK_PACKAGING_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}" CACHE PATH "Path placed into ldconfig file")
+
+    rocm_create_package(
+        NAME ${package_name}
+        DESCRIPTION "Radeon Open Compute RAND library"
+        MAINTAINER "hipRAND Maintainer <hiprand-maintainer@amd.com>"
+        LDCONFIG
+        LDCONFIG_DIR ${HIPRAND_CONFIG_DIR}
+    )
 endif()
-
-if( HIP_RUNTIME_LOWER STREQUAL "rocclr" )
-    rocm_package_add_dependencies("hip-rocclr >= 3.5.0")
-elseif( HIP_RUNTIME STREQUAL "cuda" )
-    rocm_package_add_dependencies("hip-nvcc >= 3.5.0")
-endif( )
-
-set(CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST_ADDITION "\${CPACK_PACKAGING_INSTALL_PREFIX}" "\${CPACK_PACKAGING_INSTALL_PREFIX}/include")
-
-if(HIP_COMPILER STREQUAL "nvcc")
-    set(package_name hiprand-alt)
-else()
-    set(package_name hiprand)
-endif()
-
-set(HIPRAND_CONFIG_DIR "\${CPACK_PACKAGING_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}" CACHE PATH "Path placed into ldconfig file")
-
-rocm_create_package(
-    NAME ${package_name}
-    DESCRIPTION "Radeon Open Compute RAND library"
-    MAINTAINER "hipRAND Maintainer <hiprand-maintainer@amd.com>"
-    LDCONFIG
-    LDCONFIG_DIR ${HIPRAND_CONFIG_DIR}
-)
