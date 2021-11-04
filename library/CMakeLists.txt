@@ -46,8 +46,8 @@ set_target_properties(hiprand
 rocm_install(
     TARGETS hiprand
     INCLUDE 
-        "${PROJECT_SOURCE_DIR}/library/include/hiprand"
-        "${PROJECT_BINARY_DIR}/library/include/hiprand"
+        "${PROJECT_SOURCE_DIR}/library/include"
+        "${PROJECT_BINARY_DIR}/library/include"
     PREFIX hiprand
     EXPORT hiprand-targets
 )
