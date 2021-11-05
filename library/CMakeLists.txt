@@ -127,4 +127,9 @@ if(NOT HIPRAND_SUBMODULE)
         LDCONFIG
         LDCONFIG_DIR ${HIPRAND_CONFIG_DIR}
     )
+else()
+    rocm_join_if_set(", " CPACK_DEBIAN_RUNTIME_PACKAGE_PROVIDES "hiprand (= ${hipRAND_VERSION})")
+    rocm_join_if_set(", " CPACK_RPM_RUNTIME_PACKAGE_PROVIDES "hiprand = ${hipRAND_VERSION}")
+    rocm_join_if_set(", " CPACK_DEBIAN_DEVEL_PACKAGE_PROVIDES "hiprand-dev (= ${hipRAND_VERSION})")
+    rocm_join_if_set(", " CPACK_RPM_DEVEL_PACKAGE_PROVIDES "hiprand-devel = ${hipRAND_VERSION}")
 endif()
