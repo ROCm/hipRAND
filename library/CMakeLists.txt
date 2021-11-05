@@ -109,6 +109,7 @@ if(NOT HIPRAND_SUBMODULE)
     elseif( HIP_RUNTIME STREQUAL "cuda" )
         rocm_package_add_dependencies("hip-nvcc >= 3.5.0")
     endif( )
+    rocm_package_add_dependencies("rocrand >= ${hipRAND_VERSION}")
 
     set(CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST_ADDITION "\${CPACK_PACKAGING_INSTALL_PREFIX}" "\${CPACK_PACKAGING_INSTALL_PREFIX}/include")
 
