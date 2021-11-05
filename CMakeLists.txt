@@ -22,11 +22,12 @@
 
 cmake_minimum_required(VERSION 3.10.2 FATAL_ERROR)
 
-
 #
 # hipRAND project
 #
 project(hipRAND CXX)
+
+set(hipRAND_VERSION "2.10.9")
 
 set(HIPRAND_SUBMODULE OFF CACHE BOOL "Build hipRAND as a submodule of rocRAND.")
 if (NOT HIPRAND_SUBMODULE)
@@ -97,12 +98,12 @@ if (NOT HIPRAND_SUBMODULE)
 
   # Either rocRAND or hipRAND is required
   if(NOT HIP_COMPILER STREQUAL "nvcc")
-    find_package(rocrand QUIET CONFIG)
+    find_package(rocrand "${hipRAND_VERSION}" QUIET CONFIG)
     if(NOT rocrand_FOUND)
       if(WIN32)
-        find_package(rocrand REQUIRED CONFIG PATHS ${ROCRAND_PATH})
+        find_package(rocrand "${hipRAND_VERSION}" REQUIRED CONFIG PATHS ${ROCRAND_PATH})
       else()
-        find_package(rocrand REQUIRED CONFIG PATHS ${ROCM_PATH} ${ROCM_PATH}/rocrand)
+        find_package(rocrand "${hipRAND_VERSION}" REQUIRED CONFIG PATHS ${ROCM_PATH} ${ROCM_PATH}/rocrand)
       endif()
     endif()
   endif()
