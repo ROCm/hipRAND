@@ -13,6 +13,11 @@ configure_file(
     @ONLY
 )
 
+if(HIPRAND_SUBMODULE)
+    set(EXPORT_ARG "EXPORT;hiprand-targets")
+    set(NAME_ARG "NAME;hiprand")
+endif()
+
 # Build
 if(HIP_COMPILER STREQUAL "nvcc")
     set_source_files_properties(${hipRAND_SRCS} PROPERTIES LANGUAGE CUDA)
@@ -48,7 +53,7 @@ rocm_install(
     INCLUDE 
         "${PROJECT_SOURCE_DIR}/library/include"
         "${PROJECT_BINARY_DIR}/library/include"
-    EXPORT hiprand-targets
+    ${EXPORT_ARG}
 )
 
 set(FORTRAN_SRCS_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/hiprand/src/fortran")
@@ -60,14 +65,14 @@ configure_file(
 if(HIP_COMPILER STREQUAL "nvcc")
     rocm_export_targets(
         TARGETS hip::hiprand
-        NAME hiprand
+        ${NAME_ARG}
         NAMESPACE hip::
         INCLUDE "${CMAKE_CURRENT_BINARY_DIR}/hiprand-fortran-config.cmake"
     )
 else()
     rocm_export_targets(
         TARGETS hip::hiprand
-        NAME hiprand
+        ${NAME_ARG}
         NAMESPACE hip::
         DEPENDS PACKAGE hip
         INCLUDE "${CMAKE_CURRENT_BINARY_DIR}/hiprand-fortran-config.cmake"
@@ -78,7 +83,7 @@ endif()
 if (WIN32)
   install (TARGETS hiprand DESTINATION "${CMAKE_INSTALL_PREFIX}/bin")
   if (BUILD_TEST)
-      install (TARGETS hiprand DESTINATION "${CMAKE_BINARY_DIR}/test")
+      install (TARGETS hiprand DESTINATION "${PROJECT_BINARY_DIR}/test")
   endif()
 endif()
 
