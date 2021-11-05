@@ -18,7 +18,7 @@ target_include_directories(${test_hiprand}
 target_link_libraries(${test_hiprand} hiprand_fortran)
 set_target_properties(${test_hiprand}
     PROPERTIES
-        RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/test"
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/test"
 )
 
 add_relative_test(${test_hiprand} ${test_hiprand})

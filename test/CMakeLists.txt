@@ -62,7 +62,7 @@ foreach(test_src ${hipRAND_TEST_SRCS})
     endif()
     set_target_properties(${test_name}
         PROPERTIES
-            RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/test"
+            RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/test"
     )
     add_relative_test(${test_name} ${test_name})
     if (WIN32 AND NOT DEFINED DLLS_COPIED)
