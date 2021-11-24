@@ -45,7 +45,7 @@
 #endif
 /// \endcond
 
-#include "hiprand_version.h"
+#include "hiprand/hiprand_version.h"
 #ifdef HIPRAND_DOXYGEN // Only for the documentation
 /// \def HIPRAND_VERSION
 /// \brief hipRAND library version
@@ -63,9 +63,9 @@
 #endif
 
 #if defined(__HIP_PLATFORM_HCC__)
-#include "hiprand_hcc.h"
+#include "hiprand/hiprand_hcc.h"
 #elif defined(__HIP_PLATFORM_NVCC__)
-#include "hiprand_nvcc.h"
+#include "hiprand/hiprand_nvcc.h"
 #endif
 
 /// \cond HIPRAND_DOCS_TYPEDEFS
