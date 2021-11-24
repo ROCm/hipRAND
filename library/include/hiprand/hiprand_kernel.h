@@ -26,7 +26,7 @@
 #endif // QUALIFIERS
 
 #include <hip/hip_runtime.h>
-#include <hiprand.h>
+#include <hiprand/hiprand.h>
 
 /** \addtogroup hipranddevice
  *
@@ -51,9 +51,9 @@
 /** @} */ // end of group hipranddevice
 
 #ifdef __HIP_PLATFORM_HCC__
-#include "hiprand_kernel_hcc.h"
+#include "hiprand/hiprand_kernel_hcc.h"
 #else
-#include "hiprand_kernel_nvcc.h"
+#include "hiprand/hiprand_kernel_nvcc.h"
 #endif
 
 #endif // HIPRAND_KERNEL_H_

@@ -25,7 +25,7 @@
 /// @{
 
 #if defined(__HIP_PLATFORM_HCC__) || HIPRAND_DOXYGEN
-#include "hiprand_kernel.h"
+#include "hiprand/hiprand_kernel.h"
 
 /// \cond
 typedef mtgp32_params mtgp32_kernel_params_t;
@@ -84,7 +84,7 @@ hiprandStatus_t hiprandMakeMTGP32KernelState(hiprandStateMtgp32_t *s,
 
 #else // for HIP NVCC platfrom
 
-#include "hiprand_kernel.h"
+#include "hiprand/hiprand_kernel.h"
 #include <curand_mtgp32_host.h>
 
 __forceinline__ __host__
