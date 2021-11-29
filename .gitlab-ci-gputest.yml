@@ -2,6 +2,7 @@ test:rocm_vega20:
   extends: .rocm
   stage: test
   needs:
+    - !reference [.rocm, needs]
     - build:rocm
   tags:
     - vega20
@@ -9,13 +10,12 @@ test:rocm_vega20:
   script:
     - cd build
     - $SUDO_CMD ctest --output-on-failure
-    - $SUDO_CMD ./benchmark/benchmark_rocrand_generate --dis all --engine all --trials 5
-    - $SUDO_CMD ./benchmark/benchmark_rocrand_kernel --dis all --engine all --trials 5
 
 test:rocm_s9300:
   extends: .rocm
   stage: test
   needs:
+    - !reference [.rocm, needs]
     - build:rocm
   tags:
     - s9300
@@ -23,14 +23,13 @@ test:rocm_s9300:
   script:
     - cd build
     - $SUDO_CMD ctest --output-on-failure
-    - $SUDO_CMD ./benchmark/benchmark_rocrand_generate --dis all --engine all --trials 5
-    - $SUDO_CMD ./benchmark/benchmark_rocrand_kernel --dis all --engine all --trials 5
   allow_failure: true
 
 test:rocm_mi25:
-  extends: .rocm
+  extends: .rocm_static
   stage: test
   needs:
+    - !reference [.rocm_static, needs]
     - build:rocm-static
   tags:
     - mi25
@@ -38,5 +37,3 @@ test:rocm_mi25:
   script:
     - cd build
     - $SUDO_CMD ctest --output-on-failure
-    - $SUDO_CMD ./benchmark/benchmark_rocrand_generate --dis all --engine all --trials 5
-    - $SUDO_CMD ./benchmark/benchmark_rocrand_kernel --dis all --engine all --trials 5

@@ -1,6 +1,11 @@
 # Package test
 cmake_minimum_required(VERSION 3.5.1 FATAL_ERROR)
 
+if(DEFINED ENV{ROCM_PATH})
+  set (ROCM_PATH "$ENV{ROCM_PATH}" CACHE PATH "The path to the ROCm installation.")
+endif()
+set (ROCM_PATH "/opt/rocm" CACHE PATH "The path to the ROCm installation.")
+
 project(hiprand_package_test CXX)
 
 # CMake modules
@@ -62,6 +67,23 @@ file(GLOB hiprand_pkg_TEST_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/test_hiprand*.cpp)
 # Enable testing (ctest)
 enable_testing()
 
+function(add_relative_test test_name test_target)
+    get_target_property(EXE_PATH ${test_target} RUNTIME_OUTPUT_DIRECTORY)
+    if(EXE_PATH STREQUAL "EXE_PATH-NOTFOUND")
+        set(EXE_PATH ".")
+    endif()
+    get_filename_component(EXE_PATH "${EXE_PATH}" ABSOLUTE BASE_DIR "${CMAKE_CURRENT_BINARY_DIR}")
+    get_target_property(EXE_NAME ${test_target} RUNTIME_OUTPUT_NAME)
+    if(EXE_NAME STREQUAL "EXE_NAME-NOTFOUND")
+        get_target_property(EXE_NAME ${test_target} OUTPUT_NAME)
+        if(EXE_NAME STREQUAL "EXE_NAME-NOTFOUND")
+            set(EXE_NAME "${test_target}")
+        endif()
+    endif()
+    file(RELATIVE_PATH rel_path "${CMAKE_CURRENT_BINARY_DIR}" "${EXE_PATH}/${EXE_NAME}")
+    add_test(NAME "${test_name}" COMMAND "./${rel_path}")
+endfunction()
+
 # Build
 foreach(test_src ${hiprand_pkg_TEST_SRCS})
     get_filename_component(test_name ${test_src} NAME_WE)
@@ -70,7 +92,6 @@ foreach(test_src ${hiprand_pkg_TEST_SRCS})
         target_link_libraries(${test_name}
             PRIVATE
                 hip::hiprand
-                roc::rocrand
                 "-L${HIP_ROOT_DIR}/lib -Wl,-rpath,${HIP_ROOT_DIR}/lib"
         )
     else()
