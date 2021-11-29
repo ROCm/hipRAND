@@ -32,10 +32,13 @@ from .hip import load_hip, HIP_PATHS
 from .hip import empty, DeviceNDArray, device_pointer
 
 from .utils import find_library, expand_paths
-from .finalize import track_for_finalization
 
+# Finalize is only supported by python >= 3.4
+try:
+  from weakref import finalize
+except ImportError:
+  from backports.weakref import finalize
 
-hiprand = None
 
 HIPRAND_PATHS = [
         os.getenv("HIPRAND_PATH"),
@@ -52,7 +55,15 @@ def load_hiprand():
 
     load_hip()
 
-load_hiprand()
+# Delay the loading of hiprand to the first use
+# so no code is executed when loading this module 
+class _load_hiprand_on_access(object):
+    def __getattribute__(self, name):
+        global hiprand
+        load_hiprand()
+        return getattr(hiprand, name)
+
+hiprand = _load_hiprand_on_access()
 
 HIPRAND_RNG_PSEUDO_DEFAULT = 400
 HIPRAND_RNG_PSEUDO_XORWOW = 401
@@ -151,7 +162,7 @@ class RNG(object):
     def __init__(self, rngtype, offset=None, stream=None):
         self._gen = c_void_p()
         check_hiprand(hiprand.hiprandCreateGenerator(byref(self._gen), rngtype))
-        track_for_finalization(self, self._gen, RNG._finalize)
+        finalize(self, RNG._finalize, self._gen)
 
         self._offset = 0
         if offset is not None:
