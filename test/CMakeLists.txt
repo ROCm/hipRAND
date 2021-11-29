@@ -71,7 +71,6 @@ foreach(test_src ${hipRAND_TEST_SRCS})
       # for now adding in all .dll as dependency chain is not cmake based on win32
       if(NOT HIPRAND_SUBMODULE)
         set(ROCRAND_DLLS "${ROCRAND_PATH}/bin/rocrand.dll")
-        message(WARNING "Also copy rocRAND dll.")
       endif()
       file( GLOB third_party_dlls
       LIST_DIRECTORIES ON
