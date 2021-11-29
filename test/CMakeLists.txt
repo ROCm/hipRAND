@@ -69,7 +69,7 @@ foreach(test_src ${hipRAND_TEST_SRCS})
       set(DLLS_COPIED "YES")
       set(DLLS_COPIED ${DLLS_COPIED} PARENT_SCOPE)
       # for now adding in all .dll as dependency chain is not cmake based on win32
-      if(HIPRAND_SUBMODULE)
+      if(NOT HIPRAND_SUBMODULE)
         set(ROCRAND_DLLS "${ROCRAND_PATH}/bin/rocrand.dll")
       endif()
       file( GLOB third_party_dlls
@@ -81,7 +81,7 @@ foreach(test_src ${hipRAND_TEST_SRCS})
       ${CMAKE_SOURCE_DIR}/rtest.*
       )
       foreach( file_i ${third_party_dlls})
-        add_custom_command( TARGET ${test_name} POST_BUILD COMMAND ${CMAKE_COMMAND} ARGS -E copy_if_different ${file_i} ${PROJECT_BINARY_DIR}/test )
+        add_custom_command( TARGET ${test_name} POST_BUILD COMMAND ${CMAKE_COMMAND} ARGS -E copy_if_different ${file_i} ${CMAKE_BINARY_DIR}/test )
       endforeach( file_i )
     endif()       
 endforeach()

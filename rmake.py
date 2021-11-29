@@ -39,7 +39,7 @@ def parse_args():
                         help='Set GPU architectures, e.g. all, gfx000, gfx803, gfx906:xnack-;gfx1030 (optional, default: all)')
     parser.add_argument('-v', '--verbose', required=False, default=False, action='store_true',
                         help='Verbose build (default: False)')
-    parser.add_argument('--rocrand-path', dest='rocrand_path', type=str, default="C:/hipSDK/rocrand", help="Set specific path to custom build rocRAND (optional)")
+    parser.add_argument('--rocrand-path', dest='rocrand_path', type=str, default="C:/hipSDK", help="Set specific path to custom build rocRAND (optional)")
     return parser.parse_args()
 
 def os_detect():
