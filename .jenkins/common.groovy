@@ -23,7 +23,7 @@ def runCompileCommand(platform, project, jobName, boolean debug=false, boolean s
     //Set CI node's gfx arch as target if PR, otherwise use default targets of the library
     String amdgpuTargets = env.BRANCH_NAME.startsWith('PR-') ? '-DAMDGPU_TARGETS=\$gfx_arch' : ''
     String compiler = '/opt/rocm/bin/hipcc'
-    String useCUDA = '/opt/rocm/bin/hipcc'
+    String useCUDA = ''
     if (platform.jenkinsLabel.contains('cuda'))
     {
         compiler = 'g++'
