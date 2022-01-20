@@ -97,7 +97,7 @@ if (NOT HIPRAND_SUBMODULE)
   endif()
 
   # Either rocRAND or hipRAND is required
-  if(NOT HIP_COMPILER STREQUAL "nvcc")
+  if(NOT BUILD_WITH_LIB STREQUAL "CUDA")
     find_package(rocrand "${hipRAND_VERSION}" QUIET CONFIG)
     if(NOT rocrand_FOUND)
       if(WIN32)
