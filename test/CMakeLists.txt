@@ -25,7 +25,7 @@ foreach(test_src ${hipRAND_TEST_SRCS})
     get_filename_component(test_name ${test_src} NAME_WE)
     add_executable(${test_name} ${test_src})
     # nvcc/CUDA
-    IF (BUILD_WITH_LIB STREQUAL "CUDA")
+    if (BUILD_WITH_LIB STREQUAL "CUDA")
       set_source_files_properties(${test_name}
         PROPERTIES
           LANGUAGE CUDA
@@ -48,7 +48,7 @@ foreach(test_src ${hipRAND_TEST_SRCS})
             GTest::gtest_main
         )
     endif()
-    IF (BUILD_WITH_LIB STREQUAL "CUDA")
+    if (BUILD_WITH_LIB STREQUAL "CUDA")
         target_link_libraries(${test_name}
             hiprand
             ${CUDA_curand_LIBRARY}

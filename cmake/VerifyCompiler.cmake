@@ -30,7 +30,7 @@ else()
   find_package(hip REQUIRED CONFIG PATHS ${ROCM_PATH})
 endif()
 
-IF (BUILD_WITH_LIB STREQUAL "CUDA")
+if (BUILD_WITH_LIB STREQUAL "CUDA")
     if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
         include(SetupNVCC)
     else()
