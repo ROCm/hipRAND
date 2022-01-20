@@ -73,7 +73,7 @@ include(ROCMInstallSymlinks)
 include(ROCMCheckTargetIds)
 include(ROCMUtilities)
 
-if (NOT USE_CUDA)
+if (NOT BUILD_WITH_LIB STREQUAL "CUDA")
   set( AMDGPU_TARGETS "all" CACHE STRING "Compile for which gpu architectures?")
   # Set the AMDGPU_TARGETS with backward compatiblity
   rocm_check_target_ids(DEFAULT_AMDGPU_TARGETS

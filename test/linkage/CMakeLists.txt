@@ -7,7 +7,7 @@ function(add_hiprand_link_test TEST_SOURCES)
     get_filename_component(TEST_TARGET ${TEST_MAIN_SOURCE} NAME_WE)
     add_executable(${TEST_TARGET} ${TEST_SOURCES})
     # nvcc/CUDA
-    if (USE_CUDA)
+    IF (BUILD_WITH_LIB STREQUAL "CUDA")
       set_source_files_properties(${TEST_SOURCES}
         PROPERTIES
           LANGUAGE CUDA
@@ -29,7 +29,7 @@ function(add_hiprand_link_test TEST_SOURCES)
             GTest::gtest_main
         )
     endif()
-    if (USE_CUDA)
+    IF (BUILD_WITH_LIB STREQUAL "CUDA")
         target_link_libraries(${TEST_TARGET}
             hiprand
             ${CUDA_curand_LIBRARY}

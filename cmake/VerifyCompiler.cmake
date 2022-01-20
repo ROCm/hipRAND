@@ -21,7 +21,7 @@
 # SOFTWARE.
 
 list(APPEND CMAKE_PREFIX_PATH ${ROCM_PATH} ${ROCM_PATH}/hip)
-if(USE_CUDA)
+if(BUILD_WITH_LIB STREQUAL "CUDA")
     find_package(hip QUIET CONFIG PATHS ${ROCM_PATH})
     if(NOT hip_FOUND)
         find_package(HIP REQUIRED)
@@ -30,7 +30,7 @@ else()
   find_package(hip REQUIRED CONFIG PATHS ${ROCM_PATH})
 endif()
 
-if (USE_CUDA)
+IF (BUILD_WITH_LIB STREQUAL "CUDA")
     if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
         include(SetupNVCC)
     else()

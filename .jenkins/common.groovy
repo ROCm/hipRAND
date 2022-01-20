@@ -27,7 +27,7 @@ def runCompileCommand(platform, project, jobName, boolean debug=false, boolean s
     if (platform.jenkinsLabel.contains('cuda'))
     {
         compiler = 'g++'
-        useCUDA = '-DUSE_CUDA=ON'
+        useCUDA = '-DBUILD_WITH_LIB=CUDA'
         amdgpuTargets = ''
     }
 
