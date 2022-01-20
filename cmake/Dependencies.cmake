@@ -73,20 +73,22 @@ include(ROCMInstallSymlinks)
 include(ROCMCheckTargetIds)
 include(ROCMUtilities)
 
-set( AMDGPU_TARGETS "all" CACHE STRING "Compile for which gpu architectures?")
-# Set the AMDGPU_TARGETS with backward compatiblity
-rocm_check_target_ids(DEFAULT_AMDGPU_TARGETS
-    TARGETS "gfx803;gfx900:xnack-;gfx906:xnack-;gfx908:xnack-;gfx90a:xnack-;gfx90a:xnack+;gfx1030"
-)
-if (AMDGPU_TARGETS)
-    if( AMDGPU_TARGETS STREQUAL "all" )
-      set( gpus "${DEFAULT_AMDGPU_TARGETS}")
-    else()
-      set( gpus "${AMDGPU_TARGETS}")
-    endif()
-    # must FORCE set this AMDGPU_TARGETS before any find_package( hip ...), in this file
-    # to override CACHE var and set --offload-arch flags via hip-config.cmake hip::device dependency
-    set( AMDGPU_TARGETS "${gpus}" CACHE STRING "AMD GPU targets to compile for" FORCE )
+if (NOT USE_CUDA)
+  set( AMDGPU_TARGETS "all" CACHE STRING "Compile for which gpu architectures?")
+  # Set the AMDGPU_TARGETS with backward compatiblity
+  rocm_check_target_ids(DEFAULT_AMDGPU_TARGETS
+      TARGETS "gfx803;gfx900:xnack-;gfx906:xnack-;gfx908:xnack-;gfx90a:xnack-;gfx90a:xnack+;gfx1030"
+  )
+  if (AMDGPU_TARGETS)
+      if( AMDGPU_TARGETS STREQUAL "all" )
+        set( gpus "${DEFAULT_AMDGPU_TARGETS}")
+      else()
+        set( gpus "${AMDGPU_TARGETS}")
+      endif()
+      # must FORCE set this AMDGPU_TARGETS before any find_package( hip ...), in this file
+      # to override CACHE var and set --offload-arch flags via hip-config.cmake hip::device dependency
+      set( AMDGPU_TARGETS "${gpus}" CACHE STRING "AMD GPU targets to compile for" FORCE )
+  endif()
 endif()
 
 # For downloading, building, and installing required dependencies
