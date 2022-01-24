@@ -31,6 +31,10 @@ set(hipRAND_VERSION "2.10.9")
 
 set(HIPRAND_SUBMODULE OFF CACHE BOOL "Build hipRAND as a submodule of rocRAND.")
 if (NOT HIPRAND_SUBMODULE)
+  # Print configuration summary
+  include(cmake/Summary.cmake)
+  print_configuration_summary()
+
   if(DEFINED ENV{ROCM_PATH})
     set (ROCM_PATH "$ENV{ROCM_PATH}" CACHE PATH "The path to the ROCm installation.")
   endif()
@@ -74,6 +78,8 @@ if (NOT HIPRAND_SUBMODULE)
 
   # Include cmake scripts
   include(cmake/Dependencies.cmake)
+
+  print_configuration_summary()
 
   # Detect compiler support for target ID
   # This section is deprecated. Please use rocm_check_target_ids for future use.
@@ -138,8 +144,6 @@ if (NOT HIPRAND_SUBMODULE)
     add_link_options(-fuse-ld=lld)
   endif()
 
-  # Print configuration summary
-  include(cmake/Summary.cmake)
   print_configuration_summary()
 endif()
 
