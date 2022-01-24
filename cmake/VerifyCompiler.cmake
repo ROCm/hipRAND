@@ -22,10 +22,7 @@
 
 list(APPEND CMAKE_PREFIX_PATH ${ROCM_PATH} ${ROCM_PATH}/hip)
 if(BUILD_WITH_LIB STREQUAL "CUDA")
-    find_package(hip QUIET CONFIG PATHS ${ROCM_PATH})
-    if(NOT hip_FOUND)
-        find_package(HIP REQUIRED)
-    endif()
+    find_package(HIP REQUIRED)
 else()
   find_package(hip REQUIRED CONFIG PATHS ${ROCM_PATH})
 endif()
