@@ -20,12 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-list(APPEND CMAKE_PREFIX_PATH ${ROCM_PATH} ${ROCM_PATH}/hip)
-if(BUILD_WITH_LIB STREQUAL "CUDA")
-    find_package(HIP MODULE REQUIRED)
-else()
-  find_package(hip REQUIRED CONFIG PATHS ${ROCM_PATH})
-endif()
+
 
 if (BUILD_WITH_LIB STREQUAL "CUDA")
     if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
@@ -42,4 +37,12 @@ elseif(HIP_COMPILER STREQUAL "hcc" OR HIP_COMPILER STREQUAL "clang")
     endif()
 else()
     message(FATAL_ERROR "HIP_COMPILER must be 'hcc' or 'clang' (AMD ROCm platform) or `nvcc` (NVIDIA CUDA platform).")
+endif()
+
+
+list(APPEND CMAKE_PREFIX_PATH ${ROCM_PATH} ${ROCM_PATH}/hip)
+if(BUILD_WITH_LIB STREQUAL "CUDA")
+    find_package(HIP MODULE REQUIRED)
+else()
+  find_package(hip REQUIRED CONFIG PATHS ${ROCM_PATH})
 endif()
