@@ -24,7 +24,7 @@
 /// \addtogroup hipranddevice
 /// @{
 
-#if defined(__HIP_PLATFORM_HCC__) || HIPRAND_DOXYGEN
+#if #if defined(__HIP_PLATFORM_HCC__) || defined(__HIP_PLATFORM_AMD__) || HIPRAND_DOXYGEN
 #include "hiprand/hiprand_kernel.h"
 
 /// \cond
