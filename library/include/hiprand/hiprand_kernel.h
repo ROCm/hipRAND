@@ -50,7 +50,7 @@
 #define HIPRAND_MRG32K3A_DEFAULT_SEED 12345ULL
 /** @} */ // end of group hipranddevice
 
-#ifdef __HIP_PLATFORM_HCC__
+#if defined(__HIP_PLATFORM_HCC__) || defined(__HIP_PLATFORM_AMD__)
 #include "hiprand/hiprand_kernel_hcc.h"
 #else
 #include "hiprand/hiprand_kernel_nvcc.h"
