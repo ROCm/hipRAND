@@ -98,7 +98,7 @@ endif()
 
 if(BUILD_FILE_REORG_BACKWARD_COMPATIBILITY)
     rocm_install(
-        DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/library/hiprand"
+        DIRECTORY "${PROJECT_BINARY_DIR}/library/hiprand"
         DESTINATION "."
     )
 endif()
@@ -114,13 +114,6 @@ endif()
 # Fortran wrappers for hipRAND and rocRAND
 if(BUILD_FORTRAN_WRAPPER)
     add_subdirectory(src/fortran)
-endif()
-
-if (BUILD_FILE_REORG_BACKWARD_COMPATIBILITY)
-    rocm_install(
-    DIRECTORY
-       "${PROJECT_BINARY_DIR}/library/hiprand/"
-        DESTINATION "." )
 endif()
 
 if(NOT HIPRAND_SUBMODULE)
