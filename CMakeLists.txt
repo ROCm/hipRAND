@@ -159,6 +159,8 @@ add_subdirectory(library)
 
 # Tests
 if (BUILD_TEST)
+    rocm_package_setup_component(clients)
+    rocm_package_setup_client_component(tests)
     enable_testing()
     add_subdirectory(test)
 endif()

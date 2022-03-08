@@ -45,6 +45,7 @@ function(add_hiprand_link_test TEST_SOURCES)
         PROPERTIES
             RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/test"
     )
+    rocm_install(TARGETS ${TEST_TARGET} COMPONENT tests)
     add_relative_test(${TEST_TARGET} ${TEST_TARGET})
 endfunction()
 
