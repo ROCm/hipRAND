@@ -20,5 +20,6 @@ set_target_properties(${test_hiprand}
     PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/test"
 )
+rocm_install(TARGETS ${test_hiprand} COMPONENT tests)
 
 add_relative_test(${test_hiprand} ${test_hiprand})
