@@ -138,6 +138,9 @@ if (NOT HIPRAND_SUBMODULE)
     add_link_options(-fuse-ld=lld)
   endif()
 
+  # FOR HANDLING ENABLE/DISABLE OPTIONAL BACKWARD COMPATIBILITY for FILE/FOLDER REORG
+  option(BUILD_FILE_REORG_BACKWARD_COMPATIBILITY "Build with file/folder reorg with backward compatibility enabled" ON)
+
   # Print configuration summary
   include(cmake/Summary.cmake)
   print_configuration_summary()
