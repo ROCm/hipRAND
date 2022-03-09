@@ -25,9 +25,9 @@ cmake_minimum_required(VERSION 3.10.2 FATAL_ERROR)
 #
 # hipRAND project
 #
-project(hipRAND CXX)
+project(hiprand CXX)
 
-set(hipRAND_VERSION "2.10.9")
+set(hiprand_VERSION "2.10.9")
 
 set(HIPRAND_SUBMODULE OFF CACHE BOOL "Build hipRAND as a submodule of rocRAND.")
 if (NOT HIPRAND_SUBMODULE)
@@ -98,12 +98,12 @@ if (NOT HIPRAND_SUBMODULE)
 
   # Either rocRAND or hipRAND is required
   if(NOT HIP_COMPILER STREQUAL "nvcc")
-    find_package(rocrand "${hipRAND_VERSION}" QUIET CONFIG)
+    find_package(rocrand "${hiprand_VERSION}" QUIET CONFIG)
     if(NOT rocrand_FOUND)
       if(WIN32)
-        find_package(rocrand "${hipRAND_VERSION}" REQUIRED CONFIG PATHS ${ROCRAND_PATH} $ENV{ROCRAND_DIR})
+        find_package(rocrand "${hiprand_VERSION}" REQUIRED CONFIG PATHS ${ROCRAND_PATH} $ENV{ROCRAND_DIR})
       else()
-        find_package(rocrand "${hipRAND_VERSION}" REQUIRED CONFIG PATHS ${ROCM_PATH} ${ROCM_PATH}/rocrand)
+        find_package(rocrand "${hiprand_VERSION}" REQUIRED CONFIG PATHS ${ROCM_PATH} ${ROCM_PATH}/rocrand)
       endif()
     endif()
   endif()
@@ -146,9 +146,9 @@ endif()
 # Set version variables
 rocm_setup_version( VERSION "2.10.9" )
 
-set ( hiprand_VERSION ${hipRAND_VERSION} )
+set ( hiprand_VERSION ${hiprand_VERSION} )
 # Old-style version number used within the library's API. rocrand_get_version should be modified.
-math(EXPR hiprand_VERSION_NUMBER "${hipRAND_VERSION_MAJOR} * 100000 + ${hipRAND_VERSION_MINOR} * 100 + ${hipRAND_VERSION_PATCH}")
+math(EXPR hiprand_VERSION_NUMBER "${hiprand_VERSION_MAJOR} * 100000 + ${hiprand_VERSION_MINOR} * 100 + ${hiprand_VERSION_PATCH}")
 set(hiprand_SOVERSION 1.1)
 
 
