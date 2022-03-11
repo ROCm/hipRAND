@@ -13,7 +13,7 @@ set(test_hiprand "test_hiprand_fortran_wrapper")
 add_executable(${test_hiprand} "${FRUIT_SRCS}" "${FRUIT_HELPER_SRCS}" "${FORTRAN_HIPRAND_TEST}")
 target_include_directories(${test_hiprand}
     PRIVATE
-        "${PROJECT_BINARY_DIR}/library/fortran"
+        "$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/library/fortran>"
 )
 target_link_libraries(${test_hiprand} hiprand_fortran)
 set_target_properties(${test_hiprand}
