@@ -144,6 +144,11 @@ if (NOT HIPRAND_SUBMODULE)
   # Print configuration summary
   include(cmake/Summary.cmake)
   print_configuration_summary()
+
+  if(BUILD_TEST)
+    rocm_package_setup_component(clients)
+    rocm_package_setup_client_component(tests)
+  endif()
 endif()
 
 # Set version variables
@@ -153,7 +158,6 @@ set ( hiprand_VERSION ${hipRAND_VERSION} )
 # Old-style version number used within the library's API. rocrand_get_version should be modified.
 math(EXPR hiprand_VERSION_NUMBER "${hipRAND_VERSION_MAJOR} * 100000 + ${hipRAND_VERSION_MINOR} * 100 + ${hipRAND_VERSION_PATCH}")
 set(hiprand_SOVERSION 1.1)
-
 
 # hipRAND library
 # This adds library targets: hiprand,
