@@ -73,6 +73,7 @@ include(ROCMInstallSymlinks)
 include(ROCMCheckTargetIds)
 include(ROCMUtilities)
 include(ROCMClients)
+include(ROCMHeaderWrapper)
 
 set( AMDGPU_TARGETS "all" CACHE STRING "Compile for which gpu architectures?")
 # Set the AMDGPU_TARGETS with backward compatiblity
