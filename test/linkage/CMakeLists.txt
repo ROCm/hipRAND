@@ -16,7 +16,7 @@ function(add_hiprand_link_test TEST_SOURCES)
     endif()
     target_include_directories(${TEST_TARGET}
         PUBLIC
-            ${PROJECT_SOURCE_DIR}/library/src
+            $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/library/src>
     )
     if(TARGET GTest::GTest)
         target_link_libraries(${TEST_TARGET}
@@ -45,6 +45,7 @@ function(add_hiprand_link_test TEST_SOURCES)
         PROPERTIES
             RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/test"
     )
+    rocm_install(TARGETS ${TEST_TARGET} COMPONENT tests)
     add_relative_test(${TEST_TARGET} ${TEST_TARGET})
 endfunction()
 
