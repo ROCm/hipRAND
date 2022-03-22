@@ -29,7 +29,7 @@
 find_package(Git REQUIRED)
 
 # Find or download/install rocm-cmake project
-find_package(ROCM 0.7 QUIET CONFIG PATHS ${ROCM_PATH})
+find_package(ROCM 0.7.3 QUIET CONFIG PATHS ${ROCM_PATH})
 if(NOT ROCM_FOUND)
     set(PROJECT_EXTERN_DIR "${CMAKE_CURRENT_BINARY_DIR}/deps")
     file( TO_NATIVE_PATH "${PROJECT_EXTERN_DIR}" PROJECT_EXTERN_DIR_NATIVE)
@@ -62,7 +62,7 @@ if(NOT ROCM_FOUND)
     if(rocm_cmake_unpack_error_code)
         message(FATAL_ERROR "Error: unpacking ${CMAKE_CURRENT_BINARY_DIR}/rocm-cmake-${rocm_cmake_tag}.zip failed")
     endif()
-    find_package(ROCM 0.7 REQUIRED CONFIG PATHS ${PROJECT_EXTERN_DIR})
+    find_package(ROCM 0.7.3 REQUIRED CONFIG PATHS ${PROJECT_EXTERN_DIR})
 endif()
 
 include(ROCMSetupVersion)
@@ -72,6 +72,8 @@ include(ROCMPackageConfigHelpers)
 include(ROCMInstallSymlinks)
 include(ROCMCheckTargetIds)
 include(ROCMUtilities)
+include(ROCMClients)
+include(ROCMHeaderWrapper)
 
 if (NOT BUILD_WITH_LIB STREQUAL "CUDA")
   set( AMDGPU_TARGETS "all" CACHE STRING "Compile for which gpu architectures?")

@@ -144,7 +144,17 @@ if (NOT HIPRAND_SUBMODULE)
     add_link_options(-fuse-ld=lld)
   endif()
 
+  # FOR HANDLING ENABLE/DISABLE OPTIONAL BACKWARD COMPATIBILITY for FILE/FOLDER REORG
+  option(BUILD_FILE_REORG_BACKWARD_COMPATIBILITY "Build with file/folder reorg with backward compatibility enabled" ON)
+
+  # Print configuration summary
+  include(cmake/Summary.cmake)
   print_configuration_summary()
+
+  if(BUILD_TEST)
+    rocm_package_setup_component(clients)
+    rocm_package_setup_client_component(tests)
+  endif()
 endif()
 
 # Set version variables
@@ -154,7 +164,6 @@ set ( hiprand_VERSION ${hipRAND_VERSION} )
 # Old-style version number used within the library's API. rocrand_get_version should be modified.
 math(EXPR hiprand_VERSION_NUMBER "${hipRAND_VERSION_MAJOR} * 100000 + ${hipRAND_VERSION_MINOR} * 100 + ${hipRAND_VERSION_PATCH}")
 set(hiprand_SOVERSION 1.1)
-
 
 # hipRAND library
 # This adds library targets: hiprand,
