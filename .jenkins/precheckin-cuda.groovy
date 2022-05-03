@@ -72,7 +72,7 @@ ci: {
     {
         properties(auxiliary.addCommonProperties([pipelineTriggers([cron('0 1 * * 6')])]))
         stage(urlJobName) {
-            runCI(['ubuntu20-cuda11':['anycuda']], urlJobName)
+            runCI(['ubuntu20-cuda11':['anycuda'],'centos8-cuda11':['anycuda']], urlJobName)
         }
     }
 }
