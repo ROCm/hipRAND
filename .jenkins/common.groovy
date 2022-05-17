@@ -51,7 +51,7 @@ def runTestCommand (platform, project)
     String sudo = auxiliary.sudo(platform.jenkinsLabel)
     String centos = platform.jenkinsLabel.contains('centos') ? '3' : ''
 
-    def extraArgs = platform.jenkinsLabel.contains('cuda') ? "-E hiprand_linkage_tests" : ""
+    def extraArgs = platform.jenkinsLabel.contains('cuda') ? "-E test_hiprand_linkage" : ""
     def testCommand = "ctest${centos} ${extraArgs} --output-on-failure"
 
     def command = """#!/usr/bin/env bash
