@@ -50,8 +50,9 @@ def runTestCommand (platform, project)
 {
     String sudo = auxiliary.sudo(platform.jenkinsLabel)
     String centos = platform.jenkinsLabel.contains('centos') ? '3' : ''
-    // Disable xorwow test for now as it is a known failure with gfx90a.
-    def testCommand = "ctest${centos} --output-on-failure"
+
+    def extraArgs = platform.jenkinsLabel.contains('cuda') ? "-E hiprand_linkage_tests" : ""
+    def testCommand = "ctest${centos} ${extraArgs} --output-on-failure"
 
     def command = """#!/usr/bin/env bash
                 set -x
