@@ -21,20 +21,13 @@
 # SOFTWARE.
 
 list(APPEND CMAKE_PREFIX_PATH ${ROCM_PATH} ${ROCM_PATH}/hip)
-if(CMAKE_CXX_COMPILER MATCHES ".*/nvcc$" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-    find_package(hip QUIET CONFIG PATHS ${ROCM_PATH})
-    if(NOT hip_FOUND)
-        find_package(HIP REQUIRED)
-    endif()
-    if((HIP_COMPILER STREQUAL "hcc") OR (HIP_COMPILER STREQUAL "clang"))
-       # TODO: The HIP package on NVIDIA platform is incorrect at few versions
-       set(HIP_COMPILER "nvcc" CACHE STRING "HIP Compiler" FORCE)
-    endif()
+if(BUILD_WITH_LIB STREQUAL "CUDA")
+    find_package(HIP MODULE REQUIRED)
 else()
   find_package(hip REQUIRED CONFIG PATHS ${ROCM_PATH})
 endif()
 
-if(HIP_COMPILER STREQUAL "nvcc")
+if (BUILD_WITH_LIB STREQUAL "CUDA")
     if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
         include(SetupNVCC)
     else()

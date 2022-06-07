@@ -1,6 +1,6 @@
 # hipRAND library
 # Get hipRAND sources
-if(HIP_COMPILER STREQUAL "nvcc")
+if (BUILD_WITH_LIB STREQUAL "CUDA")
     set(hipRAND_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/src/nvcc_detail/hiprand.cpp)
 else()
     set(hipRAND_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/src/hcc_detail/hiprand.cpp)
@@ -32,7 +32,7 @@ if(BUILD_FILE_REORG_BACKWARD_COMPATIBILITY)
 endif()
 
 # Build
-if(HIP_COMPILER STREQUAL "nvcc")
+if (BUILD_WITH_LIB STREQUAL "CUDA")
     set_source_files_properties(${hipRAND_SRCS} PROPERTIES LANGUAGE CUDA)
     set(CUDA_HOST_COMPILER ${CMAKE_CXX_COMPILER})
 endif()
@@ -43,7 +43,7 @@ add_library(hip::hiprand ALIAS hiprand)
 # This will be removed with upcoming packaging changes.
 target_include_directories(hiprand INTERFACE $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/include/hiprand>)
 
-if(HIP_COMPILER STREQUAL "nvcc")
+if (BUILD_WITH_LIB STREQUAL "CUDA")
     target_link_libraries(hiprand
         ${CUDA_curand_LIBRARY}
     )
@@ -79,7 +79,7 @@ configure_file(
     ${CMAKE_CURRENT_BINARY_DIR}/hiprand-fortran-config.cmake
 )
 
-if(HIP_COMPILER STREQUAL "nvcc")
+if (BUILD_WITH_LIB STREQUAL "CUDA")
     rocm_export_targets(
         TARGETS hip::hiprand
         NAME hiprand
@@ -142,7 +142,7 @@ if(NOT HIPRAND_SUBMODULE)
 
     set(CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST_ADDITION "\${CPACK_PACKAGING_INSTALL_PREFIX}" "\${CPACK_PACKAGING_INSTALL_PREFIX}/include")
 
-    if(HIP_COMPILER STREQUAL "nvcc")
+    if (BUILD_WITH_LIB STREQUAL "CUDA")
         set(package_name hiprand-alt)
     else()
         set(package_name hiprand)

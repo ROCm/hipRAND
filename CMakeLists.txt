@@ -31,6 +31,10 @@ set(hipRAND_VERSION "2.10.9")
 
 set(HIPRAND_SUBMODULE OFF CACHE BOOL "Build hipRAND as a submodule of rocRAND.")
 if (NOT HIPRAND_SUBMODULE)
+  # Print configuration summary
+  include(cmake/Summary.cmake)
+  print_configuration_summary()
+
   if(DEFINED ENV{ROCM_PATH})
     set (ROCM_PATH "$ENV{ROCM_PATH}" CACHE PATH "The path to the ROCm installation.")
   endif()
@@ -75,6 +79,8 @@ if (NOT HIPRAND_SUBMODULE)
   # Include cmake scripts
   include(cmake/Dependencies.cmake)
 
+  print_configuration_summary()
+
   # Detect compiler support for target ID
   # This section is deprecated. Please use rocm_check_target_ids for future use.
   if( CMAKE_CXX_COMPILER MATCHES ".*/hipcc$" )
@@ -97,7 +103,7 @@ if (NOT HIPRAND_SUBMODULE)
   endif()
 
   # Either rocRAND or hipRAND is required
-  if(NOT HIP_COMPILER STREQUAL "nvcc")
+  if(NOT BUILD_WITH_LIB STREQUAL "CUDA")
     find_package(rocrand "${hipRAND_VERSION}" QUIET CONFIG)
     if(NOT rocrand_FOUND)
       if(WIN32)
