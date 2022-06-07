@@ -22,6 +22,14 @@ def runCompileCommand(platform, project, jobName, boolean debug=false, boolean s
     String cmake = platform.jenkinsLabel.contains('centos') ? 'cmake3' : 'cmake'
     //Set CI node's gfx arch as target if PR, otherwise use default targets of the library
     String amdgpuTargets = env.BRANCH_NAME.startsWith('PR-') ? '-DAMDGPU_TARGETS=\$gfx_arch' : ''
+    String compiler = '/opt/rocm/bin/hipcc'
+    String useCUDA = ''
+    if (platform.jenkinsLabel.contains('cuda'))
+    {
+        compiler = 'g++'
+        useCUDA = '-DBUILD_WITH_LIB=CUDA'
+        amdgpuTargets = ''
+    }
 
     def command = """#!/usr/bin/env bash
                 set -x
@@ -31,7 +39,7 @@ def runCompileCommand(platform, project, jobName, boolean debug=false, boolean s
                 # gfxTargetParser reads gfxarch and adds target features such as xnack
                 ${auxiliary.gfxTargetParser()}
                 echo "ROCM_PATH = \${ROCM_PATH}"
-                ${cmake} -DCMAKE_CXX_COMPILER=/opt/rocm/bin/hipcc ${buildTypeArg} ${buildStatic} ${amdgpuTargets} -DBUILD_TEST=ON -DBUILD_BENCHMARK=ON ../..
+                ${cmake} -DCMAKE_CXX_COMPILER=${compiler} ${useCUDA} ${buildTypeArg} ${buildStatic} ${amdgpuTargets} -DBUILD_TEST=ON -DBUILD_BENCHMARK=ON ../..
                 make -j\$(nproc)
                 """
 
@@ -42,8 +50,9 @@ def runTestCommand (platform, project)
 {
     String sudo = auxiliary.sudo(platform.jenkinsLabel)
     String centos = platform.jenkinsLabel.contains('centos') ? '3' : ''
-    // Disable xorwow test for now as it is a known failure with gfx90a.
-    def testCommand = "ctest${centos} --output-on-failure"
+
+    def extraArgs = platform.jenkinsLabel.contains('cuda') ? "-E test_hiprand_linkage" : ""
+    def testCommand = "ctest${centos} ${extraArgs} --output-on-failure"
 
     def command = """#!/usr/bin/env bash
                 set -x
