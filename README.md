@@ -18,7 +18,6 @@ Release notes are available for each release on the releases tab.
 ## Quickstart hipRAND build
 
 ### Requirements
-- Git
 - CMake (3.10.2 or later)
 - For AMD GPUs:
   - AMD ROCm platform (5.0.0 or later)

@@ -25,9 +25,6 @@
 # HIP dependency is handled earlier in the project cmake file
 # when VerifyCompiler.cmake is included.
 
-# GIT
-find_package(Git REQUIRED)
-
 # Find or download/install rocm-cmake project
 find_package(ROCM 0.7.3 QUIET CONFIG PATHS ${ROCM_PATH})
 if(NOT ROCM_FOUND)
