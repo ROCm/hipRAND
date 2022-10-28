@@ -1,4 +1,4 @@
-// Copyright (c) 2017 Advanced Micro Devices, Inc. All rights reserved.
+// Copyright (c) 2017-2022 Advanced Micro Devices, Inc. All rights reserved.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -25,6 +25,95 @@
 #include <hiprand/hiprand.hpp>
 
 #include "test_common.hpp"
+
+template<typename test_type>
+struct hiprand_cpp_wrapper : public ::testing::Test
+{
+    typedef test_type engine_type;
+};
+
+template<typename test_type>
+struct hiprand_cpp_wrapper_32 : public ::testing::Test
+{
+    typedef test_type engine_type;
+};
+
+template<typename test_type>
+struct hiprand_cpp_wrapper_64 : public ::testing::Test
+{
+    typedef test_type engine_type;
+};
+
+template<typename test_type>
+struct hiprand_cpp_wrapper_prng : public ::testing::Test
+{
+    typedef test_type engine_type;
+};
+
+template<typename test_type>
+struct hiprand_cpp_wrapper_qrng : public ::testing::Test
+{
+    typedef test_type engine_type;
+};
+
+template<typename test_type>
+struct hiprand_cpp_wrapper_offset : public ::testing::Test
+{
+    typedef test_type engine_type;
+};
+
+typedef ::testing::Types<
+    hiprand_cpp::mrg32k3a,
+    hiprand_cpp::mt19937,
+    hiprand_cpp::mtgp32,
+    hiprand_cpp::philox4x32_10,
+    hiprand_cpp::scrambled_sobol32,
+    hiprand_cpp::scrambled_sobol64,
+    hiprand_cpp::sobol32,
+    hiprand_cpp::sobol64,
+    hiprand_cpp::xorwow> hiprand_cpp_test_types;
+
+typedef ::testing::Types<
+    hiprand_cpp::mrg32k3a,
+    hiprand_cpp::mt19937,
+    hiprand_cpp::mtgp32,
+    hiprand_cpp::philox4x32_10,
+    hiprand_cpp::scrambled_sobol32,
+    hiprand_cpp::sobol32,
+    hiprand_cpp::xorwow> hiprand_cpp_test_types_32;
+
+typedef ::testing::Types<
+    hiprand_cpp::scrambled_sobol64,
+    hiprand_cpp::sobol64> hiprand_cpp_test_types_64;
+
+typedef ::testing::Types<
+    hiprand_cpp::mrg32k3a,
+    hiprand_cpp::mt19937,
+    hiprand_cpp::mtgp32,
+    hiprand_cpp::philox4x32_10,
+    hiprand_cpp::xorwow> hiprand_cpp_test_types_prng;
+
+typedef ::testing::Types<
+    hiprand_cpp::scrambled_sobol32,
+    hiprand_cpp::scrambled_sobol64,
+    hiprand_cpp::sobol32,
+    hiprand_cpp::sobol64> hiprand_cpp_test_types_qrng;
+
+typedef ::testing::Types<
+    hiprand_cpp::mrg32k3a,
+    hiprand_cpp::philox4x32_10,
+    hiprand_cpp::scrambled_sobol32,
+    hiprand_cpp::scrambled_sobol64,
+    hiprand_cpp::sobol32,
+    hiprand_cpp::sobol64,
+    hiprand_cpp::xorwow> hiprand_cpp_test_types_offset;
+
+TYPED_TEST_SUITE(hiprand_cpp_wrapper, hiprand_cpp_test_types);
+TYPED_TEST_SUITE(hiprand_cpp_wrapper_32, hiprand_cpp_test_types_32);
+TYPED_TEST_SUITE(hiprand_cpp_wrapper_64, hiprand_cpp_test_types_64);
+TYPED_TEST_SUITE(hiprand_cpp_wrapper_prng, hiprand_cpp_test_types_prng);
+TYPED_TEST_SUITE(hiprand_cpp_wrapper_qrng, hiprand_cpp_test_types_qrng);
+TYPED_TEST_SUITE(hiprand_cpp_wrapper_offset, hiprand_cpp_test_types_offset);
 
 TEST(hiprand_cpp_wrapper, hiprand_error)
 {
@@ -53,16 +142,24 @@ void hiprand_rng_ctor_template()
     }
 }
 
-TEST(hiprand_cpp_wrapper, hiprand_rng_ctor)
+TYPED_TEST(hiprand_cpp_wrapper, hiprand_rng_ctor)
 {
-    ASSERT_NO_THROW(hiprand_rng_ctor_template<hiprand_cpp::philox4x32_10>());
-    ASSERT_NO_THROW(hiprand_rng_ctor_template<hiprand_cpp::xorwow>());
-    ASSERT_NO_THROW(hiprand_rng_ctor_template<hiprand_cpp::mrg32k3a>());
-    ASSERT_NO_THROW(hiprand_rng_ctor_template<hiprand_cpp::mtgp32>());
-    ASSERT_NO_THROW(hiprand_rng_ctor_template<hiprand_cpp::sobol32>());
+    typedef typename TestFixture::engine_type engine_type;
+    ASSERT_NO_THROW(hiprand_rng_ctor_template<engine_type>());
 }
 
-template<class T>
+template<class T,
+typename std::enable_if<std::is_same<T, typename hiprand_cpp::mtgp32>::value ||
+            std::is_same<T, typename hiprand_cpp::mt19937>::value, bool>::type = true>
+void hiprand_prng_ctor_template()
+{
+    T();
+    T(11ULL); // seed
+}
+
+template<class T,
+typename std::enable_if<!std::is_same<T, typename hiprand_cpp::mtgp32>::value &&
+            !std::is_same<T, typename hiprand_cpp::mt19937>::value, bool>::type = true>
 void hiprand_prng_ctor_template()
 {
     T();
@@ -73,15 +170,10 @@ void hiprand_prng_ctor_template()
     T(rd(), 2ULL); // seed, offset
 }
 
-TEST(hiprand_cpp_wrapper, hiprand_prng_ctor)
+TYPED_TEST(hiprand_cpp_wrapper_prng, hiprand_ctor)
 {
-    ASSERT_NO_THROW(hiprand_prng_ctor_template<hiprand_cpp::philox4x32_10>());
-    ASSERT_NO_THROW(hiprand_prng_ctor_template<hiprand_cpp::xorwow>());
-    ASSERT_NO_THROW(hiprand_prng_ctor_template<hiprand_cpp::mrg32k3a>());
-
-    // mtgp32 does not have ctor with offset
-    hiprand_cpp::mtgp32();
-    hiprand_cpp::mtgp32(11ULL);
+    typedef typename TestFixture::engine_type engine_type;
+    ASSERT_NO_THROW(hiprand_prng_ctor_template<engine_type>());
 }
 
 template<class T1, class T2>
@@ -90,22 +182,22 @@ void assert_same_types()
     ::testing::StaticAssertTypeEq<T1, T2>();
 }
 
-TEST(hiprand_cpp_wrapper, hiprand_rng_result_type)
+TYPED_TEST(hiprand_cpp_wrapper_32, hiprand_rng_result_type)
 {
-    assert_same_types<unsigned int, hiprand_cpp::philox4x32_10::result_type>();
-    assert_same_types<unsigned int, hiprand_cpp::xorwow::result_type>();
-    assert_same_types<unsigned int, hiprand_cpp::mrg32k3a::result_type>();
-    assert_same_types<unsigned int, hiprand_cpp::mtgp32::result_type>();
-    assert_same_types<unsigned int, hiprand_cpp::sobol32::result_type>();
+    typedef typename TestFixture::engine_type engine_type;
+    assert_same_types<unsigned int, typename engine_type::result_type>();
 }
 
-TEST(hiprand_cpp_wrapper, hiprand_rng_offset_type)
+TYPED_TEST(hiprand_cpp_wrapper_64, hiprand_rng_result_type)
 {
-    assert_same_types<unsigned long long, hiprand_cpp::philox4x32_10::offset_type>();
-    assert_same_types<unsigned long long, hiprand_cpp::xorwow::offset_type>();
-    assert_same_types<unsigned long long, hiprand_cpp::mrg32k3a::offset_type>();
-    assert_same_types<unsigned long long, hiprand_cpp::mtgp32::offset_type>();
-    assert_same_types<unsigned long long, hiprand_cpp::sobol32::offset_type>();
+    typedef typename TestFixture::engine_type engine_type;
+    assert_same_types<unsigned long long int, typename engine_type::result_type>();
+}
+
+TYPED_TEST(hiprand_cpp_wrapper_offset, hiprand_rng_offset_type)
+{
+    typedef typename TestFixture::engine_type engine_type;
+    assert_same_types<unsigned long long int, typename engine_type::offset_type>();
 }
 
 TEST(hiprand_cpp_wrapper, hiprand_prng_default_seed)
@@ -113,11 +205,14 @@ TEST(hiprand_cpp_wrapper, hiprand_prng_default_seed)
     EXPECT_EQ(hiprand_cpp::philox4x32_10::default_seed, HIPRAND_PHILOX4x32_DEFAULT_SEED);
     EXPECT_EQ(hiprand_cpp::xorwow::default_seed, HIPRAND_XORWOW_DEFAULT_SEED);
     EXPECT_EQ(hiprand_cpp::mrg32k3a::default_seed, HIPRAND_MRG32K3A_DEFAULT_SEED);
+    EXPECT_EQ(hiprand_cpp::mtgp32::default_seed, HIPRAND_MTGP32_DEFAULT_SEED);
+    EXPECT_EQ(hiprand_cpp::mt19937::default_seed, HIPRAND_MT19937_DEFAULT_SEED);
 }
 
-TEST(hiprand_cpp_wrapper, hiprand_qrng_default_num_dimensions)
+TYPED_TEST(hiprand_cpp_wrapper_qrng, hiprand_qrng_default_num_dimensions)
 {
-    EXPECT_EQ(hiprand_cpp::sobol32::default_num_dimensions, 1U);
+    typedef typename TestFixture::engine_type engine_type;
+    EXPECT_EQ(engine_type::default_num_dimensions, 1U);
 }
 
 template<class T>
@@ -140,9 +235,10 @@ void hiprand_qrng_ctor_template()
     }
 }
 
-TEST(hiprand_cpp_wrapper, hiprand_qrng_ctor)
+TYPED_TEST(hiprand_cpp_wrapper_qrng, hiprand_ctor)
 {
-    ASSERT_NO_THROW(hiprand_qrng_ctor_template<hiprand_cpp::sobol32>());
+    typedef typename TestFixture::engine_type engine_type;
+    ASSERT_NO_THROW(hiprand_qrng_ctor_template<engine_type>());
 }
 
 template<class T>
@@ -153,12 +249,10 @@ void hiprand_prng_seed_template()
     engine.seed(12ULL);
 }
 
-TEST(hiprand_cpp_wrapper, hiprand_prng_seed)
+TYPED_TEST(hiprand_cpp_wrapper_prng, hiprand_seed)
 {
-    ASSERT_NO_THROW(hiprand_prng_seed_template<hiprand_cpp::philox4x32_10>());
-    ASSERT_NO_THROW(hiprand_prng_seed_template<hiprand_cpp::xorwow>());
-    ASSERT_NO_THROW(hiprand_prng_seed_template<hiprand_cpp::mrg32k3a>());
-    ASSERT_NO_THROW(hiprand_prng_seed_template<hiprand_cpp::mtgp32>());
+    typedef typename TestFixture::engine_type engine_type;
+    ASSERT_NO_THROW(hiprand_prng_seed_template<engine_type>());
 }
 
 template<class T>
@@ -180,9 +274,10 @@ void hiprand_qrng_dims_template()
     }
 }
 
-TEST(hiprand_cpp_wrapper, hiprand_qrng_dims)
+TYPED_TEST(hiprand_cpp_wrapper_qrng, hiprand_dims)
 {
-    ASSERT_NO_THROW(hiprand_qrng_dims_template<hiprand_cpp::sobol32>());
+    typedef typename TestFixture::engine_type engine_type;
+    ASSERT_NO_THROW(hiprand_qrng_dims_template<engine_type>());
 }
 
 template<class T>
@@ -193,12 +288,10 @@ void hiprand_rng_offset_template()
     engine.offset(12ULL);
 }
 
-TEST(hiprand_cpp_wrapper, hiprand_rng_offset)
+TYPED_TEST(hiprand_cpp_wrapper_offset, hiprand_rng_offset)
 {
-    ASSERT_NO_THROW(hiprand_rng_offset_template<hiprand_cpp::philox4x32_10>());
-    ASSERT_NO_THROW(hiprand_rng_offset_template<hiprand_cpp::xorwow>());
-    ASSERT_NO_THROW(hiprand_rng_offset_template<hiprand_cpp::mrg32k3a>());
-    ASSERT_NO_THROW(hiprand_rng_offset_template<hiprand_cpp::sobol32>());
+    typedef typename TestFixture::engine_type engine_type;
+    ASSERT_NO_THROW(hiprand_rng_offset_template<engine_type>());
 }
 
 template<class T>
@@ -212,13 +305,10 @@ void hiprand_rng_stream_template()
     HIP_CHECK(hipStreamDestroy(stream));
 }
 
-TEST(hiprand_cpp_wrapper, hiprand_rng_stream)
+TYPED_TEST(hiprand_cpp_wrapper, hiprand_rng_stream)
 {
-    ASSERT_NO_THROW(hiprand_rng_stream_template<hiprand_cpp::philox4x32_10>());
-    ASSERT_NO_THROW(hiprand_rng_stream_template<hiprand_cpp::xorwow>());
-    ASSERT_NO_THROW(hiprand_rng_stream_template<hiprand_cpp::mrg32k3a>());
-    ASSERT_NO_THROW(hiprand_rng_stream_template<hiprand_cpp::mtgp32>());
-    ASSERT_NO_THROW(hiprand_rng_stream_template<hiprand_cpp::sobol32>());
+    typedef typename TestFixture::engine_type engine_type;
+    ASSERT_NO_THROW(hiprand_rng_stream_template<engine_type>());
 }
 
 template<class T, class IntType>
@@ -239,11 +329,11 @@ void hiprand_uniform_int_dist_template()
     EXPECT_NO_THROW(d(engine, output, output_size));
     HIP_CHECK(hipDeviceSynchronize());
 
-    std::vector<unsigned int> output_host(output_size);
+    std::vector<IntType> output_host(output_size);
     HIP_CHECK(
         hipMemcpy(
             output_host.data(), output,
-            output_size * sizeof(unsigned int),
+            output_size * sizeof(IntType),
             hipMemcpyDeviceToHost
         )
     );
@@ -253,29 +343,22 @@ void hiprand_uniform_int_dist_template()
     double mean = 0;
     for(auto v : output_host)
     {
-        mean += static_cast<double>(v) / UINT_MAX;
+        mean += static_cast<double>(v) / static_cast<double>(std::numeric_limits<IntType>::max());
     }
     mean = mean / output_size;
     EXPECT_NEAR(mean, 0.5, 0.1);
 }
 
-TEST(hiprand_cpp_wrapper, hiprand_uniform_int_dist)
+TYPED_TEST(hiprand_cpp_wrapper_32, hiprand_uniform_int_dist_32)
 {
-    ASSERT_NO_THROW((
-        hiprand_uniform_int_dist_template<hiprand_cpp::philox4x32_10, unsigned int>()
-    ));
-    ASSERT_NO_THROW((
-        hiprand_uniform_int_dist_template<hiprand_cpp::xorwow, unsigned int>()
-    ));
-    ASSERT_NO_THROW((
-        hiprand_uniform_int_dist_template<hiprand_cpp::mrg32k3a, unsigned int>()
-    ));
-    ASSERT_NO_THROW((
-        hiprand_uniform_int_dist_template<hiprand_cpp::mtgp32, unsigned int>()
-    ));
-    ASSERT_NO_THROW((
-        hiprand_uniform_int_dist_template<hiprand_cpp::sobol32, unsigned int>()
-    ));
+    typedef typename TestFixture::engine_type engine_type;
+    ASSERT_NO_THROW((hiprand_uniform_int_dist_template<engine_type, unsigned int>()));
+}
+
+TYPED_TEST(hiprand_cpp_wrapper_64, hiprand_uniform_int_dist_64)
+{
+    typedef typename TestFixture::engine_type engine_type;
+    ASSERT_NO_THROW((hiprand_uniform_int_dist_template<engine_type, unsigned long long int>()));
 }
 
 template<class T, class RealType>
@@ -316,42 +399,16 @@ void hiprand_uniform_real_dist_template()
     EXPECT_NEAR(mean, 0.5, 0.1);
 }
 
-TEST(hiprand_cpp_wrapper, hiprand_uniform_real_dist_float)
+TYPED_TEST(hiprand_cpp_wrapper, hiprand_uniform_real_dist_float)
 {
-    ASSERT_NO_THROW((
-        hiprand_uniform_real_dist_template<hiprand_cpp::philox4x32_10, float>()
-    ));
-    ASSERT_NO_THROW((
-        hiprand_uniform_real_dist_template<hiprand_cpp::xorwow, float>()
-    ));
-    ASSERT_NO_THROW((
-        hiprand_uniform_real_dist_template<hiprand_cpp::mrg32k3a, float>()
-    ));
-    ASSERT_NO_THROW((
-        hiprand_uniform_real_dist_template<hiprand_cpp::mtgp32, float>()
-    ));
-    ASSERT_NO_THROW((
-        hiprand_uniform_real_dist_template<hiprand_cpp::sobol32, float>()
-    ));
+    typedef typename TestFixture::engine_type engine_type;
+    ASSERT_NO_THROW((hiprand_uniform_real_dist_template<engine_type, float>()));
 }
 
-TEST(hiprand_cpp_wrapper, hiprand_uniform_real_dist_double)
+TYPED_TEST(hiprand_cpp_wrapper, hiprand_uniform_real_dist_double)
 {
-    ASSERT_NO_THROW((
-        hiprand_uniform_real_dist_template<hiprand_cpp::philox4x32_10, double>()
-    ));
-    ASSERT_NO_THROW((
-        hiprand_uniform_real_dist_template<hiprand_cpp::xorwow, double>()
-    ));
-    ASSERT_NO_THROW((
-        hiprand_uniform_real_dist_template<hiprand_cpp::mrg32k3a, double>()
-    ));
-    ASSERT_NO_THROW((
-        hiprand_uniform_real_dist_template<hiprand_cpp::mtgp32, double>()
-    ));
-    ASSERT_NO_THROW((
-        hiprand_uniform_real_dist_template<hiprand_cpp::sobol32, double>()
-    ));
+    typedef typename TestFixture::engine_type engine_type;
+    ASSERT_NO_THROW((hiprand_uniform_real_dist_template<engine_type, double>()));
 }
 
 template<class T, class RealType>
@@ -400,42 +457,16 @@ void hiprand_normal_dist_template()
     EXPECT_NEAR(stddev, 1.0, 0.2);
 }
 
-TEST(hiprand_cpp_wrapper, hiprand_normal_dist_float)
+TYPED_TEST(hiprand_cpp_wrapper, hiprand_normal_dist_float)
 {
-    ASSERT_NO_THROW((
-        hiprand_normal_dist_template<hiprand_cpp::philox4x32_10, float>()
-    ));
-    ASSERT_NO_THROW((
-        hiprand_normal_dist_template<hiprand_cpp::xorwow, float>()
-    ));
-    ASSERT_NO_THROW((
-        hiprand_normal_dist_template<hiprand_cpp::mrg32k3a, float>()
-    ));
-    ASSERT_NO_THROW((
-        hiprand_normal_dist_template<hiprand_cpp::mtgp32, float>()
-    ));
-    ASSERT_NO_THROW((
-        hiprand_normal_dist_template<hiprand_cpp::sobol32, float>()
-    ));
+    typedef typename TestFixture::engine_type engine_type;
+    ASSERT_NO_THROW((hiprand_normal_dist_template<engine_type, float>()));
 }
 
-TEST(hiprand_cpp_wrapper, hiprand_normal_dist_double)
+TYPED_TEST(hiprand_cpp_wrapper, hiprand_normal_dist_double)
 {
-    ASSERT_NO_THROW((
-        hiprand_normal_dist_template<hiprand_cpp::philox4x32_10, double>()
-    ));
-    ASSERT_NO_THROW((
-        hiprand_normal_dist_template<hiprand_cpp::xorwow, double>()
-    ));
-    ASSERT_NO_THROW((
-        hiprand_normal_dist_template<hiprand_cpp::mrg32k3a, double>()
-    ));
-    ASSERT_NO_THROW((
-        hiprand_normal_dist_template<hiprand_cpp::mtgp32, double>()
-    ));
-    ASSERT_NO_THROW((
-        hiprand_normal_dist_template<hiprand_cpp::sobol32, double>()
-    ));
+    typedef typename TestFixture::engine_type engine_type;
+    ASSERT_NO_THROW((hiprand_normal_dist_template<engine_type, double>()));
 }
 
 TEST(hiprand_cpp_wrapper, hiprand_normal_dist_param)
@@ -502,42 +533,16 @@ void hiprand_lognormal_dist_template()
     EXPECT_NEAR(0.25, logstd, 0.25 * 0.2);
 }
 
-TEST(hiprand_cpp_wrapper, hiprand_lognormal_dist_float)
+TYPED_TEST(hiprand_cpp_wrapper, hiprand_lognormal_dist_float)
 {
-    ASSERT_NO_THROW((
-        hiprand_lognormal_dist_template<hiprand_cpp::philox4x32_10, float>()
-    ));
-    ASSERT_NO_THROW((
-        hiprand_lognormal_dist_template<hiprand_cpp::xorwow, float>()
-    ));
-    ASSERT_NO_THROW((
-        hiprand_lognormal_dist_template<hiprand_cpp::mrg32k3a, float>()
-    ));
-    ASSERT_NO_THROW((
-        hiprand_lognormal_dist_template<hiprand_cpp::mtgp32, float>()
-    ));
-    ASSERT_NO_THROW((
-        hiprand_lognormal_dist_template<hiprand_cpp::sobol32, float>()
-    ));
+    typedef typename TestFixture::engine_type engine_type;
+    ASSERT_NO_THROW((hiprand_lognormal_dist_template<engine_type, float>()));
 }
 
-TEST(hiprand_cpp_wrapper, hiprand_lognormal_dist_double)
+TYPED_TEST(hiprand_cpp_wrapper, hiprand_lognormal_dist_double)
 {
-    ASSERT_NO_THROW((
-        hiprand_lognormal_dist_template<hiprand_cpp::philox4x32_10, double>()
-    ));
-    ASSERT_NO_THROW((
-        hiprand_lognormal_dist_template<hiprand_cpp::xorwow, double>()
-    ));
-    ASSERT_NO_THROW((
-        hiprand_lognormal_dist_template<hiprand_cpp::mrg32k3a, double>()
-    ));
-    ASSERT_NO_THROW((
-        hiprand_lognormal_dist_template<hiprand_cpp::mtgp32, double>()
-    ));
-    ASSERT_NO_THROW((
-        hiprand_lognormal_dist_template<hiprand_cpp::sobol32, double>()
-    ));
+    typedef typename TestFixture::engine_type engine_type;
+    ASSERT_NO_THROW((hiprand_lognormal_dist_template<engine_type, double>()));
 }
 
 TEST(hiprand_cpp_wrapper, hiprand_lognormal_dist_param)
@@ -559,17 +564,17 @@ TEST(hiprand_cpp_wrapper, hiprand_lognormal_dist_param)
     ASSERT_TRUE(d1.param() == d3.param());
 }
 
-template<class T, class IntType>
+template<class T>
 void hiprand_poisson_dist_template(const double lambda)
 {
     T engine;
-    hiprand_cpp::poisson_distribution<IntType> d(lambda);
+    hiprand_cpp::poisson_distribution<unsigned int> d(lambda);
 
     const size_t output_size = 8192;
-    IntType * output;
+    unsigned int * output;
     HIP_CHECK(
         hipMallocHelper((void **)&output,
-        output_size * sizeof(IntType))
+        output_size * sizeof(unsigned int))
     );
     HIP_CHECK(hipDeviceSynchronize());
 
@@ -577,11 +582,11 @@ void hiprand_poisson_dist_template(const double lambda)
     EXPECT_NO_THROW(d(engine, output, output_size));
     HIP_CHECK(hipDeviceSynchronize());
 
-    std::vector<IntType> output_host(output_size);
+    std::vector<unsigned int> output_host(output_size);
     HIP_CHECK(
         hipMemcpy(
             output_host.data(), output,
-            output_size * sizeof(IntType),
+            output_size * sizeof(unsigned int),
             hipMemcpyDeviceToHost
         )
     );
@@ -606,33 +611,16 @@ void hiprand_poisson_dist_template(const double lambda)
     EXPECT_NEAR(variance, lambda, std::max(1.0, lambda * 1e-1));
 }
 
-class poisson_dist : public ::testing::TestWithParam<double> { };
+constexpr double lambdas[] = { 1.0, 5.5, 20.0, 100.0, 1234.5, 5000.0 };
 
-TEST_P(poisson_dist, hiprand_poisson_dist)
+TYPED_TEST(hiprand_cpp_wrapper, hiprand_poisson_dist)
 {
-    const double lambda = GetParam();
-    ASSERT_NO_THROW((
-        hiprand_poisson_dist_template<hiprand_cpp::philox4x32_10, unsigned int>(lambda)
-    ));
-    ASSERT_NO_THROW((
-        hiprand_poisson_dist_template<hiprand_cpp::xorwow, unsigned int>(lambda)
-    ));
-    ASSERT_NO_THROW((
-        hiprand_poisson_dist_template<hiprand_cpp::mrg32k3a, unsigned int>(lambda)
-    ));
-    ASSERT_NO_THROW((
-        hiprand_poisson_dist_template<hiprand_cpp::mtgp32, unsigned int>(lambda)
-    ));
-    ASSERT_NO_THROW((
-        hiprand_poisson_dist_template<hiprand_cpp::sobol32, unsigned int>(lambda)
-    ));
+    typedef typename TestFixture::engine_type engine_type;
+    for(size_t i = 0; i < sizeof(lambdas) / sizeof(lambdas[0]); i++)
+    {
+        ASSERT_NO_THROW((hiprand_poisson_dist_template<engine_type>(lambdas[i])));
+    }
 }
-
-const double lambdas[] = { 1.0, 5.5, 20.0, 100.0, 1234.5, 5000.0 };
-
-INSTANTIATE_TEST_SUITE_P(hiprand_cpp_wrapper,
-                        poisson_dist,
-                        ::testing::ValuesIn(lambdas));
 
 TEST(hiprand_cpp_wrapper, hiprand_poisson_dist_param)
 {
