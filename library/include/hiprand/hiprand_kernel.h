@@ -1,4 +1,4 @@
-// Copyright (c) 2017 Advanced Micro Devices, Inc. All rights reserved.
+// Copyright (c) 2017-2022 Advanced Micro Devices, Inc. All rights reserved.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -48,6 +48,16 @@
  * \brief Default seed for MRG32K3A PRNG.
  */
 #define HIPRAND_MRG32K3A_DEFAULT_SEED 12345ULL
+ /**
+ * \def HIPRAND_MTGP32_DEFAULT_SEED
+ * \brief Default seed for MTGP32 PRNG.
+ */
+#define HIPRAND_MTGP32_DEFAULT_SEED 0ULL
+ /**
+ * \def HIPRAND_MT19937_DEFAULT_SEED
+ * \brief Default seed for MT19937 PRNG.
+ */
+#define HIPRAND_MT19937_DEFAULT_SEED 0ULL
 /** @} */ // end of group hipranddevice
 
 #if defined(__HIP_PLATFORM_HCC__) || defined(__HIP_PLATFORM_AMD__)

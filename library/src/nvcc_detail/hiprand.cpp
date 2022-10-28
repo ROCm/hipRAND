@@ -1,4 +1,4 @@
-// Copyright (c) 2017 Advanced Micro Devices, Inc. All rights reserved.
+// Copyright (c) 2017-2022 Advanced Micro Devices, Inc. All rights reserved.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -169,6 +169,20 @@ hiprandGenerateShort(hiprandGenerator_t generator,
     (void) output_data;
     (void) n;
     return HIPRAND_STATUS_NOT_IMPLEMENTED;
+}
+
+hiprandStatus_t HIPRANDAPI 
+hiprandGenerateLongLong(hiprandGenerator_t      generator,
+                        unsigned long long int* output_data, 
+                        size_t                  n)
+{
+    return to_hiprand_status(
+        curandGenerateLongLong(
+            reinterpret_cast<curandGenerator_t>(generator),
+            output_data, 
+            n
+        )
+    );
 }
 
 hiprandStatus_t HIPRANDAPI

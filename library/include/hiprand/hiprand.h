@@ -1,4 +1,4 @@
-// Copyright (c) 2017 Advanced Micro Devices, Inc. All rights reserved.
+// Copyright (c) 2017-2022 Advanced Micro Devices, Inc. All rights reserved.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -232,6 +232,9 @@ hiprandDestroyGenerator(hiprandGenerator_t generator);
  * \param output_data - Pointer to memory to store generated numbers
  * \param n - Number of 32-bit unsigned integers to generate
  *
+ * Note: \p generator must be not be of type \p HIPRAND_RNG_QUASI_SOBOL64
+ * or \p HIPRAND_RNG_QUASI_SCRAMBLED_SOBOL64.
+ *
  * \return
  * - HIPRAND_STATUS_NOT_INITIALIZED if the generator was not initialized \n
  * - HIPRAND_STATUS_LAUNCH_FAILURE if generator failed to launch kernel \n
@@ -286,6 +289,31 @@ hiprandGenerateShort(hiprandGenerator_t generator,
                      unsigned short * output_data, size_t n);
 
 /**
+ * \brief Generates uniformly distributed 64-bit unsigned integers.
+ *
+ * Generates \p n uniformly distributed 64-bit unsigned integers and
+ * saves them to \p output_data.
+ *
+ * Generated numbers are between \p 0 and \p 2^64, including \p 0 and
+ * excluding \p 2^64.
+ *
+ * \param generator - Generator to use
+ * \param output_data - Pointer to memory to store generated numbers
+ * \param n - Number of 64-bit unsigned integers to generate
+ *
+ * Note: \p generator must be of type \p HIPRAND_RNG_QUASI_SOBOL64
+ * or \p HIPRAND_RNG_QUASI_SCRAMBLED_SOBOL64.
+ *
+ * \return
+ * - HIPRAND_STATUS_NOT_INITIALIZED if the generator was not initialized \n
+ * - HIPRAND_STATUS_LAUNCH_FAILURE if generator failed to launch kernel \n
+ * - HIPRAND_STATUS_SUCCESS if random numbers were successfully generated \n
+ */
+hiprandStatus_t HIPRANDAPI
+hiprandGenerateLongLong(hiprandGenerator_t generator,
+                        unsigned long long * output_data, size_t n);
+
+/**
  * \brief Generates uniformly distributed floats.
  *
  * Generates \p n uniformly distributed 32-bit floating-point values
@@ -323,8 +351,9 @@ hiprandGenerateUniform(hiprandGenerator_t generator,
  * \param n - Number of floats to generate
  *
  * Note: When \p generator is of type: \p HIPRAND_RNG_PSEUDO_MRG32K3A,
- * \p HIPRAND_RNG_PSEUDO_MTGP32, or \p HIPRAND_RNG_QUASI_SOBOL32,
- * then the returned \p double values are generated from only 32 random bits
+ * \p HIPRAND_RNG_PSEUDO_MTGP32, \p HIPRAND_RNG_QUASI_SOBOL32, or
+ * \p HIPRAND_RNG_QUASI_SCRAMBLED_SOBOL32 then the returned \p double 
+ * values are generated from only 32 random bits
  * each (one <tt>unsigned int</tt> value per one generated \p double).
  *
  * \return
