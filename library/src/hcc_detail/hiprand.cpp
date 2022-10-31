@@ -77,18 +77,14 @@ rocrand_rng_type to_rocrand_rng_type(hiprandRngType_t rng_type)
             return ROCRAND_RNG_PSEUDO_MTGP32;
         case HIPRAND_RNG_PSEUDO_PHILOX4_32_10:
             return ROCRAND_RNG_PSEUDO_PHILOX4_32_10;
-        case HIPRAND_RNG_PSEUDO_MT19937:
-            return ROCRAND_RNG_PSEUDO_MT19937;
+        case HIPRAND_RNG_PSEUDO_MT19937: return ROCRAND_RNG_PSEUDO_MT19937;
         case HIPRAND_RNG_QUASI_DEFAULT:
             return ROCRAND_RNG_QUASI_DEFAULT;
         case HIPRAND_RNG_QUASI_SOBOL32:
             return ROCRAND_RNG_QUASI_SOBOL32;
-        case HIPRAND_RNG_QUASI_SCRAMBLED_SOBOL32:
-            return ROCRAND_RNG_QUASI_SCRAMBLED_SOBOL32;
-        case HIPRAND_RNG_QUASI_SOBOL64:
-            return ROCRAND_RNG_QUASI_SOBOL64;
-        case HIPRAND_RNG_QUASI_SCRAMBLED_SOBOL64:
-            return ROCRAND_RNG_QUASI_SCRAMBLED_SOBOL64;
+        case HIPRAND_RNG_QUASI_SCRAMBLED_SOBOL32: return ROCRAND_RNG_QUASI_SCRAMBLED_SOBOL32;
+        case HIPRAND_RNG_QUASI_SOBOL64: return ROCRAND_RNG_QUASI_SOBOL64;
+        case HIPRAND_RNG_QUASI_SCRAMBLED_SOBOL64: return ROCRAND_RNG_QUASI_SCRAMBLED_SOBOL64;
         default:
             throw HIPRAND_STATUS_TYPE_ERROR;
     }
@@ -165,18 +161,12 @@ hiprandGenerateShort(hiprandGenerator_t generator,
     );
 }
 
-hiprandStatus_t HIPRANDAPI 
-hiprandGenerateLongLong(hiprandGenerator_t      generator,
-                        unsigned long long int* output_data, 
-                        size_t                  n)
+hiprandStatus_t HIPRANDAPI hiprandGenerateLongLong(hiprandGenerator_t      generator,
+                                                   unsigned long long int* output_data,
+                                                   size_t                  n)
 {
     return to_hiprand_status(
-        rocrand_generate_long_long(
-            reinterpret_cast<rocrand_generator>(generator),
-            output_data, 
-            n
-        )
-    );
+        rocrand_generate_long_long(reinterpret_cast<rocrand_generator>(generator), output_data, n));
 }
 
 hiprandStatus_t HIPRANDAPI

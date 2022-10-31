@@ -309,9 +309,9 @@ hiprandGenerateShort(hiprandGenerator_t generator,
  * - HIPRAND_STATUS_LAUNCH_FAILURE if generator failed to launch kernel \n
  * - HIPRAND_STATUS_SUCCESS if random numbers were successfully generated \n
  */
-hiprandStatus_t HIPRANDAPI
-hiprandGenerateLongLong(hiprandGenerator_t generator,
-                        unsigned long long * output_data, size_t n);
+hiprandStatus_t HIPRANDAPI hiprandGenerateLongLong(hiprandGenerator_t  generator,
+                                                   unsigned long long* output_data,
+                                                   size_t              n);
 
 /**
  * \brief Generates uniformly distributed floats.

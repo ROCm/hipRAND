@@ -171,18 +171,12 @@ hiprandGenerateShort(hiprandGenerator_t generator,
     return HIPRAND_STATUS_NOT_IMPLEMENTED;
 }
 
-hiprandStatus_t HIPRANDAPI 
-hiprandGenerateLongLong(hiprandGenerator_t      generator,
-                        unsigned long long int* output_data, 
-                        size_t                  n)
+hiprandStatus_t HIPRANDAPI hiprandGenerateLongLong(hiprandGenerator_t      generator,
+                                                   unsigned long long int* output_data,
+                                                   size_t                  n)
 {
     return to_hiprand_status(
-        curandGenerateLongLong(
-            reinterpret_cast<curandGenerator_t>(generator),
-            output_data, 
-            n
-        )
-    );
+        curandGenerateLongLong(reinterpret_cast<curandGenerator_t>(generator), output_data, n));
 }
 
 hiprandStatus_t HIPRANDAPI

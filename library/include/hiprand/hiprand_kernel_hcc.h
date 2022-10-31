@@ -49,16 +49,16 @@ DEFINE_HIPRAND_STATE(hiprandStateXORWOW, rocrand_state_xorwow)
 DEFINE_HIPRAND_STATE(hiprandStatePhilox4_32_10, rocrand_state_philox4x32_10)
 DEFINE_HIPRAND_STATE(hiprandStateMRG32k3a, rocrand_state_mrg32k3a)
 DEFINE_HIPRAND_STATE(hiprandStateMtgp32, rocrand_state_mtgp32)
-DEFINE_HIPRAND_STATE(hiprandStateSobol32,          rocrand_state_sobol32)
+DEFINE_HIPRAND_STATE(hiprandStateSobol32, rocrand_state_sobol32)
 DEFINE_HIPRAND_STATE(hiprandStateScrambledSobol32, rocrand_state_scrambled_sobol32)
-DEFINE_HIPRAND_STATE(hiprandStateSobol64,          rocrand_state_sobol64)
+DEFINE_HIPRAND_STATE(hiprandStateSobol64, rocrand_state_sobol64)
 DEFINE_HIPRAND_STATE(hiprandStateScrambledSobol64, rocrand_state_scrambled_sobol64)
 
 #undef DEFINE_HIPRAND_STATE
 
 typedef rocrand_discrete_distribution hiprandDiscreteDistribution_t;
-typedef unsigned int           hiprandDirectionVectors32_t[32];
-typedef unsigned long long int hiprandDirectionVectors64_t[64];
+typedef unsigned int                  hiprandDirectionVectors32_t[32];
+typedef unsigned long long int        hiprandDirectionVectors64_t[64];
 
 typedef mtgp32_params mtgp32_kernel_params_t;
 typedef mtgp32_fast_params mtgp32_fast_param_t;
@@ -125,21 +125,17 @@ template<typename StateType>
 QUALIFIERS
 void check_state_type()
 {
-    static_assert(
-        detail::is_any_of<
-            StateType,
-            hiprandState_t,
-            hiprandStateXORWOW_t,
-            hiprandStatePhilox4_32_10_t,
-            hiprandStateMRG32k3a_t,
-            hiprandStateMtgp32_t,
-            hiprandStateSobol32_t,
-            hiprandStateScrambledSobol32_t,
-            hiprandStateSobol64_t,
-            hiprandStateScrambledSobol64_t
-        >::value,
-        "StateType is not a hipRAND generator state"
-    );
+    static_assert(detail::is_any_of<StateType,
+                                    hiprandState_t,
+                                    hiprandStateXORWOW_t,
+                                    hiprandStatePhilox4_32_10_t,
+                                    hiprandStateMRG32k3a_t,
+                                    hiprandStateMtgp32_t,
+                                    hiprandStateSobol32_t,
+                                    hiprandStateScrambledSobol32_t,
+                                    hiprandStateSobol64_t,
+                                    hiprandStateScrambledSobol64_t>::value,
+                  "StateType is not a hipRAND generator state");
 }
 /// \endcond
 
@@ -222,16 +218,12 @@ void hiprand_init(const unsigned long long seed,
         "hiprandStateMtgp32_t does not have hiprand_init function, "
         "check hiprandMakeMTGP32KernelState() host function"
     );
-    static_assert(
-        !detail::is_any_of<
-            StateType,
-            hiprandStateSobol32_t,
-            hiprandStateScrambledSobol32_t,
-            hiprandStateSobol64_t,
-            hiprandStateScrambledSobol64_t
-        >::value,
-        "Quasirandom generators use different hiprand_init() function"
-    );
+    static_assert(!detail::is_any_of<StateType,
+                                     hiprandStateSobol32_t,
+                                     hiprandStateScrambledSobol32_t,
+                                     hiprandStateSobol64_t,
+                                     hiprandStateScrambledSobol64_t>::value,
+                  "Quasirandom generators use different hiprand_init() function");
     rocrand_init(seed, subsequence, offset, state);
 }
 
@@ -241,10 +233,9 @@ void hiprand_init(const unsigned long long seed,
 /// represent the direction numbers.
 /// \param offset - Absolute subsequence offset, i.e. how many states should be skipped.
 /// \param state - Pointer to a state to initialize.
-QUALIFIERS
-void hiprand_init(hiprandDirectionVectors32_t direction_vectors,
-                  unsigned int                offset,
-                  hiprandStateSobol32_t*      state)
+QUALIFIERS void hiprand_init(hiprandDirectionVectors32_t direction_vectors,
+                             unsigned int                offset,
+                             hiprandStateSobol32_t*      state)
 {
     rocrand_init(direction_vectors, offset, state);
 }
@@ -256,11 +247,10 @@ void hiprand_init(hiprandDirectionVectors32_t direction_vectors,
 /// \param scramble_constant - Constant used for scrambling the sequence.
 /// \param offset - Absolute subsequence offset, i.e. how many states should be skipped.
 /// \param state - Pointer to a state to initialize.
-QUALIFIERS
-void hiprand_init(hiprandDirectionVectors32_t     direction_vectors,
-                  unsigned int                    scramble_constant,
-                  unsigned int                    offset,
-                  hiprandStateScrambledSobol32_t* state)
+QUALIFIERS void hiprand_init(hiprandDirectionVectors32_t     direction_vectors,
+                             unsigned int                    scramble_constant,
+                             unsigned int                    offset,
+                             hiprandStateScrambledSobol32_t* state)
 {
     rocrand_init(direction_vectors, scramble_constant, offset, state);
 }
@@ -271,10 +261,9 @@ void hiprand_init(hiprandDirectionVectors32_t     direction_vectors,
 /// represent the direction numbers.
 /// \param offset - Absolute subsequence offset, i.e. how many states should be skipped.
 /// \param state - Pointer to a state to initialize.
-QUALIFIERS
-void hiprand_init(hiprandDirectionVectors64_t direction_vectors,
-                  unsigned int                offset,
-                  hiprandStateSobol64_t*      state)
+QUALIFIERS void hiprand_init(hiprandDirectionVectors64_t direction_vectors,
+                             unsigned int                offset,
+                             hiprandStateSobol64_t*      state)
 {
     rocrand_init(direction_vectors, offset, state);
 }
@@ -286,11 +275,10 @@ void hiprand_init(hiprandDirectionVectors64_t direction_vectors,
 /// \param scramble_constant - Constant used for scrambling the sequence.
 /// \param offset - Absolute subsequence offset, i.e. how many states should be skipped.
 /// \param state - Pointer to a state to initialize.
-QUALIFIERS
-void hiprand_init(hiprandDirectionVectors64_t     direction_vectors,
-                  unsigned long long int          scramble_constant,
-                  unsigned int                    offset,
-                  hiprandStateScrambledSobol64_t* state)
+QUALIFIERS void hiprand_init(hiprandDirectionVectors64_t     direction_vectors,
+                             unsigned long long int          scramble_constant,
+                             unsigned int                    offset,
+                             hiprandStateScrambledSobol64_t* state)
 {
     rocrand_init(direction_vectors, scramble_constant, offset, state);
 }
@@ -341,17 +329,13 @@ QUALIFIERS
 void skipahead_sequence(unsigned long long n, StateType * state)
 {
     check_state_type<StateType>();
-    static_assert(
-        !detail::is_any_of<
-            StateType,
-            hiprandStateMtgp32_t,
-            hiprandStateSobol32_t,
-            hiprandStateScrambledSobol32_t,
-            hiprandStateSobol64_t,
-            hiprandStateScrambledSobol64_t
-        >::value,
-        "StateType does not have skipahead_sequence function"
-    );
+    static_assert(!detail::is_any_of<StateType,
+                                     hiprandStateMtgp32_t,
+                                     hiprandStateSobol32_t,
+                                     hiprandStateScrambledSobol32_t,
+                                     hiprandStateSobol64_t,
+                                     hiprandStateScrambledSobol64_t>::value,
+                  "StateType does not have skipahead_sequence function");
     typedef typename StateType::base base_type;
     skipahead_subsequence(n, static_cast<base_type*>(state));
 }
@@ -376,17 +360,13 @@ QUALIFIERS
 void skipahead_subsequence(unsigned long long n, StateType * state)
 {
     check_state_type<StateType>();
-    static_assert(
-        !detail::is_any_of<
-            StateType,
-            hiprandStateMtgp32_t,
-            hiprandStateSobol32_t,
-            hiprandStateScrambledSobol32_t,
-            hiprandStateSobol64_t,
-            hiprandStateScrambledSobol64_t
-        >::value,
-        "StateType does not have skipahead_subsequence function"
-    );
+    static_assert(!detail::is_any_of<StateType,
+                                     hiprandStateMtgp32_t,
+                                     hiprandStateSobol32_t,
+                                     hiprandStateScrambledSobol32_t,
+                                     hiprandStateSobol64_t,
+                                     hiprandStateScrambledSobol64_t>::value,
+                  "StateType does not have skipahead_subsequence function");
     typedef typename StateType::base base_type;
     skipahead_subsequence(n, static_cast<base_type*>(state));
 }
@@ -430,8 +410,7 @@ uint4 hiprand4(hiprandStatePhilox4_32_10_t * state)
 /// \param state - Pointer to a RNG state to use
 /// \return Uniformly distributed random 64-bit <tt>unsigned long long int</tt>
 template<class StateType>
-QUALIFIERS
-unsigned long long int hiprand_long_long(StateType* state)
+QUALIFIERS unsigned long long int hiprand_long_long(StateType* state)
 {
     check_state_type<StateType>();
     return rocrand(state);
@@ -471,7 +450,7 @@ float4 hiprand_uniform4(hiprandStatePhilox4_32_10_t * state)
 /// \return Uniformly distributed random <tt>double</tt> value
 ///
 /// Note: When \p state is of type: \p hiprandStateMRG32k3a_t, \p hiprandStateMtgp32_t,
-/// \p hiprandStateSobol32_t, or \p hiprandStateScrambledSobol32_t then the returned 
+/// \p hiprandStateSobol32_t, or \p hiprandStateScrambledSobol32_t then the returned
 /// \p double value is generated using only 32 random bits (one <tt>unsigned int</tt> value).
 /// In case of the Sobol types, this is done to guarantee the quasirandom properties.
 template<class StateType>
@@ -705,7 +684,7 @@ double hiprand_log_normal_double(StateType * state,
 ///
 /// \tparam StateType - Random number generator state type.
 /// \p StateType type must be one of following types:
-/// \p hiprandStateXORWOW_t, \p hiprandStatePhilox4_32_10_t, 
+/// \p hiprandStateXORWOW_t, \p hiprandStatePhilox4_32_10_t,
 /// \p hiprandStateMRG32k3a_t, or \p hiprandStateMtgp32_t.
 ///
 /// \param state - Pointer to a RNG state to use

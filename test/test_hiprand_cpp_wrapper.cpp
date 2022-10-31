@@ -62,51 +62,50 @@ struct hiprand_cpp_wrapper_offset : public ::testing::Test
     typedef test_type engine_type;
 };
 
-typedef ::testing::Types<
-    hiprand_cpp::mrg32k3a,
-    hiprand_cpp::mt19937,
-    hiprand_cpp::mtgp32,
-    hiprand_cpp::philox4x32_10,
-    hiprand_cpp::scrambled_sobol32,
-    hiprand_cpp::scrambled_sobol64,
-    hiprand_cpp::sobol32,
-    hiprand_cpp::sobol64,
-    hiprand_cpp::xorwow> hiprand_cpp_test_types;
+typedef ::testing::Types<hiprand_cpp::mrg32k3a,
+                         hiprand_cpp::mt19937,
+                         hiprand_cpp::mtgp32,
+                         hiprand_cpp::philox4x32_10,
+                         hiprand_cpp::scrambled_sobol32,
+                         hiprand_cpp::scrambled_sobol64,
+                         hiprand_cpp::sobol32,
+                         hiprand_cpp::sobol64,
+                         hiprand_cpp::xorwow>
+    hiprand_cpp_test_types;
 
-typedef ::testing::Types<
-    hiprand_cpp::mrg32k3a,
-    hiprand_cpp::mt19937,
-    hiprand_cpp::mtgp32,
-    hiprand_cpp::philox4x32_10,
-    hiprand_cpp::scrambled_sobol32,
-    hiprand_cpp::sobol32,
-    hiprand_cpp::xorwow> hiprand_cpp_test_types_32;
+typedef ::testing::Types<hiprand_cpp::mrg32k3a,
+                         hiprand_cpp::mt19937,
+                         hiprand_cpp::mtgp32,
+                         hiprand_cpp::philox4x32_10,
+                         hiprand_cpp::scrambled_sobol32,
+                         hiprand_cpp::sobol32,
+                         hiprand_cpp::xorwow>
+    hiprand_cpp_test_types_32;
 
-typedef ::testing::Types<
-    hiprand_cpp::scrambled_sobol64,
-    hiprand_cpp::sobol64> hiprand_cpp_test_types_64;
+typedef ::testing::Types<hiprand_cpp::scrambled_sobol64, hiprand_cpp::sobol64>
+    hiprand_cpp_test_types_64;
 
-typedef ::testing::Types<
-    hiprand_cpp::mrg32k3a,
-    hiprand_cpp::mt19937,
-    hiprand_cpp::mtgp32,
-    hiprand_cpp::philox4x32_10,
-    hiprand_cpp::xorwow> hiprand_cpp_test_types_prng;
+typedef ::testing::Types<hiprand_cpp::mrg32k3a,
+                         hiprand_cpp::mt19937,
+                         hiprand_cpp::mtgp32,
+                         hiprand_cpp::philox4x32_10,
+                         hiprand_cpp::xorwow>
+    hiprand_cpp_test_types_prng;
 
-typedef ::testing::Types<
-    hiprand_cpp::scrambled_sobol32,
-    hiprand_cpp::scrambled_sobol64,
-    hiprand_cpp::sobol32,
-    hiprand_cpp::sobol64> hiprand_cpp_test_types_qrng;
+typedef ::testing::Types<hiprand_cpp::scrambled_sobol32,
+                         hiprand_cpp::scrambled_sobol64,
+                         hiprand_cpp::sobol32,
+                         hiprand_cpp::sobol64>
+    hiprand_cpp_test_types_qrng;
 
-typedef ::testing::Types<
-    hiprand_cpp::mrg32k3a,
-    hiprand_cpp::philox4x32_10,
-    hiprand_cpp::scrambled_sobol32,
-    hiprand_cpp::scrambled_sobol64,
-    hiprand_cpp::sobol32,
-    hiprand_cpp::sobol64,
-    hiprand_cpp::xorwow> hiprand_cpp_test_types_offset;
+typedef ::testing::Types<hiprand_cpp::mrg32k3a,
+                         hiprand_cpp::philox4x32_10,
+                         hiprand_cpp::scrambled_sobol32,
+                         hiprand_cpp::scrambled_sobol64,
+                         hiprand_cpp::sobol32,
+                         hiprand_cpp::sobol64,
+                         hiprand_cpp::xorwow>
+    hiprand_cpp_test_types_offset;
 
 TYPED_TEST_SUITE(hiprand_cpp_wrapper, hiprand_cpp_test_types);
 TYPED_TEST_SUITE(hiprand_cpp_wrapper_32, hiprand_cpp_test_types_32);
@@ -149,8 +148,10 @@ TYPED_TEST(hiprand_cpp_wrapper, hiprand_rng_ctor)
 }
 
 template<class T,
-typename std::enable_if<std::is_same<T, typename hiprand_cpp::mtgp32>::value ||
-            std::is_same<T, typename hiprand_cpp::mt19937>::value, bool>::type = true>
+         typename std::enable_if<std::is_same<T, typename hiprand_cpp::mtgp32>::value
+                                     || std::is_same<T, typename hiprand_cpp::mt19937>::value,
+                                 bool>::type
+         = true>
 void hiprand_prng_ctor_template()
 {
     T();
@@ -158,8 +159,10 @@ void hiprand_prng_ctor_template()
 }
 
 template<class T,
-typename std::enable_if<!std::is_same<T, typename hiprand_cpp::mtgp32>::value &&
-            !std::is_same<T, typename hiprand_cpp::mt19937>::value, bool>::type = true>
+         typename std::enable_if<!std::is_same<T, typename hiprand_cpp::mtgp32>::value
+                                     && !std::is_same<T, typename hiprand_cpp::mt19937>::value,
+                                 bool>::type
+         = true>
 void hiprand_prng_ctor_template()
 {
     T();
@@ -330,13 +333,10 @@ void hiprand_uniform_int_dist_template()
     HIP_CHECK(hipDeviceSynchronize());
 
     std::vector<IntType> output_host(output_size);
-    HIP_CHECK(
-        hipMemcpy(
-            output_host.data(), output,
-            output_size * sizeof(IntType),
-            hipMemcpyDeviceToHost
-        )
-    );
+    HIP_CHECK(hipMemcpy(output_host.data(),
+                        output,
+                        output_size * sizeof(IntType),
+                        hipMemcpyDeviceToHost));
     HIP_CHECK(hipDeviceSynchronize());
     HIP_CHECK(hipFree(output));
 
@@ -571,11 +571,8 @@ void hiprand_poisson_dist_template(const double lambda)
     hiprand_cpp::poisson_distribution<unsigned int> d(lambda);
 
     const size_t output_size = 8192;
-    unsigned int * output;
-    HIP_CHECK(
-        hipMallocHelper((void **)&output,
-        output_size * sizeof(unsigned int))
-    );
+    unsigned int* output;
+    HIP_CHECK(hipMallocHelper((void**)&output, output_size * sizeof(unsigned int)));
     HIP_CHECK(hipDeviceSynchronize());
 
     // generate
@@ -583,13 +580,10 @@ void hiprand_poisson_dist_template(const double lambda)
     HIP_CHECK(hipDeviceSynchronize());
 
     std::vector<unsigned int> output_host(output_size);
-    HIP_CHECK(
-        hipMemcpy(
-            output_host.data(), output,
-            output_size * sizeof(unsigned int),
-            hipMemcpyDeviceToHost
-        )
-    );
+    HIP_CHECK(hipMemcpy(output_host.data(),
+                        output,
+                        output_size * sizeof(unsigned int),
+                        hipMemcpyDeviceToHost));
     HIP_CHECK(hipDeviceSynchronize());
     HIP_CHECK(hipFree(output));
 
@@ -611,7 +605,7 @@ void hiprand_poisson_dist_template(const double lambda)
     EXPECT_NEAR(variance, lambda, std::max(1.0, lambda * 1e-1));
 }
 
-constexpr double lambdas[] = { 1.0, 5.5, 20.0, 100.0, 1234.5, 5000.0 };
+constexpr double lambdas[] = {1.0, 5.5, 20.0, 100.0, 1234.5, 5000.0};
 
 TYPED_TEST(hiprand_cpp_wrapper, hiprand_poisson_dist)
 {

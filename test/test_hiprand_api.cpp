@@ -28,38 +28,35 @@
 
 #define HIPRAND_CHECK(state) ASSERT_EQ(state, HIPRAND_STATUS_SUCCESS)
 
-constexpr hiprandRngType_t hiprand_rng_types[] = {
-    HIPRAND_RNG_PSEUDO_XORWOW,
-    HIPRAND_RNG_PSEUDO_MRG32K3A,
-    HIPRAND_RNG_PSEUDO_MTGP32,
-    HIPRAND_RNG_PSEUDO_MT19937,
-    HIPRAND_RNG_PSEUDO_PHILOX4_32_10,
-    HIPRAND_RNG_QUASI_SOBOL32,
-    HIPRAND_RNG_QUASI_SCRAMBLED_SOBOL32,
-    HIPRAND_RNG_QUASI_SOBOL64,
-    HIPRAND_RNG_QUASI_SCRAMBLED_SOBOL64
-};
+constexpr hiprandRngType_t hiprand_rng_types[] = {HIPRAND_RNG_PSEUDO_XORWOW,
+                                                  HIPRAND_RNG_PSEUDO_MRG32K3A,
+                                                  HIPRAND_RNG_PSEUDO_MTGP32,
+                                                  HIPRAND_RNG_PSEUDO_MT19937,
+                                                  HIPRAND_RNG_PSEUDO_PHILOX4_32_10,
+                                                  HIPRAND_RNG_QUASI_SOBOL32,
+                                                  HIPRAND_RNG_QUASI_SCRAMBLED_SOBOL32,
+                                                  HIPRAND_RNG_QUASI_SOBOL64,
+                                                  HIPRAND_RNG_QUASI_SCRAMBLED_SOBOL64};
 
-constexpr hiprandRngType_t hiprand_rng_types_32[] = {
-    HIPRAND_RNG_PSEUDO_XORWOW,
-    HIPRAND_RNG_PSEUDO_MRG32K3A,
-    HIPRAND_RNG_PSEUDO_MTGP32,
-    HIPRAND_RNG_PSEUDO_MT19937,
-    HIPRAND_RNG_PSEUDO_PHILOX4_32_10,
-    HIPRAND_RNG_QUASI_SOBOL32,
-    HIPRAND_RNG_QUASI_SCRAMBLED_SOBOL32
-};
+constexpr hiprandRngType_t hiprand_rng_types_32[] = {HIPRAND_RNG_PSEUDO_XORWOW,
+                                                     HIPRAND_RNG_PSEUDO_MRG32K3A,
+                                                     HIPRAND_RNG_PSEUDO_MTGP32,
+                                                     HIPRAND_RNG_PSEUDO_MT19937,
+                                                     HIPRAND_RNG_PSEUDO_PHILOX4_32_10,
+                                                     HIPRAND_RNG_QUASI_SOBOL32,
+                                                     HIPRAND_RNG_QUASI_SCRAMBLED_SOBOL32};
 
-constexpr hiprandRngType_t hiprand_rng_types_64[] = {
-    HIPRAND_RNG_QUASI_SOBOL64,
-    HIPRAND_RNG_QUASI_SCRAMBLED_SOBOL64
-};
+constexpr hiprandRngType_t hiprand_rng_types_64[]
+    = {HIPRAND_RNG_QUASI_SOBOL64, HIPRAND_RNG_QUASI_SCRAMBLED_SOBOL64};
 
-class hiprand_api : public ::testing::TestWithParam<hiprandRngType_t> { };
+class hiprand_api : public ::testing::TestWithParam<hiprandRngType_t>
+{};
 
-class hiprand_api_32 : public ::testing::TestWithParam<hiprandRngType_t> { };
+class hiprand_api_32 : public ::testing::TestWithParam<hiprandRngType_t>
+{};
 
-class hiprand_api_64 : public ::testing::TestWithParam<hiprandRngType_t> { };
+class hiprand_api_64 : public ::testing::TestWithParam<hiprandRngType_t>
+{};
 
 void hiprand_generate_test_func(hiprandRngType_t rng_type)
 {
@@ -111,12 +108,9 @@ void hiprand_generate_long_long_test_func(hiprandRngType_t rng_type)
     hiprandGenerator_t generator = 0;
     HIPRAND_CHECK(hiprandCreateGenerator(&generator, rng_type));
 
-    const size_t output_size = 8192;
+    const size_t            output_size = 8192;
     unsigned long long int* output;
-    HIP_CHECK(
-        hipMallocHelper((void **)&output,
-        output_size * sizeof(unsigned long long int))
-    );
+    HIP_CHECK(hipMallocHelper((void**)&output, output_size * sizeof(unsigned long long int)));
     HIP_CHECK(hipDeviceSynchronize());
 
     // generate
@@ -124,13 +118,10 @@ void hiprand_generate_long_long_test_func(hiprandRngType_t rng_type)
     HIP_CHECK(hipDeviceSynchronize());
 
     std::vector<unsigned long long int> output_host(output_size);
-    HIP_CHECK(
-        hipMemcpy(
-            output_host.data(), output,
-            output_size * sizeof(unsigned long long int),
-            hipMemcpyDeviceToHost
-        )
-    );
+    HIP_CHECK(hipMemcpy(output_host.data(),
+                        output,
+                        output_size * sizeof(unsigned long long int),
+                        hipMemcpyDeviceToHost));
     HIP_CHECK(hipDeviceSynchronize());
     HIP_CHECK(hipFree(output));
 
@@ -516,14 +507,8 @@ TEST_P(hiprand_api, hiprand_generate_poisson_test)
     hiprand_generate_poisson_test_func(rng_type);
 }
 
-INSTANTIATE_TEST_SUITE_P(hiprand_32,
-                         hiprand_api_32,
-                        ::testing::ValuesIn(hiprand_rng_types_32));
+INSTANTIATE_TEST_SUITE_P(hiprand_32, hiprand_api_32, ::testing::ValuesIn(hiprand_rng_types_32));
 
-INSTANTIATE_TEST_SUITE_P(hiprand_64,
-                         hiprand_api_64,
-                        ::testing::ValuesIn(hiprand_rng_types_64));
+INSTANTIATE_TEST_SUITE_P(hiprand_64, hiprand_api_64, ::testing::ValuesIn(hiprand_rng_types_64));
 
-INSTANTIATE_TEST_SUITE_P(hiprand,
-                         hiprand_api,
-                        ::testing::ValuesIn(hiprand_rng_types));
+INSTANTIATE_TEST_SUITE_P(hiprand, hiprand_api, ::testing::ValuesIn(hiprand_rng_types));
