@@ -51,7 +51,7 @@ DEFINE_HIPRAND_STATE(hiprandStateScrambledSobol64, curandStateScrambledSobol64)
 
 typedef curandDiscreteDistribution_t hiprandDiscreteDistribution_t;
 typedef curandDirectionVectors32_t hiprandDirectionVectors32_t;
-typedef curandDirectionVectors64_t hiprandDirectionVectors64_t;
+typedef curandDirectionVectors64_t   hiprandDirectionVectors64_t;
 
 /// \cond
 namespace detail {
@@ -187,36 +187,32 @@ void hiprand_init(const unsigned long long seed,
     curand_init(seed, subsequence, offset, state);
 }
 
-QUALIFIERS
-void hiprand_init(hiprandDirectionVectors32_t direction_vectors,
-                  unsigned int                offset,
-                  hiprandStateSobol32_t*      state)
+QUALIFIERS void hiprand_init(hiprandDirectionVectors32_t direction_vectors,
+                             unsigned int                offset,
+                             hiprandStateSobol32_t*      state)
 {
     curand_init(direction_vectors, offset, state);
 }
 
-QUALIFIERS
-void hiprand_init(hiprandDirectionVectors32_t     direction_vectors,
-                  unsigned int                    scramble_constant,
-                  unsigned int                    offset,
-                  hiprandStateScrambledSobol32_t* state)
+QUALIFIERS void hiprand_init(hiprandDirectionVectors32_t     direction_vectors,
+                             unsigned int                    scramble_constant,
+                             unsigned int                    offset,
+                             hiprandStateScrambledSobol32_t* state)
 {
     curand_init(direction_vectors, scramble_constant, offset, state);
 }
 
-QUALIFIERS
-void hiprand_init(hiprandDirectionVectors64_t direction_vectors,
-                  unsigned int                offset,
-                  hiprandStateSobol64_t*      state)
+QUALIFIERS void hiprand_init(hiprandDirectionVectors64_t direction_vectors,
+                             unsigned int                offset,
+                             hiprandStateSobol64_t*      state)
 {
     curand_init(direction_vectors, offset, state);
 }
 
-QUALIFIERS
-void hiprand_init(hiprandDirectionVectors64_t     direction_vectors,
-                  unsigned long long int          scramble_constant,
-                  unsigned int                    offset,
-                  hiprandStateScrambledSobol64_t* state)
+QUALIFIERS void hiprand_init(hiprandDirectionVectors64_t     direction_vectors,
+                             unsigned long long int          scramble_constant,
+                             unsigned int                    offset,
+                             hiprandStateScrambledSobol64_t* state)
 {
     curand_init(direction_vectors, scramble_constant, offset, state);
 }
@@ -294,8 +290,7 @@ uint4 hiprand4(hiprandStatePhilox4_32_10_t * state)
 }
 
 template<class StateType>
-QUALIFIERS
-unsigned long long int hiprand_long_long(StateType* state)
+QUALIFIERS unsigned long long int hiprand_long_long(StateType* state)
 {
     check_state_type<StateType>();
     return rocrand(state);

@@ -48,12 +48,12 @@
  * \brief Default seed for MRG32K3A PRNG.
  */
 #define HIPRAND_MRG32K3A_DEFAULT_SEED 12345ULL
- /**
+/**
  * \def HIPRAND_MTGP32_DEFAULT_SEED
  * \brief Default seed for MTGP32 PRNG.
  */
 #define HIPRAND_MTGP32_DEFAULT_SEED 0ULL
- /**
+/**
  * \def HIPRAND_MT19937_DEFAULT_SEED
  * \brief Default seed for MT19937 PRNG.
  */
