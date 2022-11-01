@@ -216,15 +216,15 @@ class TestGenerate(TestRNGBase):
 
     def test_generate_unsigned(self):
         if self.is_64_bits:
-            self._test_generate(np.uint64, 0.5, 18446744073709551615.0)
+            self._test_generate(np.uint64, 0.5, 2**64 - 1)
         else:
-            self._test_generate(np.uint32, 0.5, 4294967295.0)
+            self._test_generate(np.uint32, 0.5, 2**32 - 1)
 
     def test_generate_signed(self):
         if self.is_64_bits:
-            self._test_generate(np.int64, 0.0, 18446744073709551615.0)
+            self._test_generate(np.int64, 0.0, 2**64 - 1)
         else:
-            self._test_generate(np.int32, 0.0, 4294967295.0)
+            self._test_generate(np.int32, 0.0, 2**32 - 1)
 
     def _test_uniform(self, dtype):
         output = np.empty(OUTPUT_SIZE, dtype)
