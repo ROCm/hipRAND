@@ -1474,7 +1474,7 @@ constexpr typename mtgp32_engine<DefaultSeed>::seed_type mtgp32_engine<DefaultSe
 /// mt19937_engine is a random number engine based on the well-known
 /// Mersenne Twister algorithm. It produces high quality random numbers of
 /// type \p unsigned \p int on the interval [0; 2^32 - 1].
-template<unsigned long long DefaultSeed = 0>
+template<unsigned long long DefaultSeed = HIPRAND_MT19937_DEFAULT_SEED>
 class mt19937_engine
 {
 public:
@@ -1518,6 +1518,14 @@ public:
         }
         generator = NULL;
     }
+
+    mt19937_engine(const mt19937_engine&) = delete;
+
+    mt19937_engine(mt19937_engine&&) = delete;
+
+    mt19937_engine& operator=(const mt19937_engine&) = delete;
+
+    mt19937_engine& operator=(mt19937_engine&&) = delete;
 
     /// \copydoc philox4x32_10_engine::~philox4x32_10_engine()
     ~mt19937_engine() noexcept(false)
@@ -1813,6 +1821,14 @@ public:
         generator = NULL;
     }
 
+    scrambled_sobol32_engine(const scrambled_sobol32_engine&) = delete;
+
+    scrambled_sobol32_engine(scrambled_sobol32_engine&&) = delete;
+
+    scrambled_sobol32_engine& operator=(const scrambled_sobol32_engine&) = delete;
+
+    scrambled_sobol32_engine& operator=(scrambled_sobol32_engine&&) = delete;
+
     /// \copydoc philox4x32_10_engine::~philox4x32_10_engine()
     ~scrambled_sobol32_engine() noexcept(false)
     {
@@ -1950,6 +1966,14 @@ public:
         }
         generator = NULL;
     }
+
+    sobol64_engine(const sobol64_engine&) = delete;
+
+    sobol64_engine(sobol64_engine&&) = delete;
+
+    sobol64_engine& operator=(const sobol64_engine&) = delete;
+
+    sobol64_engine& operator=(sobol64_engine&&) = delete;
 
     /// \copydoc philox4x32_10_engine::~philox4x32_10_engine()
     ~sobol64_engine() noexcept(false)
@@ -2102,6 +2126,14 @@ public:
         }
         generator = NULL;
     }
+
+    scrambled_sobol64_engine(const scrambled_sobol64_engine&) = delete;
+
+    scrambled_sobol64_engine(scrambled_sobol64_engine&&) = delete;
+
+    scrambled_sobol64_engine& operator=(const scrambled_sobol64_engine&) = delete;
+
+    scrambled_sobol64_engine& operator=(scrambled_sobol64_engine&&) = delete;
 
     /// \copydoc philox4x32_10_engine::~philox4x32_10_engine()
     ~scrambled_sobol64_engine() noexcept(false)
