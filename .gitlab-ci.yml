@@ -289,6 +289,7 @@ test:nvcc-python:
     - cmake
       -S ${CI_PROJECT_DIR}/test/package/
       -B ${CI_PROJECT_DIR}/build_package_test
+      -G Ninja
       -D CMAKE_CXX_COMPILER=${COMPILER}
       ${WITH_LIB_CUDA}
     - cmake --build ${CI_PROJECT_DIR}/build_package_test
@@ -330,6 +331,7 @@ test:nvcc-package:
     - cmake
       -S ${CI_PROJECT_DIR}
       -B ${CI_PROJECT_DIR}/build_only_install
+      -G Ninja
       -D BUILD_TEST=OFF
       -D BUILD_FORTRAN_WRAPPER=OFF
       -D BUILD_FILE_REORG_BACKWARD_COMPATIBILITY=OFF
@@ -339,6 +341,7 @@ test:nvcc-package:
     - cmake
       -S ${CI_PROJECT_DIR}/test/package/
       -B ${CI_PROJECT_DIR}/install_test
+      -G Ninja
       -D CMAKE_CXX_COMPILER=${COMPILER}
       ${WITH_LIB_CUDA}
     - cmake --build ${CI_PROJECT_DIR}/install_test
