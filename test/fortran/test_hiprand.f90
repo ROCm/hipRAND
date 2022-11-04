@@ -1,4 +1,4 @@
-!! Copyright (c) 2017 Advanced Micro Devices, Inc. All rights reserved.
+!! Copyright (c) 2017-2022 Advanced Micro Devices, Inc. All rights reserved.
 !!
 !! Permission is hereby granted, free of charge, to any person obtaining a copy
 !! of this software and associated documentation files (the "Software"), to deal
@@ -63,6 +63,22 @@ contains
         call assert_equals(hipSuccess, hipFree(d_x))
         call assert_equals(HIPRAND_STATUS_SUCCESS, hiprandDestroyGenerator(gen))
     end subroutine test_hiprandGenerate
+
+    !> Test hiprandGenerateLongLong.
+    subroutine test_hiprandGenerateLongLong()
+        integer(kind =8) :: gen
+        integer(kind =8), target, dimension(128) :: h_x
+        type(c_ptr) :: d_x
+        integer(c_size_t), parameter :: output_size = 128
+        call assert_equals(hipSuccess, hipMalloc(d_x, output_size * sizeof(h_x(1))))
+        call assert_equals(HIPRAND_STATUS_SUCCESS, hiprandCreateGenerator(gen, &
+        HIPRAND_RNG_QUASI_SOBOL64))
+        call assert_equals(HIPRAND_STATUS_SUCCESS, hiprandGenerateLongLong(gen, d_x, output_size))
+        call assert_equals(hipSuccess, hipMemcpy(c_loc(h_x), d_x, output_size * sizeof(h_x(1)), &
+        hipMemcpyDeviceToHost))
+        call assert_equals(hipSuccess, hipFree(d_x))
+        call assert_equals(HIPRAND_STATUS_SUCCESS, hiprandDestroyGenerator(gen))
+    end subroutine test_hiprandGenerateLongLong
 
     !> Test hiprandGenerateUniform.
     subroutine test_hiprandGenerateUniform()
@@ -218,6 +234,9 @@ contains
         setup,teardown,suite_name)
 
     call run_fruit_test_case(test_hiprandGenerate,'test_hiprandGenerate',&
+        setup,teardown,suite_name)
+
+    call run_fruit_test_case(test_hiprandGenerateLongLong,'test_hiprandGenerateLongLong',&
         setup,teardown,suite_name)
 
     call run_fruit_test_case(test_hiprandGenerateUniform,'test_hiprandGenerateUniform',&

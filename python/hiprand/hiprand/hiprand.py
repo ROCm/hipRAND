@@ -1,4 +1,4 @@
-# Copyright (c) 2017 Advanced Micro Devices, Inc. All rights reserved.
+# Copyright (c) 2017-2022 Advanced Micro Devices, Inc. All rights reserved.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -228,7 +228,10 @@ class RNG(object):
         Generates **size** (if present) or **ary.size** uniformly distributed
         integers and saves them to **ary**.
 
-        Supported **dtype** of **ary**: :class:`numpy.uint32`, :class:`numpy.int32`.
+        Supported **dtype** of **ary** for 32-bits generators:
+            :class:`numpy.uint32`, :class:`numpy.int32`.
+        Supported **dtype** of **ary** for 64-bits generators:
+            :class:`numpy.uint64`, :class:`numpy.int64`.
 
         :param ary:  NumPy array (:class:`numpy.ndarray`) or
                      HIP device-side array (:class:`DeviceNDArray`)
@@ -237,6 +240,10 @@ class RNG(object):
         if ary.dtype in (np.uint32, np.int32):
             self._generate(
                 hiprand.hiprandGenerate,
+                ary, size)
+        elif ary.dtype in (np.uint64, np.int64):
+            self._generate(
+                hiprand.hiprandGenerateLongLong,
                 ary, size)
         else:
             raise TypeError("unsupported type {}".format(ary.dtype))
