@@ -380,7 +380,6 @@ test:doc:
     - .deps:rocm
   needs: []
   before_script:
-    - ${SUDO_CMD} rm /etc/apt/sources.list.d/rocm.list
     - ${SUDO_CMD} apt-get update -qq
     - ${SUDO_CMD} apt-get install -y -qq doxygen python3-sphinx python3-pip
     - ${SUDO_CMD} -H pip3 install numpy
