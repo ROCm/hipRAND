@@ -1,4 +1,4 @@
-!! Copyright (c) 2017 Advanced Micro Devices, Inc. All rights reserved.
+!! Copyright (c) 2017-2022 Advanced Micro Devices, Inc. All rights reserved.
 !!
 !! Permission is hereby granted, free of charge, to any person obtaining a copy
 !! of this software and associated documentation files (the "Software"), to deal
@@ -71,6 +71,16 @@ module hiprand_m
             use iso_c_binding
             implicit none
             integer(c_int) :: hiprandGenerate
+            integer(c_size_t), value :: generator
+            type(c_ptr), value :: output_data
+            integer(c_size_t), value :: n
+        end function
+
+        function hiprandGenerateLongLong(generator, output_data, n) &
+        bind(C, name="hiprandGenerateLongLong")
+            use iso_c_binding
+            implicit none
+            integer(c_int) :: hiprandGenerateLongLong
             integer(c_size_t), value :: generator
             type(c_ptr), value :: output_data
             integer(c_size_t), value :: n
