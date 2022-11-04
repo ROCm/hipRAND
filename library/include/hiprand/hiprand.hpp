@@ -1772,7 +1772,7 @@ sobol32_engine<DefaultNumDimensions>::default_num_dimensions;
 
 /// \brief Sobol's quasi-random sequence generator
 ///
-/// scrambled_sobol32_engine is quasi-random number engine which produces scrambled Sobol sequences.
+/// scrambled_sobol32_engine is a quasi-random number engine which produces scrambled Sobol sequences.
 /// This implementation supports generating sequences in up to 20,000 dimensions.
 /// The engine produces random unsigned integers on the interval [0; 2^32 - 1].
 template<unsigned int DefaultNumDimensions = 1>
@@ -1918,7 +1918,7 @@ constexpr typename scrambled_sobol32_engine<DefaultNumDimensions>::dimensions_nu
 
 /// \brief Sobol's quasi-random sequence generator
 ///
-/// sobol64_engine is quasi-random number engine which produced Sobol sequences.
+/// sobol64_engine is a quasi-random number engine which produced Sobol sequences.
 /// This implementation supports generating sequences in up to 20,000 dimensions.
 /// The engine produces random unsigned integers on the interval [0; 2^64 - 1].
 template<unsigned int DefaultNumDimensions = 1>
@@ -2078,7 +2078,7 @@ constexpr typename sobol64_engine<DefaultNumDimensions>::dimensions_num_type
 
 /// \brief Sobol's quasi-random sequence generator
 ///
-/// scrambled_sobol64_engine is quasi-random number engine which produces scrambled Sobol sequences.
+/// scrambled_sobol64_engine is a quasi-random number engine which produces scrambled Sobol sequences.
 /// This implementation supports generating sequences in up to 20,000 dimensions.
 /// The engine produces random unsigned integers on the interval [0; 2^64 - 1].
 template<unsigned int DefaultNumDimensions = 1>

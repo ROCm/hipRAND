@@ -352,7 +352,7 @@ hiprandGenerateUniform(hiprandGenerator_t generator,
  *
  * Note: When \p generator is of type: \p HIPRAND_RNG_PSEUDO_MRG32K3A,
  * \p HIPRAND_RNG_PSEUDO_MTGP32, \p HIPRAND_RNG_QUASI_SOBOL32, or
- * \p HIPRAND_RNG_QUASI_SCRAMBLED_SOBOL32 then the returned \p double 
+ * \p HIPRAND_RNG_QUASI_SCRAMBLED_SOBOL32 then the returned \p double
  * values are generated from only 32 random bits
  * each (one <tt>unsigned int</tt> value per one generated \p double).
  *

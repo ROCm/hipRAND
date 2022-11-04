@@ -228,9 +228,9 @@ class RNG(object):
         Generates **size** (if present) or **ary.size** uniformly distributed
         integers and saves them to **ary**.
 
-        Supported **dtype** of **ary** for 32-bits generators: 
+        Supported **dtype** of **ary** for 32-bits generators:
             :class:`numpy.uint32`, :class:`numpy.int32`.
-        Supported **dtype** of **ary** for 64-bits generators: 
+        Supported **dtype** of **ary** for 64-bits generators:
             :class:`numpy.uint64`, :class:`numpy.int64`.
 
         :param ary:  NumPy array (:class:`numpy.ndarray`) or
