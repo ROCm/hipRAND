@@ -35,7 +35,7 @@ else()
         PRIVATE
             hiprand
             roc::rocrand
-            "-L${HIP_ROOT_DIR}/lib -lhip_hcc -Wl,-rpath,${HIP_ROOT_DIR}/lib"
+            "-L${HIP_ROOT_DIR}/lib -lhip_hcc"
     )
 endif()
 

@@ -71,7 +71,7 @@ foreach(test_src ${hiprand_pkg_TEST_SRCS})
             PRIVATE
                 hip::hiprand
                 roc::rocrand
-                "-L${HIP_ROOT_DIR}/lib -Wl,-rpath,${HIP_ROOT_DIR}/lib"
+                "-L${HIP_ROOT_DIR}/lib"
         )
     else()
         target_link_libraries(${test_name}
