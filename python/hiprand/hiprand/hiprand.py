@@ -56,7 +56,7 @@ def load_hiprand():
     load_hip()
 
 # Delay the loading of hiprand to the first use
-# so no code is executed when loading this module 
+# so no code is executed when loading this module
 class _load_hiprand_on_access(object):
     def __getattribute__(self, name):
         global hiprand
@@ -351,19 +351,6 @@ class RNG(object):
 
 
 class PRNG(RNG):
-    """Pseudo-random number generator.
-
-    Example::
-
-        import hiprand
-        import numpy as np
-
-        gen = hiprand.PRNG(hiprand.PRNG.PHILOX4_32_10, seed=123456)
-        a = np.empty(1000, np.int32)
-        gen.poisson(a, 10.0)
-        print(a)
-    """
-
     DEFAULT       = HIPRAND_RNG_PSEUDO_DEFAULT
     """Default pseudo-random generator type, :const:`XORWOW`"""
     XORWOW        = HIPRAND_RNG_PSEUDO_XORWOW
@@ -397,6 +384,16 @@ class PRNG(RNG):
         :param seed:    Initial seed value
         :param offset:  Initial offset of random numbers sequence
         :param stream:  HIP stream for all kernel launches of the generator
+
+        Example::
+
+            import hiprand
+            import numpy as np
+
+            gen = hiprand.PRNG(hiprand.PRNG.PHILOX4_32_10, seed=123456)
+            a = np.empty(1000, np.int32)
+            gen.poisson(a, 10.0)
+            print(a)
         """
         super(PRNG, self).__init__(rngtype, offset=offset, stream=stream)
 
@@ -419,19 +416,6 @@ class PRNG(RNG):
 
 
 class QRNG(RNG):
-    """Quasi-random number generator.
-
-    Example::
-
-        import hiprand
-        import numpy as np
-
-        gen = hiprand.QRNG(hiprand.QRNG.SOBOL32, ndim=4)
-        a = np.empty(1000, np.float32)
-        gen.normal(a, 0.0, 1.0)
-        print(a)
-    """
-
     DEFAULT           = HIPRAND_RNG_QUASI_DEFAULT
     """Default quasi-random generator type, :const:`SOBOL32`"""
     SOBOL32           = HIPRAND_RNG_QUASI_SOBOL32
@@ -444,7 +428,7 @@ class QRNG(RNG):
     """Scrambled Sobol64 quasi-random generator type"""
 
     def __init__(self, rngtype=DEFAULT, ndim=None, offset=None, stream=None):
-        """__init__(self, rngtype=DEFAULT, ndim=None, offset=None, stream=None)
+        """
         Creates a new quasi-random number generator.
 
         A new quasi-random number generator of type **rngtype** is initialized
@@ -464,6 +448,16 @@ class QRNG(RNG):
         :param ndim:    Number of dimensions
         :param offset:  Initial offset of random numbers sequence
         :param stream:  HIP stream for all kernel launches of the generator
+
+        Example::
+
+            import hiprand
+            import numpy as np
+
+            gen = hiprand.QRNG(hiprand.QRNG.SOBOL32, ndim=4)
+            a = np.empty(1000, np.float32)
+            gen.normal(a, 0.0, 1.0)
+            print(a)
         """
 
         super(QRNG, self).__init__(rngtype, offset=offset, stream=stream)
