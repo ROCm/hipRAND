@@ -110,7 +110,7 @@ clang-format:
     paths:
       - ${ROCRAND_DIR}/build/rocrand*.deb
     expire_in: 2 weeks
-  
+
 deps:rocrand:
   tags:
     - rocm-build
@@ -397,11 +397,16 @@ test:doc:
     - .rules:test
     - .deps:rocm
   needs: []
+  image: sphinxdoc/sphinx-latexpdf:latest
   before_script:
-    - ${SUDO_CMD} apt-get update -qq
-    - ${SUDO_CMD} apt-get install -y -qq doxygen python3-sphinx python3-pip
-    - ${SUDO_CMD} -H pip3 install numpy
+    - apt-get update -qq
+    - apt-get install -y -qq doxygen
+    - pip3 install --user numpy
+    - pip3 install --user -r $CI_PROJECT_DIR/docs/requirements.txt
   script:
-    - cd ${CI_PROJECT_DIR}/doc
-    - ${SUDO_CMD} doxygen Doxyfile
-    - ${SUDO_CMD} make -C ../python/hiprand/docs html
+    - $CI_PROJECT_DIR/docs/run_doc.sh
+  artifacts:
+    paths:
+      - $CI_PROJECT_DIR/docs/_build
+      - $CI_PROJECT_DIR/docs/docBin
+    expire_in: 1 week
