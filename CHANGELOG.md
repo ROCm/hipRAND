@@ -2,7 +2,7 @@
 
 Full documentation for rocRAND is available at [https://rocrand.readthedocs.io/en/latest/](https://rocrand.readthedocs.io/en/latest/)
 
-## (Unreleased) hipRAND for ROCm 5.2.0
+## (Unreleased) hipRAND-2.10.16 for ROCm 5.5.0
 ### Added
 - rocRAND backend support for Sobol 64, Scrambled Sobol 32 and 64, and MT19937.
 - `hiprandGenerateLongLong` for generating 64-bits uniformly distributed integers with Sobol 64 and Scrambled Sobol 64.
