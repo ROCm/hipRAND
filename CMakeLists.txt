@@ -27,7 +27,7 @@ cmake_minimum_required(VERSION 3.16 FATAL_ERROR)
 #
 project(hipRAND CXX)
 
-set(hipRAND_VERSION "2.10.9")
+set(hipRAND_VERSION "2.10.16")
 
 set(HIPRAND_SUBMODULE OFF CACHE BOOL "Build hipRAND as a submodule of rocRAND.")
 if (NOT HIPRAND_SUBMODULE)
@@ -158,7 +158,7 @@ if (NOT HIPRAND_SUBMODULE)
 endif()
 
 # Set version variables
-rocm_setup_version( VERSION "2.10.9" )
+rocm_setup_version( VERSION "${hipRAND_VERSION}" )
 
 set ( hiprand_VERSION ${hipRAND_VERSION} )
 # Old-style version number used within the library's API. rocrand_get_version should be modified.
