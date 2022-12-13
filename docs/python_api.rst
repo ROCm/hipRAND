@@ -1,8 +1,13 @@
-hiprand module
-==============
+====================
+Python API Reference
+====================
 
-Provides `pseudo-random number generator` (PRNG) and `quasi-random number generator` (QRNG).
+This chapter describes the hipRAND Python module API.
 
+This wrapper has API similar to **pyculib.rand**
+(http://pyculib.readthedocs.io/en/latest/curand.html).
+
+.. default-domain:: py
 .. py:currentmodule:: hiprand
 
 class PRNG

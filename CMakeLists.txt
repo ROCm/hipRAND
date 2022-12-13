@@ -20,14 +20,14 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-cmake_minimum_required(VERSION 3.10.2 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.16 FATAL_ERROR)
 
 #
 # hipRAND project
 #
 project(hipRAND CXX)
 
-set(hipRAND_VERSION "2.10.9")
+set(hipRAND_VERSION "2.10.16")
 
 set(HIPRAND_SUBMODULE OFF CACHE BOOL "Build hipRAND as a submodule of rocRAND.")
 if (NOT HIPRAND_SUBMODULE)
@@ -122,9 +122,9 @@ if (NOT HIPRAND_SUBMODULE)
   set(CMAKE_CXX_STANDARD_REQUIRED ON)
   set(CMAKE_CXX_EXTENSIONS OFF)
   if(DISABLE_WERROR)
-      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -mf16c")
+      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
   else()
-      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Werror -mf16c")
+      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Werror")
   endif()
 
   # HIP on Windows: xhip is required with clang++ to get __half defined
@@ -158,7 +158,7 @@ if (NOT HIPRAND_SUBMODULE)
 endif()
 
 # Set version variables
-rocm_setup_version( VERSION "2.10.9" )
+rocm_setup_version( VERSION "${hipRAND_VERSION}" )
 
 set ( hiprand_VERSION ${hipRAND_VERSION} )
 # Old-style version number used within the library's API. rocrand_get_version should be modified.

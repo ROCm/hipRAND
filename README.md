@@ -7,6 +7,10 @@ hipRAND exports an interface that does not require the client to change, regardl
 Currently, hipRAND supports either [rocRAND](https://github.com/ROCmSoftwarePlatform/rocRAND) 
 or [cuRAND](https://developer.nvidia.com/curand).
 
+## Documentation
+
+Information about the library API and other topics can be found in the [hipRAND Documentation](https://hiprand.readthedocs.io/en/latest/).
+
 ## Installing pre-built packages
 Download pre-built packages from 
 [ROCm's package servers](https://rocm.github.io/install.html#installing-from-amd-rocm-repositories), or by clicking 
@@ -18,7 +22,7 @@ Release notes are available for each release on the releases tab.
 ## Quickstart hipRAND build
 
 ### Requirements
-- CMake (3.10.2 or later)
+- CMake (3.16 or later)
 - For AMD GPUs:
   - AMD ROCm platform (5.0.0 or later)
   - rocRAND library

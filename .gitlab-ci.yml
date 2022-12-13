@@ -1,6 +1,6 @@
 # MIT License
 #
-# Copyright (c) 2017 Advanced Micro Devices, Inc. All rights reserved.
+# Copyright (c) 2017-2022 Advanced Micro Devices, Inc. All rights reserved.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -21,335 +21,392 @@
 # SOFTWARE.
 
 variables:
-  SUDO_CMD: "" # Must be "sudo" on images which dont use root user
-  DEPS_DIR: "$CI_PROJECT_DIR/__dependencies"
-  CMAKE_URL: "https://cmake.org/files/v3.10/cmake-3.10.2-Linux-x86_64.tar.gz"
-  # General build flags
-  CXXFLAGS: ""
-  CMAKE_OPTIONS: ""
-  # Local build options
-  LOCAL_CXXFLAGS: ""
-  LOCAL_CMAKE_OPTIONS: ""
-  ROCM_LATEST_PATH: "/opt/rocm-4.2.0/"
+  ROCRAND_DIR: ${CI_PROJECT_DIR}/rocRAND
 
-# ROCm
+include:
+  - project: amd/ci-templates
+    ref: main
+    file:
+      - /defaults.yaml
+      - /deps-cmake.yaml
+      - /deps-rocm.yaml
+      - /deps-nvcc.yaml
+      - /gpus-rocm.yaml
+      - /gpus-nvcc.yaml
+      - /rules.yaml
 
-.rocm:
+stages:
+  - lint
+  - deps
+  - build
+  - test
+
+clang-format:
+  extends:
+    - .deps:rocm
+  stage: lint
+  needs: []
+  tags:
+    - rocm-build
   variables:
-    SUDO_CMD: "sudo -E"
-    SUDO_CMD_HOME: "sudo -E -H"
+    CLANG_FORMAT: "/opt/rocm/llvm/bin/clang-format"
+    GIT_CLANG_FORMAT: "/opt/rocm/llvm/bin/git-clang-format"
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+  script:
+    - cd $CI_PROJECT_DIR
+    - git config --global --add safe.directory $CI_PROJECT_DIR
+    - scripts/code-format/check-format.sh $CI_MERGE_REQUEST_DIFF_BASE_SHA --binary "$CLANG_FORMAT"
+
+.rocm:cmake-minimum:
+  variables:
+    COMPILER: hipcc
+  extends:
+    - .deps:rocm
+    - .deps:cmake-minimum
+  before_script:
+    - !reference [".deps:rocm", before_script]
+    - !reference [".deps:cmake-minimum", before_script]
+
+.nvcc:cmake-minimum:
+  variables:
+    COMPILER: c++
+  extends:
+    - .deps:nvcc
+    - .deps:cmake-minimum
+  before_script:
+    - !reference [".deps:nvcc", before_script]
+    - !reference [".deps:cmake-minimum", before_script]
+
+.rocm:rocrand:
+  stage: deps
+  extends:
+    - .gpus:rocm-gpus
+    - .rules:build
+  needs: []
+  variables:
+    ROCRAND_GIT_BRANCH: "develop_stream"
+  script:
+    - branch_name="${ROCRAND_GIT_BRANCH}"
+    - if [ ${CI_COMMIT_BRANCH} == develop ] || [ ${CI_COMMIT_BRANCH} == master ]; then branch_name=${CI_COMMIT_BRANCH};
+    - fi;
+    - git clone -b ${branch_name} https://gitlab-ci-token:${CI_JOB_TOKEN}@${ROCRAND_GIT_URL}
+    - cmake
+      -S ${ROCRAND_DIR}
+      -B ${ROCRAND_DIR}/build
+      -G Ninja
+      -D CMAKE_CXX_COMPILER=${COMPILER}
+      -D BUILD_TEST=OFF
+      -D BUILD_BENCHMARK=OFF
+      -D BUILD_FORTRAN_WRAPPER=OFF
+      -D DEPENDENCIES_FORCE_DOWNLOAD=OFF
+      -D BUILD_FILE_REORG_BACKWARD_COMPATIBILITY=ON
+      -D BUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
+      -D GPU_TARGETS=${GPU_TARGETS}
+      -D BUILD_HIPRAND=OFF
+      -D ROCM_DEP_ROCMCORE=OFF
+    - cmake --build ${ROCRAND_DIR}/build --target package
+  artifacts:
+    paths:
+      - ${ROCRAND_DIR}/build/rocrand*.deb
+    expire_in: 2 weeks
+
+deps:rocrand:
+  tags:
+    - rocm-build
+  needs: []
+  extends:
+    - .rocm:cmake-minimum
+    - .rocm:rocrand
+  variables:
+    BUILD_SHARED_LIBS: "ON"
+
+deps:rocrand-static:
+  tags:
+    - rocm-build
+  needs: []
+  extends:
+    - .rocm:cmake-minimum
+    - .rocm:rocrand
+  variables:
+    BUILD_SHARED_LIBS: "OFF"
+
+.rocm:build:
+  stage: build
+  extends:
+    - .gpus:rocm-gpus
+    - .rules:build
+  script:
+    - cmake
+      -S ${CI_PROJECT_DIR}
+      -B ${CI_PROJECT_DIR}/build
+      -G Ninja
+      -D CMAKE_CXX_COMPILER=${COMPILER}
+      -D BUILD_TEST=ON
+      -D BUILD_BENCHMARK=ON
+      -D BUILD_FORTRAN_WRAPPER=OFF
+      -D DEPENDENCIES_FORCE_DOWNLOAD=ON
+      -D BUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
+    - cmake --build ${CI_PROJECT_DIR}/build
+    - cmake --build ${CI_PROJECT_DIR}/build --target package
+
+.nvcc:build:
+  stage: build
+  extends:
+    - .gpus:nvcc-gpus
+    - .rules:build
+  needs: []
+  script:
+    - cmake
+      -S ${CI_PROJECT_DIR}
+      -B ${CI_PROJECT_DIR}/build
+      -G Ninja
+      -D CMAKE_CXX_COMPILER=${COMPILER}
+      -D BUILD_TEST=ON
+      -D BUILD_BENCHMARK=ON
+      -D BUILD_FORTRAN_WRAPPER=OFF
+      -D DEPENDENCIES_FORCE_DOWNLOAD=ON
+      -D NVGPU_TARGETS=${GPU_TARGETS}
+      -D BUILD_WITH_LIB=CUDA
+    - cmake --build ${CI_PROJECT_DIR}/build
+    - cmake --build ${CI_PROJECT_DIR}/build --target package
+
+.save-artifacts:
+  artifacts:
+    paths:
+      - ${CI_PROJECT_DIR}/build/library/
+      - ${CI_PROJECT_DIR}/build/test/test_*
+      - ${CI_PROJECT_DIR}/build/test/CTestTestfile.cmake
+      - ${CI_PROJECT_DIR}/build/CMakeCache.txt
+      - ${CI_PROJECT_DIR}/build/CTestTestfile.cmake
+      - ${CI_PROJECT_DIR}/build/*.deb
+      - ${CI_PROJECT_DIR}/build/*.zip
+      - ${ROCRAND_DIR}/build/rocrand*.deb
+    expire_in: 2 weeks
+
+.rocm:rocrand-install:
+  before_script:
+    - ${SUDO_CMD} dpkg -i ${ROCRAND_DIR}/build/rocrand*.deb
+
+build:rocm-cmake-minimum:
+  tags:
+    - rocm-build
+  needs:
+    - deps:rocrand
+  extends:
+    - .rocm:cmake-minimum
+    - .rocm:build
+    - .save-artifacts
+    - .rocm:rocrand-install
+  variables:
+    BUILD_SHARED_LIBS: "ON"
+  before_script:
+    - !reference [".rocm:cmake-minimum", before_script]
+    - !reference [".rocm:rocrand-install", before_script]
+
+build:rocm-static-cmake-minimum:
+  tags:
+    - rocm-build
+  needs:
+    - deps:rocrand-static
+  extends:
+    - .rocm:cmake-minimum
+    - .rocm:build
+    - .save-artifacts
+    - .rocm:rocrand-install
+  variables:
+    BUILD_SHARED_LIBS: "OFF"
+  before_script:
+    - !reference [".rocm:cmake-minimum", before_script]
+    - !reference [".rocm:rocrand-install", before_script]
+
+build:nvcc-cmake-minimum:
+  tags:
+    - nvcc-build
+  needs: []
+  extends:
+    - .nvcc:cmake-minimum
+    - .nvcc:build
+    - .save-artifacts
+
+.test:ctest:
+  extends:
+    - .rules:test
+  stage: test
+  script:
+    - cd ${CI_PROJECT_DIR}/build
+    - ctest --output-on-failure
+
+test:rocm:
+  needs:
+    - build:rocm-cmake-minimum
+  extends:
+    - .rocm:cmake-minimum
+    - .test:ctest
+    - .gpus:rocm
+    - .rocm:rocrand-install
+
+test:nvcc:
+  needs:
+    - build:nvcc-cmake-minimum
+  extends:
+    - .nvcc:cmake-minimum
+    - .test:ctest
+    - .gpus:nvcc
+  before_script:
+    # This is only needed because of the legacy before_script in .gpus:nvcc
+    - !reference [".nvcc:cmake-minimum", before_script]
+
+.test:python:
+  stage: test
+  extends:
+    - .rules:test
+  before_script:
+    - ${SUDO_CMD} apt-get update -qq
+    - ${SUDO_CMD} apt-get install -y -qq python3 python3-pip python3-numpy
+    - ${SUDO_CMD} apt-get install -y -qq wget
+    - pip3 install setuptools
+    - export HIPRAND_PATH=${CI_PROJECT_DIR}/build/library/
+  script:
+    - pip3 --version
+    - cd ${CI_PROJECT_DIR}/python/hiprand
+    - python3 setup.py test
+    - pip3 install . --user
+    - python3 tests/hiprand_test.py
+    - pip3 uninstall --yes hiprand
+
+test:rocm-python:
   tags:
     - rocm
-  image: rocm/rocm-terminal:latest
-  before_script:
-    - $SUDO_CMD apt-get update -qq
-    - $SUDO_CMD apt-get install -y -qq libidn11 git wget tar xz-utils bzip2 build-essential pkg-config ca-certificates kmod gfortran findutils
-    - hipconfig
-    # cmake
-    - mkdir -p $DEPS_DIR/cmake
-    - wget --no-check-certificate --quiet -O - $CMAKE_URL | tar --strip-components=1 -xz -C $DEPS_DIR/cmake
-    - export PATH=$DEPS_DIR/cmake/bin:$PATH
-    # Combine global build options with local options
-    - export CXXFLAGS=$CXXFLAGS" "$LOCAL_CXXFLAGS
-    - export CMAKE_OPTIONS=$CXXFLAGS" "$LOCAL_CMAKE_OPTIONS
-
-build:rocm:
-  extends: .rocm
-  stage: build
-  script:
-    - mkdir build
-    - cd build
-    - CXX=hipcc cmake -DBUILD_TEST=ON -DBUILD_BENCHMARK=ON -DBUILD_FORTRAN_WRAPPER=OFF -DBUILD_TOOLS=ON -DDEPENDENCIES_FORCE_DOWNLOAD=ON ../.
-    - make -j16
-    - make package
-  artifacts:
-    paths:
-      - build/library/
-      - build/test/crush_test_*
-      - build/test/test_*
-      - build/test/stat_test_*
-      - build/test/CTestTestfile.cmake
-      - build/benchmark/benchmark_*
-      - build/gtest/
-      - build/testu01/
-      - build/CMakeCache.txt
-      - build/CTestTestfile.cmake
-      - build/*.deb
-      - build/*.zip
-    expire_in: 2 weeks
-
-build:rocm-static:
-  extends: .rocm
-  stage: build
-  script:
-    - mkdir build
-    - cd build
-    - CXX=hipcc cmake -DBUILD_SHARED_LIBS=OFF -DBUILD_TEST=ON -DBUILD_BENCHMARK=ON -DBUILD_FORTRAN_WRAPPER=OFF -DBUILD_TOOLS=ON -DDEPENDENCIES_FORCE_DOWNLOAD=ON ../.
-    - make -j16
-    - make package
-  artifacts:
-    paths:
-      - build/library/
-      - build/test/crush_test_*
-      - build/test/test_*
-      - build/test/stat_test_*
-      - build/test/CTestTestfile.cmake
-      - build/benchmark/benchmark_*
-      - build/gtest/
-      - build/testu01/
-      - build/CMakeCache.txt
-      - build/CTestTestfile.cmake
-      - build/*.deb
-      - build/*.zip
-    expire_in: 2 weeks
-
-include: '.gitlab-ci-gputest.yml'
-
-test:rocm_python:
-  extends: .rocm
-  stage: test
+  extends:
+    - .test:python
+    - .deps:rocm
+    - .rocm:rocrand-install
   needs:
-    - build:rocm
-  tags:
-    - rocm-stable
+    - build:rocm-cmake-minimum
   before_script:
-    - $SUDO_CMD apt-get update -qq
-    - $SUDO_CMD apt-get install -y -qq python python-pip python-numpy
-    - $SUDO_CMD apt-get install -y -qq python3 python3-pip python3-numpy
-    - $SUDO_CMD apt-get install -y -qq wget
-    - $SUDO_CMD apt-get -y remove python-pip python3-pip
-    # Latest supported Python version of pypa is 3.6, but there's no permalink
-    # for the latest scripts, hence the '+' in the filename and the generic URL
-    - wget https://bootstrap.pypa.io/get-pip.py -O get-pip-3.6+.py
-    - wget https://bootstrap.pypa.io/pip/2.7/get-pip.py -O get-pip-2.7.py
-    - $SUDO_CMD_HOME python get-pip-2.7.py
-    - $SUDO_CMD_HOME python3 get-pip-3.6+.py
+    - !reference [".rocm:rocrand-install", before_script]
+    - !reference [".test:python", before_script]
 
-  script:
-    - export ROCRAND_PATH=$CI_PROJECT_DIR/build/library/
-    # rocRAND Wrapper with Python 2
-    - cd $CI_PROJECT_DIR/python/rocrand
-    - $SUDO_CMD python2 setup.py test
-    - pip2 install . --user
-    - $SUDO_CMD python2 tests/rocrand_test.py
-    - pip2 uninstall --yes rocrand
-    # hipRAND Wrapper with Python 2
-    - cd $CI_PROJECT_DIR/python/hiprand
-    - $SUDO_CMD python2 setup.py test
-    - pip2 install . --user
-    - $SUDO_CMD python2 tests/hiprand_test.py
-    - pip2 uninstall --yes hiprand
-    # rocRAND Wrapper with Python 3
-    - pip3 --version
-    - cd $CI_PROJECT_DIR/python/rocrand
-    - $SUDO_CMD python3 setup.py test
-    - pip3 install . --user
-    - $SUDO_CMD python3 tests/rocrand_test.py
-    - pip3 uninstall --yes rocrand
-    # hipRAND Wrapper with Python 3
-    - cd $CI_PROJECT_DIR/python/hiprand
-    - $SUDO_CMD python3 setup.py test
-    - pip3 install . --user
-    - $SUDO_CMD python3 tests/hiprand_test.py
-    - pip3 uninstall --yes hiprand
-
-test:rocm_package:
-  extends: .rocm
-  stage: test
-  needs:
-    - build:rocm
-  tags:
-    - rocm-stable
-  script:
-    - cd build
-    - $SUDO_CMD dpkg -i rocrand*.deb
-    - find -L $ROCM_PATH | grep rand | sort
-    - mkdir ../build_package_test && cd ../build_package_test
-    - CXX=hipcc cmake ../test/package/.
-    - make VERBOSE=1
-    - $SUDO_CMD ctest --output-on-failure
-    - ldd ./test_hiprand
-    - $SUDO_CMD dpkg -r rocrand
-
-test:rocm_install:
-  extends: .rocm
-  stage: test
-  tags:
-    - rocm-stable
-  dependencies: []
-  script:
-    - mkdir build_only_install
-    - cd build_only_install
-    - CXX=hipcc cmake -DBUILD_TEST=OFF -DBUILD_FORTRAN_WRAPPER=OFF ../.
-    - make -j16
-    - $SUDO_CMD make install
-    - find -L $ROCM_PATH | grep rand | sort
-    - mkdir ../install_test && cd ../install_test
-    - CXX=hipcc cmake ../test/package/.
-    - make VERBOSE=1
-    - $SUDO_CMD ctest --output-on-failure
-    - ldd ./test_hiprand
-
-
-# NVCC
-
-.nvcc:
+test:nvcc-python:
   tags:
     - nvcc
-  image: nvidia/cuda:10.2-devel-ubuntu18.04
-  before_script:
-    - nvidia-smi
-    # HIP-nvcc
-    - $SUDO_CMD apt-get update -qq
-    - $SUDO_CMD apt-get install -y -qq ca-certificates git wget tar xz-utils bzip2 build-essential pkg-config g++ gfortran findutils
-    - wget -qO - http://repo.radeon.com/rocm/apt/debian/rocm.gpg.key | $SUDO_CMD apt-key add -
-    - echo 'deb [arch=amd64] http://repo.radeon.com/rocm/apt/debian/ xenial main' | $SUDO_CMD tee /etc/apt/sources.list.d/rocm.list
-    - $SUDO_CMD apt-get update -qq
-    - $SUDO_CMD apt-get install -y hip-base rocm-cmake
-    # Install hip-nvcc ignoring dependencies because it depends on cuda metapackage
-    # (with heavy libraries, tools etc. that also require GUI and other packages)
-    - apt-get download hip-nvcc
-    - $SUDO_CMD dpkg -i --ignore-depends=cuda hip*.deb
-    - $SUDO_CMD ls -d /opt/*
-    - $SUDO_CMD ln -s $ROCM_LATEST_PATH /opt/rocm
-    - export PATH=$PATH:/opt/rocm/bin
-    - hipconfig
-    # cmake
-    - mkdir -p $DEPS_DIR/cmake
-    - wget --no-check-certificate --quiet -O - $CMAKE_URL | tar --strip-components=1 -xz -C $DEPS_DIR/cmake
-    - export PATH=$DEPS_DIR/cmake/bin:$PATH
-    # Combine global build options with local options
-    - export CXXFLAGS=$CXXFLAGS" "$LOCAL_CXXFLAGS
-    - export CMAKE_OPTIONS=$CXXFLAGS" "$LOCAL_CMAKE_OPTIONS
+  extends:
+    - .deps:nvcc
+    - .test:python
+  needs:
+    - build:nvcc-cmake-minimum
 
-build:nvcc:
-  extends: .nvcc
-  stage: build
+.test:package:
+  stage: test
+  extends:
+    - .rules:test
   script:
-    - mkdir build
-    - cd build
-    - cmake -DBUILD_TEST=ON -DBUILD_BENCHMARK=ON -DBUILD_FORTRAN_WRAPPER=OFF -DBUILD_TOOLS=ON -DDEPENDENCIES_FORCE_DOWNLOAD=ON -DNVGPU_TARGETS="52;70" ../.
-    - make -j16
-    - make package
+    - cd ${CI_PROJECT_DIR}/build
+    - ${SUDO_CMD} dpkg -i hiprand*.deb
+    - cmake
+      -S ${CI_PROJECT_DIR}/test/package/
+      -B ${CI_PROJECT_DIR}/build_package_test
+      -G Ninja
+      -D CMAKE_CXX_COMPILER=${COMPILER}
+      ${WITH_LIB_CUDA}
+    - cmake --build ${CI_PROJECT_DIR}/build_package_test
+    - cd ${CI_PROJECT_DIR}/build_package_test
+    - ctest --output-on-failure
+    - ${SUDO_CMD} dpkg -r hiprand-tests hiprand-dev hiprand
+
+test:rocm-package:
+  tags:
+    - rocm
+  extends:
+    - .rocm:cmake-minimum
+    - .test:package
+    - .rocm:rocrand-install
+  needs:
+    - build:rocm-cmake-minimum
+  before_script:
+    - !reference [".rocm:cmake-minimum", before_script]
+    - !reference [".rocm:rocrand-install", before_script]
+  variables:
+    WITH_LIB_CUDA: ""
+
+test:nvcc-package:
+  tags:
+    - nvcc
+  extends:
+    - .nvcc:cmake-minimum
+    - .test:package
+  needs:
+    - build:nvcc-cmake-minimum
+  variables:
+    WITH_LIB_CUDA: "-D BUILD_WITH_LIB=CUDA"
+
+.test:install:
+  stage: test
+  extends:
+    - .rules:test
+  script:
+    - cmake
+      -S ${CI_PROJECT_DIR}
+      -B ${CI_PROJECT_DIR}/build_only_install
+      -G Ninja
+      -D BUILD_TEST=OFF
+      -D BUILD_FORTRAN_WRAPPER=OFF
+      -D BUILD_FILE_REORG_BACKWARD_COMPATIBILITY=OFF
+      -D CMAKE_CXX_COMPILER=${COMPILER}
+      ${WITH_LIB_CUDA}
+    - ${SUDO_CMD} cmake --build ${CI_PROJECT_DIR}/build_only_install --target install
+    - cmake
+      -S ${CI_PROJECT_DIR}/test/package/
+      -B ${CI_PROJECT_DIR}/install_test
+      -G Ninja
+      -D CMAKE_CXX_COMPILER=${COMPILER}
+      ${WITH_LIB_CUDA}
+    - cmake --build ${CI_PROJECT_DIR}/install_test
+    - cd ${CI_PROJECT_DIR}/install_test
+    - ctest --output-on-failure
+
+test:rocm-install:
+  tags:
+    - rocm
+  extends:
+    - .rocm:cmake-minimum
+    - .test:install
+    - .rocm:rocrand-install
+  needs:
+    - deps:rocrand
+  before_script:
+    - !reference [".rocm:cmake-minimum", before_script]
+    - !reference [".rocm:rocrand-install", before_script]
+  variables:
+    WITH_LIB_CUDA: ""
+
+test:nvcc-install:
+  tags:
+    - nvcc
+  extends:
+    - .nvcc:cmake-minimum
+    - .test:install
+  needs: []
+  variables:
+    WITH_LIB_CUDA: "-D BUILD_WITH_LIB=CUDA"
+
+test:doc:
+  stage: test
+  extends:
+    - .rules:test
+    - .deps:rocm
+  needs: []
+  image: sphinxdoc/sphinx-latexpdf:latest
+  before_script:
+    - apt-get update -qq
+    - apt-get install -y -qq doxygen
+    - pip3 install --user numpy
+    - pip3 install --user -r $CI_PROJECT_DIR/docs/requirements.txt
+  script:
+    - $CI_PROJECT_DIR/docs/run_doc.sh
   artifacts:
     paths:
-      - build/library/
-      - build/test/crush_test_*
-      - build/test/test_*
-      - build/test/stat_test_*
-      - build/test/CTestTestfile.cmake
-      - build/benchmark/benchmark_*
-      - build/gtest/
-      - build/testu01/
-      - build/CMakeCache.txt
-      - build/CTestTestfile.cmake
-      - build/*.deb
-      - build/*.zip
-    expire_in: 2 weeks
-
-test:nvcc_titanv:
-  extends: .nvcc
-  stage: test
-  needs:
-    - build:nvcc
-  script:
-    - export CUDA_VISIBLE_DEVICES=0
-    - cd build
-    - $SUDO_CMD ctest --output-on-failure
-    - $SUDO_CMD ./benchmark/benchmark_rocrand_generate --dis all --engine all --trials 5
-    - $SUDO_CMD ./benchmark/benchmark_rocrand_kernel --dis all --engine all --trials 5
-    - $SUDO_CMD ./benchmark/benchmark_curand_generate --dis all --engine all --trials 5
-    - $SUDO_CMD ./benchmark/benchmark_curand_kernel --dis all --engine all --trials 5
-
-test:nvcc_980:
-  extends: .nvcc
-  stage: test
-  needs:
-    - build:nvcc
-  script:
-    - export CUDA_VISIBLE_DEVICES=1
-    - cd build
-    - $SUDO_CMD ctest --output-on-failure
-    - $SUDO_CMD ./benchmark/benchmark_rocrand_generate --dis all --engine all --trials 5
-    - $SUDO_CMD ./benchmark/benchmark_rocrand_kernel --dis all --engine all --trials 5
-    - $SUDO_CMD ./benchmark/benchmark_curand_generate --dis all --engine all --trials 5
-    - $SUDO_CMD ./benchmark/benchmark_curand_kernel --dis all --engine all --trials 5
-
-test:nvcc_python:
-  extends: .nvcc
-  stage: test
-  needs:
-    - build:nvcc
-  before_script:
-    - $SUDO_CMD apt-get update -qq
-    - $SUDO_CMD apt-get install -y -qq python python-pip python-numpy
-    - $SUDO_CMD apt-get install -y -qq python3 python3-pip python3-numpy
-    - $SUDO_CMD apt-get install -y -qq wget
-    - $SUDO_CMD apt-get -y remove python-pip python3-pip
-    # Latest supported Python version of pypa is 3.6, but there's no permalink
-    # for the latest scripts, hence the '+' in the filename and the generic URL
-    - wget https://bootstrap.pypa.io/get-pip.py -O get-pip-3.6+.py
-    - wget https://bootstrap.pypa.io/pip/2.7/get-pip.py -O get-pip-2.7.py
-    - $SUDO_CMD_HOME python get-pip-2.7.py
-    - $SUDO_CMD_HOME python3 get-pip-3.6+.py
-
-  script:
-    - export ROCRAND_PATH=$CI_PROJECT_DIR/build/library/
-    # rocRAND Wrapper with Python 2
-    - cd $CI_PROJECT_DIR/python/rocrand
-    - $SUDO_CMD python2 setup.py test
-    - pip2 install . --user
-    - $SUDO_CMD python2 tests/rocrand_test.py
-    - pip2 uninstall --yes rocrand
-    # hipRAND Wrapper with Python 2
-    - cd $CI_PROJECT_DIR/python/hiprand
-    - $SUDO_CMD python2 setup.py test
-    - pip2 install . --user
-    - $SUDO_CMD python2 tests/hiprand_test.py
-    - pip2 uninstall --yes hiprand
-    # rocRAND Wrapper with Python 3
-    - pip3 --version
-    - cd $CI_PROJECT_DIR/python/rocrand
-    - $SUDO_CMD python3 setup.py test
-    - pip3 install . --user
-    - $SUDO_CMD python3 tests/rocrand_test.py
-    - pip3 uninstall --yes rocrand
-    # hipRAND Wrapper with Python 3
-    - cd $CI_PROJECT_DIR/python/hiprand
-    - $SUDO_CMD python3 setup.py test
-    - pip3 install . --user
-    - $SUDO_CMD python3 tests/hiprand_test.py
-    - pip3 uninstall --yes hiprand
-
-test:nvcc_package:
-  extends: .nvcc
-  stage: test
-  needs:
-    - build:nvcc
-  script:
-    - cd build
-    - $SUDO_CMD dpkg -i rocrand*.deb
-    - find -L $ROCM_PATH | grep rand | sort
-    - mkdir ../build_package_test && cd ../build_package_test
-    - cmake ../test/package/.
-    - make VERBOSE=1
-    - $SUDO_CMD ctest --output-on-failure
-    - ldd ./test_hiprand
-    - $SUDO_CMD dpkg -r rocrand
-
-test:nvcc_install:
-  extends: .nvcc
-  stage: test
-  dependencies: []
-  script:
-    - mkdir build_only_install
-    - cd build_only_install
-    - cmake -DBUILD_TEST=OFF -DBUILD_FORTRAN_WRAPPER=OFF ../.
-    - make -j16
-    - $SUDO_CMD make install
-    - find -L $ROCM_PATH | grep rand | sort
-    - mkdir ../install_test && cd ../install_test
-    - cmake ../test/package/.
-    - make VERBOSE=1
-    - $SUDO_CMD ctest --output-on-failure
-    - ldd ./test_hiprand
+      - $CI_PROJECT_DIR/docs/_build
+      - $CI_PROJECT_DIR/docs/docBin
+    expire_in: 1 week
