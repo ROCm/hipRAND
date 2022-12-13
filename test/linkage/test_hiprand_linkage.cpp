@@ -32,7 +32,7 @@
 TEST(hiprand_linkage_tests, get_version_test)
 {
     #ifdef __HIP_PLATFORM_HCC__
-    EXPECT_EQ(get_hiprand_version(), HIPRAND_VERSION);
+    EXPECT_EQ(get_hiprand_version(), ROCRAND_VERSION);
     #else
     EXPECT_EQ(get_hiprand_version(), CUDART_VERSION);
     #endif
