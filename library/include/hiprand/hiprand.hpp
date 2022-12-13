@@ -1,4 +1,4 @@
-// Copyright (c) 2017 Advanced Micro Devices, Inc. All rights reserved.
+// Copyright (c) 2017-2022 Advanced Micro Devices, Inc. All rights reserved.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -148,18 +148,18 @@ private:
 
 /// \class uniform_int_distribution
 ///
-/// \brief Produces random integer values uniformly distributed on the interval [0, 2^32 - 1].
+/// \brief Produces random integer values uniformly distributed on the interval [0, 2^(sizeof(IntType)*8) - 1].
 ///
-/// \tparam IntType - type of generated values. Only \p unsigned \p char, \p unsigned \p short and \p unsigned \p int type is supported.
+/// \tparam IntType - type of generated values.
+/// Only <tt>unsigned char</tt>, <tt>unsigned short</tt>, <tt>unsigned int</tt>, <tt>unsigned long long int</tt> are supported.
 template<class IntType = unsigned int>
 class uniform_int_distribution
 {
-    static_assert(
-        std::is_same<unsigned char, IntType>::value
-        || std::is_same<unsigned short, IntType>::value
-        || std::is_same<unsigned int, IntType>::value,
-        "Only unsigned int type is supported in uniform_int_distribution"
-    );
+    static_assert(std::is_same<unsigned char, IntType>::value
+                      || std::is_same<unsigned short, IntType>::value
+                      || std::is_same<unsigned int, IntType>::value
+                      || std::is_same<unsigned long long int, IntType>::value,
+                  "Only unsigned int type is supported in uniform_int_distribution");
 
 public:
     typedef IntType result_type;
@@ -189,7 +189,7 @@ public:
     /// \brief Fills \p output with uniformly distributed random integer values.
     ///
     /// Generates \p size random integer values uniformly distributed
-    /// on the  interval [0, 2^32 - 1], and stores them into the device memory
+    /// on the  interval [0, 2^(sizeof(IntType)*8) - 1], and stores them into the device memory
     /// referenced by \p output pointer.
     ///
     /// \param g - An uniform random number generator object
@@ -199,10 +199,10 @@ public:
     /// Requirements:
     /// * The device memory pointed by \p output must have been previously allocated
     /// and be large enough to store at least \p size values of \p IntType type.
-    /// * If generator \p g is a quasi-random number generator (`hiprand_cpp::sobol32_engine`),
+    /// * If generator \p g is a quasi-random number generator,
     /// then \p size must be a multiple of that generator's dimension.
     ///
-    /// See also: hiprandGenerate(), hiprandGenerateChar(), hiprandGenerateShort()
+    /// See also: hiprandGenerate(), hiprandGenerateChar(), hiprandGenerateShort(), hiprandGenerateLongLong()
     template<class Generator>
     void operator()(Generator& g, IntType * output, size_t size)
     {
@@ -241,6 +241,12 @@ private:
     hiprandStatus_t generate(Generator& g, unsigned int * output, size_t size)
     {
         return hiprandGenerate(g.m_generator, output, size);
+    }
+
+    template<class Generator>
+    hiprandStatus_t generate(Generator& g, unsigned long long int* output, size_t size)
+    {
+        return hiprandGenerateLongLong(g.m_generator, output, size);
     }
 };
 
@@ -1344,14 +1350,12 @@ constexpr typename mrg32k3a_engine<DefaultSeed>::seed_type mrg32k3a_engine<Defau
 /// for Graphic Processors algorithm, which is a version of well-known Mersenne Twister
 /// algorithm. It produces high quality random numbers of type \p unsigned \p int
 /// on the interval [0; 2^32 - 1].
-template<unsigned long long DefaultSeed = 0>
+template<unsigned long long DefaultSeed = HIPRAND_MTGP32_DEFAULT_SEED>
 class mtgp32_engine
 {
 public:
     /// \copydoc philox4x32_10_engine::result_type
     typedef unsigned int result_type;
-    /// \copydoc philox4x32_10_engine::offset_type
-    typedef unsigned long long offset_type;
     /// \copydoc philox4x32_10_engine::seed_type
     typedef unsigned long long seed_type;
     /// \copydoc philox4x32_10_engine::default_seed
@@ -1463,6 +1467,142 @@ private:
 /// \cond
 template<unsigned long long DefaultSeed>
 constexpr typename mtgp32_engine<DefaultSeed>::seed_type mtgp32_engine<DefaultSeed>::default_seed;
+/// \endcond
+
+/// \brief Pseudorandom number engine based on Mersenne Twister.
+///
+/// mt19937_engine is a random number engine based on the well-known
+/// Mersenne Twister algorithm. It produces high quality random numbers of
+/// type \p unsigned \p int on the interval [0; 2^32 - 1].
+template<unsigned long long DefaultSeed = HIPRAND_MT19937_DEFAULT_SEED>
+class mt19937_engine
+{
+public:
+    /// \copydoc philox4x32_10_engine::result_type
+    typedef unsigned int result_type;
+    /// \copydoc philox4x32_10_engine::seed_type
+    typedef unsigned long long seed_type;
+    /// \copydoc philox4x32_10_engine::default_seed
+    static constexpr seed_type default_seed = DefaultSeed;
+
+    /// \brief Constructs the pseudo-random number engine.
+    ///
+    /// MT19937 engine does not accept offset.
+    ///
+    /// \param seed_value - seed value to use in the initialization of the internal state, see also seed()
+    ///
+    /// See also: hiprandCreateGenerator()
+    mt19937_engine(seed_type seed_value = DefaultSeed)
+    {
+        hiprandStatus_t status;
+        status = hiprandCreateGenerator(&m_generator, this->type());
+        if(status != HIPRAND_STATUS_SUCCESS)
+            throw hiprand_cpp::error(status);
+        try
+        {
+            this->seed(seed_value);
+        }
+        catch(...)
+        {
+            (void)hiprandDestroyGenerator(m_generator);
+            throw;
+        }
+    }
+
+    /// \copydoc philox4x32_10_engine::philox4x32_10_engine(hiprandGenerator_t&)
+    mt19937_engine(hiprandGenerator_t& generator) : m_generator(generator)
+    {
+        if(generator == NULL)
+        {
+            throw hiprand_cpp::error(HIPRAND_STATUS_NOT_INITIALIZED);
+        }
+        generator = NULL;
+    }
+
+    mt19937_engine(const mt19937_engine&) = delete;
+
+    mt19937_engine(mt19937_engine&&) = delete;
+
+    mt19937_engine& operator=(const mt19937_engine&) = delete;
+
+    mt19937_engine& operator=(mt19937_engine&&) = delete;
+
+    /// \copydoc philox4x32_10_engine::~philox4x32_10_engine()
+    ~mt19937_engine() noexcept(false)
+    {
+        hiprandStatus_t status = hiprandDestroyGenerator(m_generator);
+        if(status != HIPRAND_STATUS_SUCCESS)
+            throw hiprand_cpp::error(status);
+    }
+
+    /// \copydoc philox4x32_10_engine::stream()
+    void stream(hipStream_t value)
+    {
+        hiprandStatus_t status = hiprandSetStream(m_generator, value);
+        if(status != HIPRAND_STATUS_SUCCESS)
+            throw hiprand_cpp::error(status);
+    }
+
+    /// \copydoc philox4x32_10_engine::seed()
+    void seed(seed_type value)
+    {
+        hiprandStatus_t status = hiprandSetPseudoRandomGeneratorSeed(this->m_generator, value);
+        if(status != HIPRAND_STATUS_SUCCESS)
+            throw hiprand_cpp::error(status);
+    }
+
+    /// \copydoc philox4x32_10_engine::operator()()
+    template<class Generator>
+    void operator()(result_type* output, size_t size)
+    {
+        hiprandStatus_t status;
+        status = hiprandGenerate(m_generator, output, size);
+        if(status != HIPRAND_STATUS_SUCCESS)
+            throw hiprand_cpp::error(status);
+    }
+
+    /// \copydoc philox4x32_10_engine::min()
+    result_type min() const
+    {
+        return 0;
+    }
+
+    /// \copydoc philox4x32_10_engine::max()
+    result_type max() const
+    {
+        return std::numeric_limits<unsigned int>::max();
+    }
+
+    /// \copydoc philox4x32_10_engine::type()
+    static constexpr hiprandRngType type()
+    {
+        return HIPRAND_RNG_PSEUDO_MT19937;
+    }
+
+private:
+    hiprandGenerator_t m_generator;
+
+    /// \cond
+    template<class T>
+    friend class ::hiprand_cpp::uniform_int_distribution;
+
+    template<class T>
+    friend class ::hiprand_cpp::uniform_real_distribution;
+
+    template<class T>
+    friend class ::hiprand_cpp::normal_distribution;
+
+    template<class T>
+    friend class ::hiprand_cpp::lognormal_distribution;
+
+    template<class T>
+    friend class ::hiprand_cpp::poisson_distribution;
+    /// \endcond
+};
+
+/// \cond
+template<unsigned long long DefaultSeed>
+constexpr typename mt19937_engine<DefaultSeed>::seed_type mt19937_engine<DefaultSeed>::default_seed;
 /// \endcond
 
 /// \brief Sobol's quasi-random sequence generator
@@ -1630,6 +1770,458 @@ constexpr typename sobol32_engine<DefaultNumDimensions>::dimensions_num_type
 sobol32_engine<DefaultNumDimensions>::default_num_dimensions;
 /// \endcond
 
+/// \brief Sobol's quasi-random sequence generator
+///
+/// scrambled_sobol32_engine is a quasi-random number engine which produces scrambled Sobol sequences.
+/// This implementation supports generating sequences in up to 20,000 dimensions.
+/// The engine produces random unsigned integers on the interval [0; 2^32 - 1].
+template<unsigned int DefaultNumDimensions = 1>
+class scrambled_sobol32_engine
+{
+public:
+    /// \copydoc philox4x32_10_engine::result_type
+    typedef unsigned int result_type;
+    /// \copydoc philox4x32_10_engine::offset_type
+    typedef unsigned long long offset_type;
+    /// \copydoc sobol32_engine::dimensions_num_type
+    typedef unsigned int dimensions_num_type;
+    /// \copydoc sobol32_engine::default_num_dimensions
+    static constexpr dimensions_num_type default_num_dimensions = DefaultNumDimensions;
+
+    /// \copydoc sobol32_engine::sobol32_engine(dimensions_num_type, offset_type)
+    scrambled_sobol32_engine(dimensions_num_type num_of_dimensions = DefaultNumDimensions,
+                             offset_type         offset_value      = 0)
+    {
+        hiprandStatus_t status;
+        status = hiprandCreateGenerator(&m_generator, this->type());
+        if(status != HIPRAND_STATUS_SUCCESS)
+            throw hiprand_cpp::error(status);
+        try
+        {
+            if(offset_value > 0)
+            {
+                this->offset(offset_value);
+            }
+            this->dimensions(num_of_dimensions);
+        }
+        catch(...)
+        {
+            (void)hiprandDestroyGenerator(m_generator);
+            throw;
+        }
+    }
+
+    /// \copydoc philox4x32_10_engine::philox4x32_10_engine(hiprandGenerator_t&)
+    scrambled_sobol32_engine(hiprandGenerator_t& generator) : m_generator(generator)
+    {
+        if(generator == NULL)
+        {
+            throw hiprand_cpp::error(HIPRAND_STATUS_NOT_INITIALIZED);
+        }
+        generator = NULL;
+    }
+
+    scrambled_sobol32_engine(const scrambled_sobol32_engine&) = delete;
+
+    scrambled_sobol32_engine(scrambled_sobol32_engine&&) = delete;
+
+    scrambled_sobol32_engine& operator=(const scrambled_sobol32_engine&) = delete;
+
+    scrambled_sobol32_engine& operator=(scrambled_sobol32_engine&&) = delete;
+
+    /// \copydoc philox4x32_10_engine::~philox4x32_10_engine()
+    ~scrambled_sobol32_engine() noexcept(false)
+    {
+        hiprandStatus_t status = hiprandDestroyGenerator(m_generator);
+        if(status != HIPRAND_STATUS_SUCCESS)
+            throw hiprand_cpp::error(status);
+    }
+
+    /// \copydoc philox4x32_10_engine::stream()
+    void stream(hipStream_t value)
+    {
+        hiprandStatus_t status = hiprandSetStream(m_generator, value);
+        if(status != HIPRAND_STATUS_SUCCESS)
+            throw hiprand_cpp::error(status);
+    }
+
+    /// \copydoc philox4x32_10_engine::offset()
+    void offset(offset_type value)
+    {
+        hiprandStatus_t status = hiprandSetGeneratorOffset(this->m_generator, value);
+        if(status != HIPRAND_STATUS_SUCCESS)
+            throw hiprand_cpp::error(status);
+    }
+
+    /// \copydoc sobol32_engine::dimensions()
+    void dimensions(dimensions_num_type value)
+    {
+        hiprandStatus_t status = hiprandSetQuasiRandomGeneratorDimensions(this->m_generator, value);
+        if(status != HIPRAND_STATUS_SUCCESS)
+            throw hiprand_cpp::error(status);
+    }
+
+    /// \copydoc sobol32::operator()(result_type, size_t)
+    template<class Generator>
+    void operator()(result_type* output, size_t size)
+    {
+        hiprandStatus_t status;
+        status = hiprandGenerate(m_generator, output, size);
+        if(status != HIPRAND_STATUS_SUCCESS)
+            throw hiprand_cpp::error(status);
+    }
+
+    /// \copydoc philox4x32_10_engine::min()
+    result_type min() const
+    {
+        return 0;
+    }
+
+    /// \copydoc philox4x32_10_engine::max()
+    result_type max() const
+    {
+        return std::numeric_limits<unsigned int>::max();
+    }
+
+    /// \copydoc philox4x32_10_engine::type()
+    static constexpr hiprandRngType type()
+    {
+        return HIPRAND_RNG_QUASI_SCRAMBLED_SOBOL32;
+    }
+
+private:
+    hiprandGenerator_t m_generator;
+
+    /// \cond
+    template<class T>
+    friend class ::hiprand_cpp::uniform_int_distribution;
+
+    template<class T>
+    friend class ::hiprand_cpp::uniform_real_distribution;
+
+    template<class T>
+    friend class ::hiprand_cpp::normal_distribution;
+
+    template<class T>
+    friend class ::hiprand_cpp::lognormal_distribution;
+
+    template<class T>
+    friend class ::hiprand_cpp::poisson_distribution;
+    /// \endcond
+};
+
+/// \cond
+template<unsigned int DefaultNumDimensions>
+constexpr typename scrambled_sobol32_engine<DefaultNumDimensions>::dimensions_num_type
+    scrambled_sobol32_engine<DefaultNumDimensions>::default_num_dimensions;
+/// \endcond
+
+/// \brief Sobol's quasi-random sequence generator
+///
+/// sobol64_engine is a quasi-random number engine which produced Sobol sequences.
+/// This implementation supports generating sequences in up to 20,000 dimensions.
+/// The engine produces random unsigned integers on the interval [0; 2^64 - 1].
+template<unsigned int DefaultNumDimensions = 1>
+class sobol64_engine
+{
+public:
+    /// \copydoc philox4x32_10_engine::result_type
+    typedef unsigned long long int result_type;
+    /// \copydoc philox4x32_10_engine::offset_type
+    typedef unsigned long long offset_type;
+    /// \copydoc sobol32_engine::dimensions_num_type
+    typedef unsigned int dimensions_num_type;
+    /// \copydoc sobol32_engine::default_num_dimensions
+    static constexpr dimensions_num_type default_num_dimensions = DefaultNumDimensions;
+
+    /// \copydoc sobol32_engine::sobol32_engine(dimensions_num_type, offset_type)
+    sobol64_engine(dimensions_num_type num_of_dimensions = DefaultNumDimensions,
+                   offset_type         offset_value      = 0)
+    {
+        hiprandStatus_t status;
+        status = hiprandCreateGenerator(&m_generator, this->type());
+        if(status != HIPRAND_STATUS_SUCCESS)
+            throw hiprand_cpp::error(status);
+        try
+        {
+            if(offset_value > 0)
+            {
+                this->offset(offset_value);
+            }
+            this->dimensions(num_of_dimensions);
+        }
+        catch(...)
+        {
+            (void)hiprandDestroyGenerator(m_generator);
+            throw;
+        }
+    }
+
+    /// \copydoc philox4x32_10_engine::philox4x32_10_engine(hiprandGenerator_t&)
+    sobol64_engine(hiprandGenerator_t& generator) : m_generator(generator)
+    {
+        if(generator == NULL)
+        {
+            throw hiprand_cpp::error(HIPRAND_STATUS_NOT_INITIALIZED);
+        }
+        generator = NULL;
+    }
+
+    sobol64_engine(const sobol64_engine&) = delete;
+
+    sobol64_engine(sobol64_engine&&) = delete;
+
+    sobol64_engine& operator=(const sobol64_engine&) = delete;
+
+    sobol64_engine& operator=(sobol64_engine&&) = delete;
+
+    /// \copydoc philox4x32_10_engine::~philox4x32_10_engine()
+    ~sobol64_engine() noexcept(false)
+    {
+        hiprandStatus_t status = hiprandDestroyGenerator(m_generator);
+        if(status != HIPRAND_STATUS_SUCCESS)
+            throw hiprand_cpp::error(status);
+    }
+
+    /// \copydoc philox4x32_10_engine::stream()
+    void stream(hipStream_t value)
+    {
+        hiprandStatus_t status = hiprandSetStream(m_generator, value);
+        if(status != HIPRAND_STATUS_SUCCESS)
+            throw hiprand_cpp::error(status);
+    }
+
+    /// \copydoc philox4x32_10_engine::offset()
+    void offset(offset_type value)
+    {
+        hiprandStatus_t status = hiprandSetGeneratorOffset(this->m_generator, value);
+        if(status != HIPRAND_STATUS_SUCCESS)
+            throw hiprand_cpp::error(status);
+    }
+
+    /// \copydoc sobol32_engine::dimensions()
+    void dimensions(dimensions_num_type value)
+    {
+        hiprandStatus_t status = hiprandSetQuasiRandomGeneratorDimensions(this->m_generator, value);
+        if(status != HIPRAND_STATUS_SUCCESS)
+            throw hiprand_cpp::error(status);
+    }
+
+    /// \brief Fills \p output with uniformly distributed random integer values.
+    ///
+    /// Generates \p size random integer values uniformly distributed
+    /// on the interval [0, 2^64 - 1], and stores them into the device memory
+    /// referenced by \p output pointer.
+    ///
+    /// \param output - Pointer to device memory to store results
+    /// \param size - Number of values to generate
+    ///
+    /// Requirements:
+    /// * The device memory pointed by \p output must have been previously allocated
+    /// and be large enough to store at least \p size values of \p IntType type.
+    /// * \p size must be a multiple of the engine's number of dimensions.
+    ////
+    /// See also: hiprandGenerate()
+    template<class Generator>
+    void operator()(result_type* output, size_t size)
+    {
+        hiprandStatus_t status;
+        status = hiprandGenerateLongLong(m_generator, output, size);
+        if(status != HIPRAND_STATUS_SUCCESS)
+            throw hiprand_cpp::error(status);
+    }
+
+    /// \copydoc philox4x32_10_engine::min()
+    result_type min() const
+    {
+        return 0;
+    }
+
+    /// \copydoc philox4x32_10_engine::max()
+    result_type max() const
+    {
+        return std::numeric_limits<unsigned int>::max();
+    }
+
+    /// \copydoc philox4x32_10_engine::type()
+    static constexpr hiprandRngType type()
+    {
+        return HIPRAND_RNG_QUASI_SOBOL64;
+    }
+
+private:
+    hiprandGenerator_t m_generator;
+
+    /// \cond
+    template<class T>
+    friend class ::hiprand_cpp::uniform_int_distribution;
+
+    template<class T>
+    friend class ::hiprand_cpp::uniform_real_distribution;
+
+    template<class T>
+    friend class ::hiprand_cpp::normal_distribution;
+
+    template<class T>
+    friend class ::hiprand_cpp::lognormal_distribution;
+
+    template<class T>
+    friend class ::hiprand_cpp::poisson_distribution;
+    /// \endcond
+};
+
+/// \cond
+template<unsigned int DefaultNumDimensions>
+constexpr typename sobol64_engine<DefaultNumDimensions>::dimensions_num_type
+    sobol64_engine<DefaultNumDimensions>::default_num_dimensions;
+/// \endcond
+
+/// \brief Sobol's quasi-random sequence generator
+///
+/// scrambled_sobol64_engine is a quasi-random number engine which produces scrambled Sobol sequences.
+/// This implementation supports generating sequences in up to 20,000 dimensions.
+/// The engine produces random unsigned integers on the interval [0; 2^64 - 1].
+template<unsigned int DefaultNumDimensions = 1>
+class scrambled_sobol64_engine
+{
+public:
+    /// \copydoc philox4x32_10_engine::result_type
+    typedef unsigned long long int result_type;
+    /// \copydoc philox4x32_10_engine::offset_type
+    typedef unsigned long long offset_type;
+    /// \copydoc sobol32_engine::dimensions_num_type
+    typedef unsigned int dimensions_num_type;
+    /// \copydoc sobol32_engine::default_num_dimensions
+    static constexpr dimensions_num_type default_num_dimensions = DefaultNumDimensions;
+
+    /// \copydoc sobol32_engine::sobol32_engine(dimensions_num_type, offset_type)
+    scrambled_sobol64_engine(dimensions_num_type num_of_dimensions = DefaultNumDimensions,
+                             offset_type         offset_value      = 0)
+    {
+        hiprandStatus_t status;
+        status = hiprandCreateGenerator(&m_generator, this->type());
+        if(status != HIPRAND_STATUS_SUCCESS)
+            throw hiprand_cpp::error(status);
+        try
+        {
+            if(offset_value > 0)
+            {
+                this->offset(offset_value);
+            }
+            this->dimensions(num_of_dimensions);
+        }
+        catch(...)
+        {
+            (void)hiprandDestroyGenerator(m_generator);
+            throw;
+        }
+    }
+
+    /// \copydoc philox4x32_10_engine::philox4x32_10_engine(hiprandGenerator_t&)
+    scrambled_sobol64_engine(hiprandGenerator_t& generator) : m_generator(generator)
+    {
+        if(generator == NULL)
+        {
+            throw hiprand_cpp::error(HIPRAND_STATUS_NOT_INITIALIZED);
+        }
+        generator = NULL;
+    }
+
+    scrambled_sobol64_engine(const scrambled_sobol64_engine&) = delete;
+
+    scrambled_sobol64_engine(scrambled_sobol64_engine&&) = delete;
+
+    scrambled_sobol64_engine& operator=(const scrambled_sobol64_engine&) = delete;
+
+    scrambled_sobol64_engine& operator=(scrambled_sobol64_engine&&) = delete;
+
+    /// \copydoc philox4x32_10_engine::~philox4x32_10_engine()
+    ~scrambled_sobol64_engine() noexcept(false)
+    {
+        hiprandStatus_t status = hiprandDestroyGenerator(m_generator);
+        if(status != HIPRAND_STATUS_SUCCESS)
+            throw hiprand_cpp::error(status);
+    }
+
+    /// \copydoc philox4x32_10_engine::stream()
+    void stream(hipStream_t value)
+    {
+        hiprandStatus_t status = hiprandSetStream(m_generator, value);
+        if(status != HIPRAND_STATUS_SUCCESS)
+            throw hiprand_cpp::error(status);
+    }
+
+    /// \copydoc philox4x32_10_engine::offset()
+    void offset(offset_type value)
+    {
+        hiprandStatus_t status = hiprandSetGeneratorOffset(this->m_generator, value);
+        if(status != HIPRAND_STATUS_SUCCESS)
+            throw hiprand_cpp::error(status);
+    }
+
+    /// \copydoc sobol32_engine::dimensions()
+    void dimensions(dimensions_num_type value)
+    {
+        hiprandStatus_t status = hiprandSetQuasiRandomGeneratorDimensions(this->m_generator, value);
+        if(status != HIPRAND_STATUS_SUCCESS)
+            throw hiprand_cpp::error(status);
+    }
+
+    /// \copydoc sobol32::operator()(result_type, size_t)
+    template<class Generator>
+    void operator()(result_type* output, size_t size)
+    {
+        hiprandStatus_t status;
+        status = hiprandGenerateLongLong(m_generator, output, size);
+        if(status != HIPRAND_STATUS_SUCCESS)
+            throw hiprand_cpp::error(status);
+    }
+
+    /// \copydoc philox4x32_10_engine::min()
+    result_type min() const
+    {
+        return 0;
+    }
+
+    /// \copydoc philox4x32_10_engine::max()
+    result_type max() const
+    {
+        return std::numeric_limits<unsigned int>::max();
+    }
+
+    /// \copydoc philox4x32_10_engine::type()
+    static constexpr hiprandRngType type()
+    {
+        return HIPRAND_RNG_QUASI_SCRAMBLED_SOBOL64;
+    }
+
+private:
+    hiprandGenerator_t m_generator;
+
+    /// \cond
+    template<class T>
+    friend class ::hiprand_cpp::uniform_int_distribution;
+
+    template<class T>
+    friend class ::hiprand_cpp::uniform_real_distribution;
+
+    template<class T>
+    friend class ::hiprand_cpp::normal_distribution;
+
+    template<class T>
+    friend class ::hiprand_cpp::lognormal_distribution;
+
+    template<class T>
+    friend class ::hiprand_cpp::poisson_distribution;
+    /// \endcond
+};
+
+/// \cond
+template<unsigned int DefaultNumDimensions>
+constexpr typename scrambled_sobol64_engine<DefaultNumDimensions>::dimensions_num_type
+    scrambled_sobol64_engine<DefaultNumDimensions>::default_num_dimensions;
+/// \endcond
+
 /// \typedef philox4x32_10;
 /// \brief Typedef of hiprand_cpp::philox4x32_10_engine PRNG engine with default seed (#HIPRAND_PHILOX4x32_DEFAULT_SEED).
 typedef philox4x32_10_engine<> philox4x32_10;
@@ -1640,11 +2232,23 @@ typedef xorwow_engine<> xorwow;
 /// \brief Typedef of hiprand_cpp::mrg32k3a_engine PRNG engine with default seed (#HIPRAND_MRG32K3A_DEFAULT_SEED).
 typedef mrg32k3a_engine<> mrg32k3a;
 /// \typedef mtgp32
-/// \brief Typedef of hiprand_cpp::mtgp32_engine PRNG engine with default seed (0).
+/// \brief Typedef of hiprand_cpp::mtgp32_engine PRNG engine with default seed (#HIPRAND_MTGP32_DEFAULT_SEED).
 typedef mtgp32_engine<> mtgp32;
+/// \typedef mt19937
+/// \brief Typedef of hiprand_cpp::mt19937_engine PRNG engine with default seed (#HIPRAND_MT19937_DEFAULT_SEED).
+typedef mt19937_engine<> mt19937;
 /// \typedef sobol32
 /// \brief Typedef of hiprand_cpp::sobol32_engine QRNG engine with default number of dimensions (1).
 typedef sobol32_engine<> sobol32;
+/// \typedef scrambled_sobol32
+/// \brief Typedef of hiprand_cpp::scrambled_sobol32_engine QRNG engine with default number of dimensions (1).
+typedef scrambled_sobol32_engine<> scrambled_sobol32;
+/// \typedef sobol64
+/// \brief Typedef of hiprand_cpp::sobol64_engine QRNG engine with default number of dimensions (1).
+typedef sobol64_engine<> sobol64;
+/// \typedef scrambled_sobol64
+/// \brief Typedef of hiprand_cpp::scrambled_sobol64_engine QRNG engine with default number of dimensions (1).
+typedef scrambled_sobol64_engine<> scrambled_sobol64;
 
 /// \typedef default_random_engine
 /// \brief Default random engine.

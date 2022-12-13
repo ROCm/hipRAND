@@ -1,8 +1,15 @@
 from setuptools import setup, find_packages
+import sys
 
 
 with open("README.md") as f:
     readme = f.read()
+
+REQUIRED_PACKAGES = ["numpy"]
+
+# Use a backport of weakref.finalizers if not supported by the standard library
+if sys.version_info < (3, 4):
+    REQUIRED_PACKAGES.append("backports.weakref")
 
 version = "1.0"
 release = "1.0.0"
@@ -13,10 +20,10 @@ setup(
     long_description=readme,
     author="Advanced Micro Devices, Inc.",
     # author_email="",
-    url="https://github.com/ROCmSoftwarePlatform/rocRAND",
+    url="https://github.com/ROCmSoftwarePlatform/hipRAND",
     license="MIT",
     packages=["hiprand"],
-    install_requires=["numpy"],
+    install_requires=REQUIRED_PACKAGES,
     test_suite="tests",
     command_options={
         "build_sphinx": {

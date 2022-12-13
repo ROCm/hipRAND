@@ -1,4 +1,4 @@
-# Copyright (c) 2017 Advanced Micro Devices, Inc. All rights reserved.
+# Copyright (c) 2017-2022 Advanced Micro Devices, Inc. All rights reserved.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -32,10 +32,13 @@ from .hip import load_hip, HIP_PATHS
 from .hip import empty, DeviceNDArray, device_pointer
 
 from .utils import find_library, expand_paths
-from .finalize import track_for_finalization
 
+# Finalize is only supported by python >= 3.4
+try:
+  from weakref import finalize
+except ImportError:
+  from backports.weakref import finalize
 
-hiprand = None
 
 HIPRAND_PATHS = [
         os.getenv("HIPRAND_PATH"),
@@ -52,7 +55,15 @@ def load_hiprand():
 
     load_hip()
 
-load_hiprand()
+# Delay the loading of hiprand to the first use
+# so no code is executed when loading this module
+class _load_hiprand_on_access(object):
+    def __getattribute__(self, name):
+        global hiprand
+        load_hiprand()
+        return getattr(hiprand, name)
+
+hiprand = _load_hiprand_on_access()
 
 HIPRAND_RNG_PSEUDO_DEFAULT = 400
 HIPRAND_RNG_PSEUDO_XORWOW = 401
@@ -151,7 +162,7 @@ class RNG(object):
     def __init__(self, rngtype, offset=None, stream=None):
         self._gen = c_void_p()
         check_hiprand(hiprand.hiprandCreateGenerator(byref(self._gen), rngtype))
-        track_for_finalization(self, self._gen, RNG._finalize)
+        finalize(self, RNG._finalize, self._gen)
 
         self._offset = 0
         if offset is not None:
@@ -217,7 +228,10 @@ class RNG(object):
         Generates **size** (if present) or **ary.size** uniformly distributed
         integers and saves them to **ary**.
 
-        Supported **dtype** of **ary**: :class:`numpy.uint32`, :class:`numpy.int32`.
+        Supported **dtype** of **ary** for 32-bits generators:
+            :class:`numpy.uint32`, :class:`numpy.int32`.
+        Supported **dtype** of **ary** for 64-bits generators:
+            :class:`numpy.uint64`, :class:`numpy.int64`.
 
         :param ary:  NumPy array (:class:`numpy.ndarray`) or
                      HIP device-side array (:class:`DeviceNDArray`)
@@ -226,6 +240,10 @@ class RNG(object):
         if ary.dtype in (np.uint32, np.int32):
             self._generate(
                 hiprand.hiprandGenerate,
+                ary, size)
+        elif ary.dtype in (np.uint64, np.int64):
+            self._generate(
+                hiprand.hiprandGenerateLongLong,
                 ary, size)
         else:
             raise TypeError("unsupported type {}".format(ary.dtype))
@@ -333,19 +351,6 @@ class RNG(object):
 
 
 class PRNG(RNG):
-    """Pseudo-random number generator.
-
-    Example::
-
-        import hiprand
-        import numpy as np
-
-        gen = hiprand.PRNG(hiprand.PRNG.PHILOX4_32_10, seed=123456)
-        a = np.empty(1000, np.int32)
-        gen.poisson(a, 10.0)
-        print(a)
-    """
-
     DEFAULT       = HIPRAND_RNG_PSEUDO_DEFAULT
     """Default pseudo-random generator type, :const:`XORWOW`"""
     XORWOW        = HIPRAND_RNG_PSEUDO_XORWOW
@@ -379,6 +384,16 @@ class PRNG(RNG):
         :param seed:    Initial seed value
         :param offset:  Initial offset of random numbers sequence
         :param stream:  HIP stream for all kernel launches of the generator
+
+        Example::
+
+            import hiprand
+            import numpy as np
+
+            gen = hiprand.PRNG(hiprand.PRNG.PHILOX4_32_10, seed=123456)
+            a = np.empty(1000, np.int32)
+            gen.poisson(a, 10.0)
+            print(a)
         """
         super(PRNG, self).__init__(rngtype, offset=offset, stream=stream)
 
@@ -401,19 +416,6 @@ class PRNG(RNG):
 
 
 class QRNG(RNG):
-    """Quasi-random number generator.
-
-    Example::
-
-        import hiprand
-        import numpy as np
-
-        gen = hiprand.QRNG(hiprand.QRNG.SOBOL32, ndim=4)
-        a = np.empty(1000, np.float32)
-        gen.normal(a, 0.0, 1.0)
-        print(a)
-    """
-
     DEFAULT           = HIPRAND_RNG_QUASI_DEFAULT
     """Default quasi-random generator type, :const:`SOBOL32`"""
     SOBOL32           = HIPRAND_RNG_QUASI_SOBOL32
@@ -426,7 +428,7 @@ class QRNG(RNG):
     """Scrambled Sobol64 quasi-random generator type"""
 
     def __init__(self, rngtype=DEFAULT, ndim=None, offset=None, stream=None):
-        """__init__(self, rngtype=DEFAULT, ndim=None, offset=None, stream=None)
+        """
         Creates a new quasi-random number generator.
 
         A new quasi-random number generator of type **rngtype** is initialized
@@ -446,6 +448,16 @@ class QRNG(RNG):
         :param ndim:    Number of dimensions
         :param offset:  Initial offset of random numbers sequence
         :param stream:  HIP stream for all kernel launches of the generator
+
+        Example::
+
+            import hiprand
+            import numpy as np
+
+            gen = hiprand.QRNG(hiprand.QRNG.SOBOL32, ndim=4)
+            a = np.empty(1000, np.float32)
+            gen.normal(a, 0.0, 1.0)
+            print(a)
         """
 
         super(QRNG, self).__init__(rngtype, offset=offset, stream=stream)
