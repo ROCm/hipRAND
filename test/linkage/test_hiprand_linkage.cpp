@@ -34,6 +34,8 @@ TEST(hiprand_linkage_tests, get_version_test)
     #ifdef __HIP_PLATFORM_HCC__
     EXPECT_EQ(get_hiprand_version(), ROCRAND_VERSION);
     #else
-    EXPECT_EQ(get_hiprand_version(), CUDART_VERSION);
+    int curand_version;
+    EXPECT_EQ(curandGetVersion(&curand_version), CURAND_STATUS_SUCCESS);
+    EXPECT_EQ(get_hiprand_version(), curand_version);
     #endif
 }
