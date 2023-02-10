@@ -104,7 +104,6 @@ clang-format:
       -D BUILD_FILE_REORG_BACKWARD_COMPATIBILITY=ON
       -D BUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
       -D GPU_TARGETS=${GPU_TARGETS}
-      -D BUILD_HIPRAND=OFF
       -D ROCM_DEP_ROCMCORE=OFF
     - cmake --build ${ROCRAND_DIR}/build --target package
   artifacts:

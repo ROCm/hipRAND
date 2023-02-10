@@ -6,7 +6,7 @@
 # #################################################
 function display_help()
 {
-    echo "rocRAND build & installation helper script"
+    echo "hipRAND build & installation helper script"
     echo "./install [-h|--help] "
     echo "    [-h|--help] prints this help message"
     echo "    [-i|--install] install after build"
