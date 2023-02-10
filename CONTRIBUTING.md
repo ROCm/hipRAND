@@ -1,4 +1,4 @@
-# Contributing to rocRAND
+# Contributing to hipRAND
 
 ## How to contribute
 

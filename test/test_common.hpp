@@ -50,12 +50,12 @@ bool supports_hmm()
 
 bool use_hmm()
 {
-    if (getenv("ROCRAND_USE_HMM") == nullptr)
+    if (getenv("HIPRAND_USE_HMM") == nullptr)
     {
         return false;
     }
 
-    if (strcmp(getenv("ROCRAND_USE_HMM"), "1") == 0)
+    if (strcmp(getenv("HIPRAND_USE_HMM"), "1") == 0)
     {
         return true;
     }
@@ -63,7 +63,7 @@ bool use_hmm()
 }
 
 // Helper for HMM allocations: if HMM is requested through
-// setting environment variable ROCRAND_USE_HMM=1
+// setting environment variable HIPRAND_USE_HMM=1
 template <class T>
 hipError_t hipMallocHelper(T** devPtr, size_t size)
 {
