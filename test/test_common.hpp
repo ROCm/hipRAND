@@ -50,12 +50,12 @@ bool supports_hmm()
 
 bool use_hmm()
 {
-    if (getenv("HIPRAND_USE_HMM") == nullptr)
+    if(getenv("HIPRAND_USE_HMM") == nullptr)
     {
         return false;
     }
 
-    if (strcmp(getenv("HIPRAND_USE_HMM"), "1") == 0)
+    if(strcmp(getenv("HIPRAND_USE_HMM"), "1") == 0)
     {
         return true;
     }
