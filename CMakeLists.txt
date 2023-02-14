@@ -58,6 +58,7 @@ option(BUILD_TEST "Build tests (requires googletest)" OFF)
 option(BUILD_BENCHMARK "Build benchmarks" OFF)
 option(BUILD_ADDRESS_SANITIZER "Build with address sanitizer enabled" OFF)
 option(DOWNLOAD_ROCRAND "Download rocRAND if it is not found in the default install directory or the manually-specified directory" OFF)
+set(ROCRAND_PATH "" CACHE PATH "Path to rocRAND install.")
 
 # CMake modules
 list(APPEND CMAKE_MODULE_PATH
