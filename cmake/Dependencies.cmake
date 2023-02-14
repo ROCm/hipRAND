@@ -1,6 +1,6 @@
 # MIT License
 #
-# Copyright (c) 2018 Advanced Micro Devices, Inc. All rights reserved.
+# Copyright (c) 2018-2023 Advanced Micro Devices, Inc. All rights reserved.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -92,6 +92,53 @@ endif()
 
 # For downloading, building, and installing required dependencies
 include(cmake/DownloadProject.cmake)
+
+# NOTE: HIPCC includes the default ROCm install directory as search directory for header files. This makes it possible
+#       that different rocRAND headers are found than those of the package found with find_package.
+if (NOT BUILD_WITH_LIB STREQUAL "CUDA")
+    # Search for the the system-installed package, unless this is explicitly disabled.
+    # Explicitly disabling is required, else the header will still be picked up via HIPCC's include.
+    if (NOT CMAKE_NO_SYSTEM_FROM_IMPORTED)
+        find_package(rocrand QUIET CONFIG PATHS ${ROCM_PATH} NO_DEFAULT_PATH)
+        set(EXPECTED_ROCRAND_DIR ${ROCM_PATH})
+    endif ()
+    # If rocRAND is not found, search the manually specified location, if specified by defining ROCRAND_PATH.
+    if (NOT rocrand_FOUND AND DEFINED ROCRAND_PATH)
+        find_package(rocrand QUIET CONFIG PATHS ${ROCRAND_PATH} NO_DEFAULT_PATH)
+        set(EXPECTED_ROCRAND_DIR ${ROCRAND_PATH})
+    endif ()
+    # If rocRAND is not found, download and install rocRAND, if specified by DOWNLOAD_ROCRAND.
+    if (NOT rocrand_FOUND AND DOWNLOAD_ROCRAND)
+        set(ROCRAND_ROOT "${CMAKE_CURRENT_BINARY_DIR}/deps/rocrand" CACHE PATH "Path to downloaded rocRAND install.")
+        download_project(
+                PROJ rocrand
+                GIT_REPOSITORY https://github.com/ROCmSoftwarePlatform/rocRAND.git
+                GIT_TAG develop
+                GIT_SHALLOW TRUE
+                INSTALL_DIR ${ROCRAND_ROOT}
+                CMAKE_ARGS -DBUILD_TEST=OFF -DCMAKE_INSTALL_PREFIX=<INSTALL_DIR> -DCMAKE_PREFIX_PATH=/opt/rocm
+                -DCMAKE_CXX_COMPILER=hipcc
+                LOG_DOWNLOAD TRUE
+                LOG_CONFIGURE TRUE
+                LOG_BUILD TRUE
+                LOG_INSTALL TRUE
+                BUILD_PROJECT TRUE
+                UPDATE_DISCONNECTED TRUE # Never update automatically from the remote repository
+        )
+        # search only the install location of the downloaded rocrand
+        find_package(rocrand CONFIG PATHS ${ROCRAND_ROOT} NO_DEFAULT_PATH)
+        set(EXPECTED_ROCRAND_DIR ${ROCRAND_ROOT})
+    endif ()
+    if (NOT rocrand_FOUND)
+        message(STATUS "No route for including rocRAND is provided. Either install on the default path \
+        ("${ROCM_PATH}"), point to a manual install with ROCRAND_PATH, or pass DOWNLOAD_ROCRAND. If either one of the
+        latter two options is used, rocRAND must not be installed in the default path,
+        or CMAKE_NO_SYSTEM_FROM_IMPORTED must be specified.")
+    endif ()
+    # Based on the flow above, make a final find_package call with REQUIRED to issue a diagnostic.
+    find_package(rocrand CONFIG REQUIRED PATHS ${EXPECTED_ROCRAND_DIR} NO_DEFAULT_PATH)
+    message(STATUS "Found rocRAND: ${rocrand_DIR}")
+endif ()
 
 # Fortran Wrapper
 if(BUILD_FORTRAN_WRAPPER)
