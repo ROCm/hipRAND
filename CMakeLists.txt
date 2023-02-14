@@ -57,6 +57,7 @@ option(BUILD_FORTRAN_WRAPPER "Build Fortran wrapper" OFF)
 option(BUILD_TEST "Build tests (requires googletest)" OFF)
 option(BUILD_BENCHMARK "Build benchmarks" OFF)
 option(BUILD_ADDRESS_SANITIZER "Build with address sanitizer enabled" OFF)
+option(DOWNLOAD_ROCRAND "Download rocRAND if it is not found in the default install directory or the manually-specified directory" OFF)
 
 # CMake modules
 list(APPEND CMAKE_MODULE_PATH
@@ -98,18 +99,6 @@ if (NOT WIN32)
 else()
   list(APPEND CMAKE_PREFIX_PATH ${ROCM_PATH} ${ROCM_PATH}/hip ${ROCM_PATH}/llvm)
   find_package(hip REQUIRED CONFIG PATHS ${HIP_DIR} ${ROCM_PATH})
-endif()
-
-# Either rocRAND or hipRAND is required
-if(NOT BUILD_WITH_LIB STREQUAL "CUDA")
-  find_package(rocrand "${hipRAND_VERSION}" QUIET CONFIG)
-  if(NOT rocrand_FOUND)
-    if(WIN32)
-      find_package(rocrand "${hipRAND_VERSION}" REQUIRED CONFIG PATHS ${ROCRAND_PATH} $ENV{ROCRAND_DIR})
-    else()
-      find_package(rocrand "${hipRAND_VERSION}" REQUIRED CONFIG PATHS ${ROCM_PATH} ${ROCM_PATH}/rocrand)
-    endif()
-  endif()
 endif()
 
 # Build option to disable -Werror
