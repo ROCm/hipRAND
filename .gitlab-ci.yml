@@ -178,6 +178,7 @@ deps:rocrand-static:
       - ${CI_PROJECT_DIR}/build/library/
       - ${CI_PROJECT_DIR}/build/test/test_*
       - ${CI_PROJECT_DIR}/build/test/CTestTestfile.cmake
+      - ${CI_PROJECT_DIR}/build/test/linkage/CTestTestfile.cmake
       - ${CI_PROJECT_DIR}/build/CMakeCache.txt
       - ${CI_PROJECT_DIR}/build/CTestTestfile.cmake
       - ${CI_PROJECT_DIR}/build/*.deb
