@@ -27,4 +27,7 @@ typedef struct rocrand_generator_base_type hiprandGenerator_st;
 
 typedef struct rocrand_discrete_distribution_st hiprandDiscreteDistribution_st;
 
+typedef unsigned int       hiprandDirectionVectors32_t[32];
+typedef unsigned long long hiprandDirectionVectors64_t[64];
+
 #endif // HIPRAND_HCC_H_

@@ -1,4 +1,4 @@
-// Copyright (c) 2017-2022 Advanced Micro Devices, Inc. All rights reserved.
+// Copyright (c) 2017-2023 Advanced Micro Devices, Inc. All rights reserved.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -132,6 +132,13 @@ typedef enum hiprandRngType {
     HIPRAND_RNG_QUASI_SCRAMBLED_SOBOL64 = 504  ///< Scrambled Sobol64 quasirandom generator
 } hiprandRngType_t;
 
+typedef enum hiprandDirectionVectorSet
+{
+    HIPRAND_DIRECTION_VECTORS_32_JOEKUO6           = 101,
+    HIPRAND_SCRAMBLED_DIRECTION_VECTORS_32_JOEKUO6 = 102,
+    HIPRAND_DIRECTION_VECTORS_64_JOEKUO6           = 103,
+    HIPRAND_SCRAMBLED_DIRECTION_VECTORS_64_JOEKUO6 = 104,
+} hiprandDirectionVectorSet_t;
 
 // Host API functions
 
@@ -712,7 +719,17 @@ hiprandCreatePoissonDistribution(double lambda, hiprandDiscreteDistribution_t * 
 hiprandStatus_t HIPRANDAPI
 hiprandDestroyDistribution(hiprandDiscreteDistribution_t discrete_distribution);
 
-#if defined(__cplusplus)
+hiprandStatus_t HIPRANDAPI hiprandGetDirectionVectors32(hiprandDirectionVectors32_t** vectors,
+                                                        hiprandDirectionVectorSet_t   set);
+
+hiprandStatus_t HIPRANDAPI hiprandGetDirectionVectors64(hiprandDirectionVectors64_t** vectors,
+                                                        hiprandDirectionVectorSet_t   set);
+
+hiprandStatus_t HIPRANDAPI hiprandGetScrambleConstants32(const unsigned int** constants);
+
+hiprandStatus_t HIPRANDAPI hiprandGetScrambleConstants64(const unsigned long long** constants);
+
+    #if defined(__cplusplus)
 }
 #endif /* __cplusplus */
 

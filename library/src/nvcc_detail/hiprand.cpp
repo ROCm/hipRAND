@@ -1,4 +1,4 @@
-// Copyright (c) 2017-2022 Advanced Micro Devices, Inc. All rights reserved.
+// Copyright (c) 2017-2023 Advanced Micro Devices, Inc. All rights reserved.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -92,6 +92,20 @@ curandRngType_t to_curand_rng_type(hiprandRngType_t rng_type)
         default:
             throw HIPRAND_STATUS_TYPE_ERROR;
     }
+}
+
+curandDirectionVectorSet_t to_curand_direction_vector_set_type(hiprandDirectionVectorSet_t set)
+{
+    switch(set)
+    {
+        case HIPRAND_DIRECTION_VECTORS_32_JOEKUO6: return CURAND_DIRECTION_VECTORS_32_JOEKUO6;
+        case HIPRAND_SCRAMBLED_DIRECTION_VECTORS_32_JOEKUO6:
+            return CURAND_SCRAMBLED_DIRECTION_VECTORS_32_JOEKUO6;
+        case HIPRAND_DIRECTION_VECTORS_64_JOEKUO6: return CURAND_DIRECTION_VECTORS_64_JOEKUO6;
+        case HIPRAND_SCRAMBLED_DIRECTION_VECTORS_64_JOEKUO6:
+            return CURAND_SCRAMBLED_DIRECTION_VECTORS_64_JOEKUO6;
+    }
+    throw HIPRAND_STATUS_TYPE_ERROR;
 }
 
 hiprandStatus_t HIPRANDAPI
@@ -385,6 +399,31 @@ hiprandDestroyDistribution(hiprandDiscreteDistribution_t discrete_distribution)
     return to_hiprand_status(
         curandDestroyDistribution(discrete_distribution)
     );
+}
+
+hiprandStatus_t HIPRANDAPI hiprandGetDirectionVectors32(hiprandDirectionVectors32_t** vectors,
+                                                        hiprandDirectionVectorSet_t   set)
+{
+    return to_hiprand_status(
+        curandGetDirectionVectors32(vectors, to_curand_direction_vector_set_type(set)));
+}
+
+hiprandStatus_t HIPRANDAPI hiprandGetDirectionVectors64(hiprandDirectionVectors64_t** vectors,
+                                                        hiprandDirectionVectorSet_t   set)
+{
+    return to_hiprand_status(
+        curandGetDirectionVectors64(vectors, to_curand_direction_vector_set_type(set)));
+}
+
+hiprandStatus_t HIPRANDAPI hiprandGetScrambleConstants32(const unsigned int** constants)
+{
+    return to_hiprand_status(curandGetScrambleConstants32(const_cast<unsigned int**>(constants)));
+}
+
+hiprandStatus_t HIPRANDAPI hiprandGetScrambleConstants64(const unsigned long long** constants)
+{
+    return to_hiprand_status(
+        curandGetScrambleConstants64(const_cast<unsigned long long**>(constants)));
 }
 
 #if defined(__cplusplus)
