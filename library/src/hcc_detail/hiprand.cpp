@@ -1,4 +1,4 @@
-// Copyright (c) 2017-2022 Advanced Micro Devices, Inc. All rights reserved.
+// Copyright (c) 2017-2023 Advanced Micro Devices, Inc. All rights reserved.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -88,6 +88,20 @@ rocrand_rng_type to_rocrand_rng_type(hiprandRngType_t rng_type)
         default:
             throw HIPRAND_STATUS_TYPE_ERROR;
     }
+}
+
+rocrand_direction_vector_set to_rocrand_direction_vector_set_type(hiprandDirectionVectorSet_t set)
+{
+    switch(set)
+    {
+        case HIPRAND_DIRECTION_VECTORS_32_JOEKUO6: return ROCRAND_DIRECTION_VECTORS_32_JOEKUO6;
+        case HIPRAND_SCRAMBLED_DIRECTION_VECTORS_32_JOEKUO6:
+            return ROCRAND_SCRAMBLED_DIRECTION_VECTORS_32_JOEKUO6;
+        case HIPRAND_DIRECTION_VECTORS_64_JOEKUO6: return ROCRAND_DIRECTION_VECTORS_64_JOEKUO6;
+        case HIPRAND_SCRAMBLED_DIRECTION_VECTORS_64_JOEKUO6:
+            return ROCRAND_SCRAMBLED_DIRECTION_VECTORS_64_JOEKUO6;
+    }
+    throw HIPRAND_STATUS_TYPE_ERROR;
 }
 
 hiprandStatus_t HIPRANDAPI
@@ -379,6 +393,47 @@ hiprandDestroyDistribution(hiprandDiscreteDistribution_t discrete_distribution)
     return to_hiprand_status(
         rocrand_destroy_discrete_distribution(discrete_distribution)
     );
+}
+
+hiprandStatus_t HIPRANDAPI hiprandGetDirectionVectors32(hiprandDirectionVectors32_t** vectors,
+                                                        hiprandDirectionVectorSet_t   set)
+{
+    using internal = unsigned int;
+
+    // The memory layout  between rocRAND and cuRAND  is the same. Both
+    // contain a series of unsigned ints (long long for 64-bit variant)
+    // However, the accessing type is different:
+    // - rocRAND uses a const c-style array.
+    // - cuRAND  uses a non-const c-style array of c-style arrays.
+    // - hipRAND uses cuRAND's style for consistency.
+    // Since 1) this pointer is only used to transfer data from host to
+    // device, 2) the memory layout  between rocRAND and hipRAND is the
+    // same, and 3) the data being referenced should not be modified on
+    // host, reinterpret and const cast is OK.
+    const internal** raw_ptr = const_cast<const internal**>(reinterpret_cast<internal**>(vectors));
+    return to_hiprand_status(
+        rocrand_get_direction_vectors32(raw_ptr, to_rocrand_direction_vector_set_type(set)));
+}
+
+hiprandStatus_t HIPRANDAPI hiprandGetDirectionVectors64(hiprandDirectionVectors64_t** vectors,
+                                                        hiprandDirectionVectorSet_t   set)
+{
+    using internal = unsigned long long;
+
+    // See 'hiprandGetDirectionVectors32'.
+    const internal** raw_ptr = const_cast<const internal**>(reinterpret_cast<internal**>(vectors));
+    return to_hiprand_status(
+        rocrand_get_direction_vectors64(raw_ptr, to_rocrand_direction_vector_set_type(set)));
+}
+
+hiprandStatus_t HIPRANDAPI hiprandGetScrambleConstants32(const unsigned int** constants)
+{
+    return to_hiprand_status(rocrand_get_scramble_constants32(constants));
+}
+
+hiprandStatus_t HIPRANDAPI hiprandGetScrambleConstants64(const unsigned long long** constants)
+{
+    return to_hiprand_status(rocrand_get_scramble_constants64(constants));
 }
 
 #if defined(__cplusplus)

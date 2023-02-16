@@ -36,6 +36,9 @@
 /// \endcond
 #include <rocrand/rocrand_kernel.h>
 
+#include "hiprand/hiprand.h"
+#include "hiprand/hiprand_hcc.h"
+
 /// \cond
 #define DEFINE_HIPRAND_STATE(hiprand_name, rocrand_name) \
     struct hiprand_name : public rocrand_name \
@@ -57,8 +60,6 @@ DEFINE_HIPRAND_STATE(hiprandStateScrambledSobol64, rocrand_state_scrambled_sobol
 #undef DEFINE_HIPRAND_STATE
 
 typedef rocrand_discrete_distribution hiprandDiscreteDistribution_t;
-typedef unsigned int                  hiprandDirectionVectors32_t[32];
-typedef unsigned long long int        hiprandDirectionVectors64_t[64];
 
 typedef mtgp32_params mtgp32_kernel_params_t;
 typedef mtgp32_fast_params mtgp32_fast_param_t;
