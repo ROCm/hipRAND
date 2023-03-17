@@ -105,10 +105,25 @@ endif()
 
 # install library to C:\hipSDK\bin
 if (WIN32)
-  install (TARGETS hiprand DESTINATION "${CMAKE_INSTALL_PREFIX}/bin")
-  if (BUILD_TEST)
-      install (TARGETS hiprand DESTINATION "${CMAKE_BINARY_DIR}/test")
-  endif()
+    install (TARGETS hiprand DESTINATION "${CMAKE_INSTALL_PREFIX}/bin")
+    if (BUILD_TEST)
+	    add_custom_command(
+		    TARGET hiprand 
+		    POST_BUILD
+		    COMMAND ${CMAKE_COMMAND} -E copy
+			    $<TARGET_FILE:hiprand>
+			    ${PROJECT_BINARY_DIR}/test/$<TARGET_FILE_NAME:hiprand>
+	    )
+    endif()
+    if (BUILD_BENCHMARK)
+	    add_custom_command(
+		    TARGET hiprand 
+		    POST_BUILD
+		    COMMAND ${CMAKE_COMMAND} -E copy
+			    $<TARGET_FILE:hiprand>
+			    ${PROJECT_BINARY_DIR}/benchmark/$<TARGET_FILE_NAME:hiprand>
+	    )
+    endif()	
 endif()
 
 # Fortran wrappers for hipRAND and rocRAND
