@@ -11,6 +11,22 @@ or [cuRAND](https://developer.nvidia.com/curand).
 
 Information about the library API and other topics can be found in the [hipRAND Documentation](https://hiprand.readthedocs.io/en/latest/).
 
+### How to build documentation
+
+Run the steps below to build documentation locally.
+
+```
+cd docs
+
+pip3 install -r .sphinx/requirements.txt
+
+python3 -m sphinx -T -E -b html -d _build/doctrees -D language=en . _build/html
+
+cd ../python/hiprand
+
+python setup.py build_sphinx
+```
+
 ## Installing pre-built packages
 Download pre-built packages from 
 [ROCm's package servers](https://rocm.github.io/install.html#installing-from-amd-rocm-repositories), or by clicking 
@@ -63,4 +79,3 @@ hiprand_log_normal_double(
   double stddev
 )
 ```
-

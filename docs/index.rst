@@ -10,4 +10,3 @@ hipRAND User Guide
    introduction
    installing
    cpp_api
-   python_api
