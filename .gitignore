@@ -7,13 +7,22 @@
 .tag*
 
 ### build dirs ###
-build/
 build_package_test/
 
 ### docs dir ###
-doc/html/
-doc/xml/
-doc/*.tag
+docs/html/
+docs/xml/
+docs/api/
+docs/*.tag
+
+# documentation artifacts
+build/
+_build/
+_images/
+_static/
+_templates/
+_toc.yml
+docBin/
 
 ### C++ ###
 # Compiled Object files
