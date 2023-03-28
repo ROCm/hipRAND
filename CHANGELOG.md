@@ -2,7 +2,7 @@
 
 Full documentation for rocRAND is available at [https://rocrand.readthedocs.io/en/latest/](https://rocrand.readthedocs.io/en/latest/)
 
-## (Unreleased) hipRAND-2.10.17 for ROCm 5.5.0
+## (Unreleased) hipRAND-2.10.17 for ROCm 5.6.0
 ### Fixed
 - Fixed benchmark and unit test builds on Windows.
 
