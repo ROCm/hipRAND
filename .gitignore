@@ -8,21 +8,7 @@
 
 ### build dirs ###
 build_package_test/
-
-### docs dir ###
-docs/html/
-docs/xml/
-docs/api/
-docs/*.tag
-
-# documentation artifacts
 build/
-_build/
-_images/
-_static/
-_templates/
-_toc.yml
-docBin/
 
 ### C++ ###
 # Compiled Object files
