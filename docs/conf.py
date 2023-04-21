@@ -5,6 +5,14 @@
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 
 from rocm_docs import ROCmDocs
+import pathlib
+import sys
+
+# We need to add the location of the hiprand Python module to the PATH
+# in order to build the documentation of that module
+docs_dir_path = pathlib.Path(__file__).parent
+python_dir_path = docs_dir_path.parent / 'python' / 'hiprand'
+sys.path.append(str(python_dir_path))
 
 docs_core = ROCmDocs("hipRAND Documentation")
 docs_core.run_doxygen()
