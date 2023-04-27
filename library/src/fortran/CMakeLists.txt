@@ -8,7 +8,7 @@ if (BUILD_WITH_LIB STREQUAL "CUDA")
     )
 else()
     configure_file(
-        "${CMAKE_CURRENT_SOURCE_DIR}/hip/hip_hcc_m.f90"
+        "${CMAKE_CURRENT_SOURCE_DIR}/hip/hip_rocm_m.f90"
         "${PROJECT_BINARY_DIR}/src/fortran/hip_m.f90"
         COPYONLY
     )
@@ -35,7 +35,7 @@ else()
         PRIVATE
             hiprand
             roc::rocrand
-            "-L${HIP_ROOT_DIR}/lib -lhip_hcc -Wl,-rpath,${HIP_ROOT_DIR}/lib"
+            "-L${HIP_ROOT_DIR}/lib -Wl,-rpath,${HIP_ROOT_DIR}/lib"
     )
 endif()
 

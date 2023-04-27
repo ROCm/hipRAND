@@ -1,4 +1,4 @@
-// Copyright (c) 2017-2022 Advanced Micro Devices, Inc. All rights reserved.
+// Copyright (c) 2017-2023 Advanced Micro Devices, Inc. All rights reserved.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -18,8 +18,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef HIPRAND_KERNEL_HCC_H_
-#define HIPRAND_KERNEL_HCC_H_
+#ifndef HIPRAND_KERNEL_ROCM_H_
+#define HIPRAND_KERNEL_ROCM_H_
 
 /// \addtogroup hipranddevice
 /// @{
@@ -37,7 +37,7 @@
 #include <rocrand/rocrand_kernel.h>
 
 #include "hiprand/hiprand.h"
-#include "hiprand/hiprand_hcc.h"
+#include "hiprand/hiprand_rocm.h"
 
 /// \cond
 #define DEFINE_HIPRAND_STATE(hiprand_name, rocrand_name) \
@@ -785,4 +785,4 @@ uint4 hiprand_discrete4(hiprandStatePhilox4_32_10_t * state,
 
 /// @} // end of group hipranddevice
 
-#endif // HIPRAND_KERNEL_HCC_H_
+#endif // HIPRAND_KERNEL_ROCM_H_

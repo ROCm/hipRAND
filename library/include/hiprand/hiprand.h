@@ -62,10 +62,10 @@
 #define HIPRAND_VERSION
 #endif
 
-#if defined(__HIP_PLATFORM_HCC__) || defined(__HIP_PLATFORM_AMD__)
-#include "hiprand/hiprand_hcc.h"
+#if defined(__HIP_PLATFORM_AMD__)
+    #include "hiprand/hiprand_rocm.h"
 #elif defined(__HIP_PLATFORM_NVCC__)
-#include "hiprand/hiprand_nvcc.h"
+    #include "hiprand/hiprand_nvcc.h"
 #endif
 
 /// \cond HIPRAND_DOCS_TYPEDEFS

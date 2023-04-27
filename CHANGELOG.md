@@ -5,6 +5,7 @@ Full documentation for rocRAND is available at [https://rocrand.readthedocs.io/e
 ## (Unreleased) hipRAND-x.x.x for ROCm 6.0.0
 ### Changed
 - Removed the option to build hipRAND as a submodule for rocRAND.
+- Removed references to and workarounds for deprecated hcc
 
 ## (Unreleased) hipRAND-2.10.17 for ROCm 5.6.0
 ### Fixed
