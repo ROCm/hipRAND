@@ -23,8 +23,8 @@ set(CMAKE_C_COMPILER_WORKS 1)
 set(CMAKE_CXX_COMPILER_WORKS 1)
 #
 
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -IC:/hip/include -IC:/hip/lib/clang/12.0.0 -DWIN32 -D_CRT_SECURE_NO_WARNINGS")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -I${HIP_DIR}/include -DWIN32 -D_CRT_SECURE_NO_WARNINGS")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -IC:/hip/include -IC:/hip/lib/clang/12.0.0 -D_CRT_SECURE_NO_WARNINGS")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -I${HIP_DIR}/include -D_CRT_SECURE_NO_WARNINGS")
 
 # flags for clang direct use
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -fms-extensions -fms-compatibility")
