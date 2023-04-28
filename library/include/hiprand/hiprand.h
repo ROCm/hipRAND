@@ -31,17 +31,17 @@
 
 /// \cond HIPRAND_DOCS_MACRO
 #ifndef HIPRANDAPI
-#ifdef WIN32
-  #ifdef hiprand_EXPORTS
-  /* We are building this library */
-    #define HIPRANDAPI __declspec(dllexport)
-  #else
-    /* We are using this library */
-    #define HIPRANDAPI __declspec(dllimport)
-  #endif
-#else
-  #define HIPRANDAPI
-#endif
+    #ifdef _WIN32
+        #ifdef hiprand_EXPORTS
+            /* We are building this library */
+            #define HIPRANDAPI __declspec(dllexport)
+        #else
+            /* We are using this library */
+            #define HIPRANDAPI __declspec(dllimport)
+        #endif
+    #else
+        #define HIPRANDAPI
+    #endif
 #endif
 /// \endcond
 
@@ -733,6 +733,6 @@ hiprandStatus_t HIPRANDAPI hiprandGetScrambleConstants64(const unsigned long lon
 }
 #endif /* __cplusplus */
 
-#endif // HIPRAND_H_
-
 /** @} */ // end of group hiprandhost
+
+#endif // HIPRAND_H_
