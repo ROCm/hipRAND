@@ -23,7 +23,7 @@
 
 #include <rocrand/rocrand.h>
 
-typedef rocrand_generator_base_type hiprandGenerator_st;
+typedef struct rocrand_generator_base_type hiprandGenerator_st;
 
 typedef struct rocrand_discrete_distribution_st hiprandDiscreteDistribution_st;
 
