@@ -729,7 +729,7 @@ hiprandStatus_t HIPRANDAPI hiprandGetScrambleConstants32(const unsigned int** co
 
 hiprandStatus_t HIPRANDAPI hiprandGetScrambleConstants64(const unsigned long long** constants);
 
-    #if defined(__cplusplus)
+#if defined(__cplusplus)
 }
 #endif /* __cplusplus */
 
