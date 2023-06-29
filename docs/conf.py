@@ -8,6 +8,9 @@ from rocm_docs import ROCmDocs
 import pathlib
 import sys
 
+
+external_projects_current_project = "hiprand"
+
 # We need to add the location of the hiprand Python module to the PATH
 # in order to build the documentation of that module
 docs_dir_path = pathlib.Path(__file__).parent
