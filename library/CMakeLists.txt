@@ -1,9 +1,9 @@
 # hipRAND library
 # Get hipRAND sources
 if (BUILD_WITH_LIB STREQUAL "CUDA")
-    set(hipRAND_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/src/nvcc_detail/hiprand.cpp)
+    set(hipRAND_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/src/nvidia_detail/hiprand.cpp)
 else()
-    set(hipRAND_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/src/hcc_detail/hiprand.cpp)
+    set(hipRAND_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/src/amd_detail/hiprand.cpp)
 endif()
 
 # Configure a header file to pass the hipRAND version
