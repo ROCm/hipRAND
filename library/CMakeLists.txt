@@ -62,7 +62,6 @@ set_target_properties(hiprand
     PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/library"
         DEBUG_POSTFIX "-d"
-        INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/hiprand/lib"
 )
 
 rocm_install(
