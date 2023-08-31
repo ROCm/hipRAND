@@ -122,6 +122,6 @@ set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} ${HIP_CPP_CONFIG_FLAGS} ${HIP_NVCC_FLA
     CACHE STRING "Cuda compile flags" FORCE)
 
 # Ignore warnings about #pragma unroll
-# and about deprecated CUDA function(s) used in hip/nvcc_detail/hip_runtime_api.h
+# and about deprecated CUDA function(s) used in hip/nvidia_detail/hip_runtime_api.h
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${HIP_CPP_CONFIG_FLAGS_STRIP} -Wno-unknown-pragmas -Wno-deprecated-declarations"
     CACHE STRING "compile flags" FORCE)
