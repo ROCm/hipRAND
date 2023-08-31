@@ -23,9 +23,9 @@
 # hipRAND library
 # Get hipRAND sources
 if (BUILD_WITH_LIB STREQUAL "CUDA")
-    set(hipRAND_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/src/nvcc_detail/hiprand.cpp)
+    set(hipRAND_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/src/nvidia_detail/hiprand.cpp)
 else()
-    set(hipRAND_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/src/rocm_detail/hiprand.cpp)
+    set(hipRAND_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/src/amd_detail/hiprand.cpp)
 endif()
 
 # Configure a header file to pass the hipRAND version
@@ -84,7 +84,6 @@ set_target_properties(hiprand
     PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/library"
         DEBUG_POSTFIX "-d"
-        INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/hiprand/lib"
 )
 
 rocm_install(
