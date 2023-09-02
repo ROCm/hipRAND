@@ -1,4 +1,4 @@
-// Copyright (c) 2017 Advanced Micro Devices, Inc. All rights reserved.
+// Copyright (c) 2017-2023 Advanced Micro Devices, Inc. All rights reserved.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,8 +24,8 @@
 /// \addtogroup hipranddevice
 /// @{
 
-#if defined(__HIP_PLATFORM_HCC__) || defined(__HIP_PLATFORM_AMD__) || HIPRAND_DOXYGEN
-#include "hiprand/hiprand_kernel.h"
+#if defined(__HIP_PLATFORM_AMD__) || HIPRAND_DOXYGEN
+    #include "hiprand/hiprand_kernel.h"
 
 /// \cond
 typedef mtgp32_params mtgp32_kernel_params_t;
@@ -107,7 +107,7 @@ hiprandStatus_t hiprandMakeMTGP32KernelState(hiprandStateMtgp32_t *s,
         curandMakeMTGP32KernelState(s, params, k, n, seed)
     );
 }
-#endif // __HIP_PLATFORM_HCC__
+#endif // __HIP_PLATFORM_AMD__
 
 /// @} // end of group hipranddevice
 

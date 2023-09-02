@@ -83,6 +83,10 @@ Where ``<compiler>>`` should be set to ``hipcc`` on a ROCm platform, or to a reg
 * ``BUILD_TEST`` controls whether to build the hipRAND tests. Defaults to ``OFF``.
 * ``BUILD_BENCHMARK`` controls whether to build the hipRAND benchmarks. Defaults to ``OFF``.
 * ``BUILD_ADDRESS_SANITIZER`` controls whether to build with address sanitization enabled. Defaults to ``OFF``.
+* ``ROCRAND_PATH`` specifies a rocRAND install other than the default system installed one.
+* ``DOWNLOAD_ROCRAND`` specifies that rocRAND will be downloaded and installed in the build directory.
+
+If using ``ROCRAND_PATH`` or ``DOWNLOAD_ROCRAND`` and rocRAND is installed on the system in the default location, ``CMAKE_NO_SYSTEM_FROM_IMPORTED=ON`` must be passed.
 
 Building the Python API Wrapper
 -------------------------------

@@ -1,4 +1,4 @@
-// Copyright (c) 2017-2022 Advanced Micro Devices, Inc. All rights reserved.
+// Copyright (c) 2017-2023 Advanced Micro Devices, Inc. All rights reserved.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -18,14 +18,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef HIPRAND_KERNEL_HCC_H_
-#define HIPRAND_KERNEL_HCC_H_
+#ifndef HIPRAND_KERNEL_ROCM_H_
+#define HIPRAND_KERNEL_ROCM_H_
 
 /// \addtogroup hipranddevice
 /// @{
 
 #ifndef QUALIFIERS
-#define QUALIFIERS __forceinline__ __device__
+    #define QUALIFIERS __forceinline__ __device__
 #endif // QUALIFIERS
 
 #include <hip/hip_runtime.h>
@@ -36,13 +36,16 @@
 /// \endcond
 #include <rocrand/rocrand_kernel.h>
 
+#include "hiprand/hiprand.h"
+#include "hiprand/hiprand_rocm.h"
+
 /// \cond
 #define DEFINE_HIPRAND_STATE(hiprand_name, rocrand_name) \
-    struct hiprand_name : public rocrand_name \
-    { \
-        typedef rocrand_name base; \
-    }; \
-    typedef struct hiprand_name hiprand_name ## _t;
+    struct hiprand_name : public rocrand_name            \
+    {                                                    \
+        typedef rocrand_name base;                       \
+    };                                                   \
+    typedef struct hiprand_name hiprand_name##_t;
 
 DEFINE_HIPRAND_STATE(hiprandState, rocrand_state_xorwow)
 DEFINE_HIPRAND_STATE(hiprandStateXORWOW, rocrand_state_xorwow)
@@ -57,73 +60,59 @@ DEFINE_HIPRAND_STATE(hiprandStateScrambledSobol64, rocrand_state_scrambled_sobol
 #undef DEFINE_HIPRAND_STATE
 
 typedef rocrand_discrete_distribution hiprandDiscreteDistribution_t;
-typedef unsigned int                  hiprandDirectionVectors32_t[32];
-typedef unsigned long long int        hiprandDirectionVectors64_t[64];
 
-typedef mtgp32_params mtgp32_kernel_params_t;
+typedef mtgp32_params      mtgp32_kernel_params_t;
 typedef mtgp32_fast_params mtgp32_fast_param_t;
 /// \endcond
 
 /// \cond
-namespace detail {
+namespace detail
+{
 
 template<typename T, typename... R>
-struct is_any_of : std::false_type { };
+struct is_any_of : std::false_type
+{};
 
 template<typename T, typename F>
-struct is_any_of<T, F> : std::is_same<T, F> { };
+struct is_any_of<T, F> : std::is_same<T, F>
+{};
 
 template<typename T, typename F, typename... R>
 struct is_any_of<T, F, R...>
-    : std::integral_constant<
-        bool,
-        std::is_same<T, F>::value || is_any_of<T, R...>::value
-      >
-{ };
+    : std::integral_constant<bool, std::is_same<T, F>::value || is_any_of<T, R...>::value>
+{};
 
 } // end namespace detail
 /// \endcond
 
 /// \cond
-inline
-hiprandStatus_t to_hiprand_status(rocrand_status status)
+inline hiprandStatus_t to_hiprand_status(rocrand_status status)
 {
     switch(status)
     {
-        case ROCRAND_STATUS_SUCCESS:
-            return HIPRAND_STATUS_SUCCESS;
-        case ROCRAND_STATUS_NOT_CREATED:
-            return HIPRAND_STATUS_NOT_INITIALIZED;
-        case ROCRAND_STATUS_VERSION_MISMATCH:
-            return HIPRAND_STATUS_VERSION_MISMATCH;
-        case ROCRAND_STATUS_ALLOCATION_FAILED:
-            return HIPRAND_STATUS_ALLOCATION_FAILED;
-        case ROCRAND_STATUS_TYPE_ERROR:
-            return HIPRAND_STATUS_TYPE_ERROR;
-        case ROCRAND_STATUS_OUT_OF_RANGE:
-            return HIPRAND_STATUS_OUT_OF_RANGE;
-        case ROCRAND_STATUS_LENGTH_NOT_MULTIPLE:
-            return HIPRAND_STATUS_LENGTH_NOT_MULTIPLE;
+        case ROCRAND_STATUS_SUCCESS: return HIPRAND_STATUS_SUCCESS;
+        case ROCRAND_STATUS_NOT_CREATED: return HIPRAND_STATUS_NOT_INITIALIZED;
+        case ROCRAND_STATUS_VERSION_MISMATCH: return HIPRAND_STATUS_VERSION_MISMATCH;
+        case ROCRAND_STATUS_ALLOCATION_FAILED: return HIPRAND_STATUS_ALLOCATION_FAILED;
+        case ROCRAND_STATUS_TYPE_ERROR: return HIPRAND_STATUS_TYPE_ERROR;
+        case ROCRAND_STATUS_OUT_OF_RANGE: return HIPRAND_STATUS_OUT_OF_RANGE;
+        case ROCRAND_STATUS_LENGTH_NOT_MULTIPLE: return HIPRAND_STATUS_LENGTH_NOT_MULTIPLE;
         case ROCRAND_STATUS_DOUBLE_PRECISION_REQUIRED:
             return HIPRAND_STATUS_DOUBLE_PRECISION_REQUIRED;
-        case ROCRAND_STATUS_LAUNCH_FAILURE:
-            return HIPRAND_STATUS_LAUNCH_FAILURE;
+        case ROCRAND_STATUS_LAUNCH_FAILURE: return HIPRAND_STATUS_LAUNCH_FAILURE;
         // case ROCRAND_STATUS_PREEXISTING_FAILURE:
         //     return HIPRAND_STATUS_PREEXISTING_FAILURE;
         // case ROCRAND_STATUS_INITIALIZATION_FAILED:
         //     return HIPRAND_STATUS_INITIALIZATION_FAILED;
         // case ROCRAND_STATUS_ARCH_MISMATCH:
         //     return HIPRAND_STATUS_ARCH_MISMATCH;
-        case ROCRAND_STATUS_INTERNAL_ERROR:
-            return HIPRAND_STATUS_INTERNAL_ERROR;
-        default:
-            return HIPRAND_STATUS_INTERNAL_ERROR;
+        case ROCRAND_STATUS_INTERNAL_ERROR: return HIPRAND_STATUS_INTERNAL_ERROR;
+        default: return HIPRAND_STATUS_INTERNAL_ERROR;
     }
 }
 
 template<typename StateType>
-QUALIFIERS
-void check_state_type()
+QUALIFIERS void check_state_type()
 {
     static_assert(detail::is_any_of<StateType,
                                     hiprandState_t,
@@ -169,9 +158,7 @@ void check_state_type()
  * \param src - Pointer to a state to copy from
  * \param dest - Pointer to a state to copy to
  */
-QUALIFIERS
-void hiprand_mtgp32_block_copy(hiprandStateMtgp32_t * src,
-                               hiprandStateMtgp32_t * dest)
+QUALIFIERS void hiprand_mtgp32_block_copy(hiprandStateMtgp32_t* src, hiprandStateMtgp32_t* dest)
 {
     rocrand_mtgp32_block_copy(src, dest);
 }
@@ -182,9 +169,8 @@ void hiprand_mtgp32_block_copy(hiprandStateMtgp32_t * src,
  * \param state - Pointer to a MTGP32 state
  * \param params - Pointer to new parameters
  */
-QUALIFIERS
-void hiprand_mtgp32_set_params(hiprandStateMtgp32_t * state,
-                               mtgp32_kernel_params_t * params)
+QUALIFIERS void hiprand_mtgp32_set_params(hiprandStateMtgp32_t*   state,
+                                          mtgp32_kernel_params_t* params)
 {
     rocrand_mtgp32_set_params(state, params);
 }
@@ -203,21 +189,15 @@ void hiprand_mtgp32_set_params(hiprandStateMtgp32_t * state,
 ///
 /// See also: hiprandMakeMTGP32KernelState()
 template<class StateType>
-QUALIFIERS
-void hiprand_init(const unsigned long long seed,
-                  const unsigned long long subsequence,
-                  const unsigned long long offset,
-                  StateType * state)
+QUALIFIERS void hiprand_init(const unsigned long long seed,
+                             const unsigned long long subsequence,
+                             const unsigned long long offset,
+                             StateType*               state)
 {
     check_state_type<StateType>();
-    static_assert(
-        !std::is_same<
-            StateType,
-            hiprandStateMtgp32_t
-        >::value,
-        "hiprandStateMtgp32_t does not have hiprand_init function, "
-        "check hiprandMakeMTGP32KernelState() host function"
-    );
+    static_assert(!std::is_same<StateType, hiprandStateMtgp32_t>::value,
+                  "hiprandStateMtgp32_t does not have hiprand_init function, "
+                  "check hiprandMakeMTGP32KernelState() host function");
     static_assert(!detail::is_any_of<StateType,
                                      hiprandStateSobol32_t,
                                      hiprandStateScrambledSobol32_t,
@@ -294,17 +274,11 @@ QUALIFIERS void hiprand_init(hiprandDirectionVectors64_t     direction_vectors,
 /// \param n - Number of states to skipahead
 /// \param state - Pointer to a state to modify
 template<class StateType>
-QUALIFIERS
-void skipahead(unsigned long long n, StateType * state)
+QUALIFIERS void skipahead(unsigned long long n, StateType* state)
 {
     check_state_type<StateType>();
-    static_assert(
-        !std::is_same<
-            StateType,
-            hiprandStateMtgp32_t
-        >::value,
-        "hiprandStateMtgp32_t does not have skipahead function"
-    );
+    static_assert(!std::is_same<StateType, hiprandStateMtgp32_t>::value,
+                  "hiprandStateMtgp32_t does not have skipahead function");
     typedef typename StateType::base base_type;
     skipahead(n, static_cast<base_type*>(state));
 }
@@ -325,8 +299,7 @@ void skipahead(unsigned long long n, StateType * state)
 /// \param n - Number of subsequences to skipahead
 /// \param state - Pointer to a state to update
 template<class StateType>
-QUALIFIERS
-void skipahead_sequence(unsigned long long n, StateType * state)
+QUALIFIERS void skipahead_sequence(unsigned long long n, StateType* state)
 {
     check_state_type<StateType>();
     static_assert(!detail::is_any_of<StateType,
@@ -356,8 +329,7 @@ void skipahead_sequence(unsigned long long n, StateType * state)
 /// \param n - Number of subsequences to skipahead
 /// \param state - Pointer to a state to update
 template<class StateType>
-QUALIFIERS
-void skipahead_subsequence(unsigned long long n, StateType * state)
+QUALIFIERS void skipahead_subsequence(unsigned long long n, StateType* state)
 {
     check_state_type<StateType>();
     static_assert(!detail::is_any_of<StateType,
@@ -382,8 +354,7 @@ void skipahead_subsequence(unsigned long long n, StateType * state)
 /// \param state - Pointer to a RNG state to use
 /// \return Uniformly distributed random 32-bit <tt>unsigned int</tt>
 template<class StateType>
-QUALIFIERS
-unsigned int hiprand(StateType * state)
+QUALIFIERS unsigned int hiprand(StateType* state)
 {
     check_state_type<StateType>();
     return rocrand(state);
@@ -394,8 +365,7 @@ unsigned int hiprand(StateType * state)
 ///
 /// \param state - Pointer to a Philox state to use
 /// \return Four uniformly distributed random 32-bit <tt>unsigned int</tt>s as \p uint4
-QUALIFIERS
-uint4 hiprand4(hiprandStatePhilox4_32_10_t * state)
+QUALIFIERS uint4 hiprand4(hiprandStatePhilox4_32_10_t* state)
 {
     return rocrand4(state);
 }
@@ -424,8 +394,7 @@ QUALIFIERS unsigned long long int hiprand_long_long(StateType* state)
 /// \param state - Pointer to a RNG state to use
 /// \return Uniformly distributed random <tt>float</tt> value
 template<class StateType>
-QUALIFIERS
-float hiprand_uniform(StateType * state)
+QUALIFIERS float hiprand_uniform(StateType* state)
 {
     check_state_type<StateType>();
     return rocrand_uniform(state);
@@ -436,8 +405,7 @@ float hiprand_uniform(StateType * state)
 ///
 /// \param state - Pointer to a Philox state to use
 /// \return Four uniformly distributed random <tt>float</tt> values as \p float4
-QUALIFIERS
-float4 hiprand_uniform4(hiprandStatePhilox4_32_10_t * state)
+QUALIFIERS float4 hiprand_uniform4(hiprandStatePhilox4_32_10_t* state)
 {
     return rocrand_uniform4(state);
 }
@@ -454,8 +422,7 @@ float4 hiprand_uniform4(hiprandStatePhilox4_32_10_t * state)
 /// \p double value is generated using only 32 random bits (one <tt>unsigned int</tt> value).
 /// In case of the Sobol types, this is done to guarantee the quasirandom properties.
 template<class StateType>
-QUALIFIERS
-double hiprand_uniform_double(StateType * state)
+QUALIFIERS double hiprand_uniform_double(StateType* state)
 {
     check_state_type<StateType>();
     return rocrand_uniform_double(state);
@@ -466,8 +433,7 @@ double hiprand_uniform_double(StateType * state)
 ///
 /// \param state - Pointer to a Philox state to use
 /// \return Two uniformly distributed random <tt>double</tt> values as \p double2
-QUALIFIERS
-double2 hiprand_uniform2_double(hiprandStatePhilox4_32_10_t * state)
+QUALIFIERS double2 hiprand_uniform2_double(hiprandStatePhilox4_32_10_t* state)
 {
     return rocrand_uniform_double2(state);
 }
@@ -477,8 +443,7 @@ double2 hiprand_uniform2_double(hiprandStatePhilox4_32_10_t * state)
 ///
 /// \param state - Pointer to a Philox state to use
 /// \return Four uniformly distributed random <tt>double</tt> values as \p double4
-QUALIFIERS
-double4 hiprand_uniform4_double(hiprandStatePhilox4_32_10_t * state)
+QUALIFIERS double4 hiprand_uniform4_double(hiprandStatePhilox4_32_10_t* state)
 {
     return rocrand_uniform_double4(state);
 }
@@ -493,8 +458,7 @@ double4 hiprand_uniform4_double(hiprandStatePhilox4_32_10_t * state)
 /// \param state - Pointer to a RNG state to use
 /// \return Normally distributed random <tt>float</tt> value
 template<class StateType>
-QUALIFIERS
-float hiprand_normal(StateType * state)
+QUALIFIERS float hiprand_normal(StateType* state)
 {
     check_state_type<StateType>();
     return rocrand_normal(state);
@@ -513,20 +477,15 @@ float hiprand_normal(StateType * state)
 /// \param state - Pointer to a RNG state to use
 /// \return Two normally distributed random <tt>float</tt> values as \p float2
 template<class StateType>
-QUALIFIERS
-float2 hiprand_normal2(StateType * state)
+QUALIFIERS float2 hiprand_normal2(StateType* state)
 {
     check_state_type<StateType>();
-    static_assert(
-        detail::is_any_of<
-            StateType,
-            hiprandState_t,
-            hiprandStateXORWOW_t,
-            hiprandStatePhilox4_32_10_t,
-            hiprandStateMRG32k3a_t
-        >::value,
-        "Used StateType is not supported"
-    );
+    static_assert(detail::is_any_of<StateType,
+                                    hiprandState_t,
+                                    hiprandStateXORWOW_t,
+                                    hiprandStatePhilox4_32_10_t,
+                                    hiprandStateMRG32k3a_t>::value,
+                  "Used StateType is not supported");
     return rocrand_normal2(state);
 }
 
@@ -537,8 +496,7 @@ float2 hiprand_normal2(StateType * state)
 ///
 /// \param state - Pointer to a Philox state to use
 /// \return Four normally distributed random <tt>float</tt> values as \p float4
-QUALIFIERS
-float4 hiprand_normal4(hiprandStatePhilox4_32_10_t * state)
+QUALIFIERS float4 hiprand_normal4(hiprandStatePhilox4_32_10_t* state)
 {
     return rocrand_normal4(state);
 }
@@ -553,8 +511,7 @@ float4 hiprand_normal4(hiprandStatePhilox4_32_10_t * state)
 /// \param state - Pointer to a RNG state to use
 /// \return Normally distributed random <tt>double</tt> value
 template<class StateType>
-QUALIFIERS
-double hiprand_normal_double(StateType * state)
+QUALIFIERS double hiprand_normal_double(StateType* state)
 {
     check_state_type<StateType>();
     return rocrand_normal_double(state);
@@ -573,20 +530,15 @@ double hiprand_normal_double(StateType * state)
 /// \param state - Pointer to a RNG state to use
 /// \return Two normally distributed random <tt>double</tt> values as \p double2
 template<class StateType>
-QUALIFIERS
-double2 hiprand_normal2_double(StateType * state)
+QUALIFIERS double2 hiprand_normal2_double(StateType* state)
 {
     check_state_type<StateType>();
-    static_assert(
-        detail::is_any_of<
-            StateType,
-            hiprandState_t,
-            hiprandStateXORWOW_t,
-            hiprandStatePhilox4_32_10_t,
-            hiprandStateMRG32k3a_t
-        >::value,
-        "Used StateType is not supported"
-    );
+    static_assert(detail::is_any_of<StateType,
+                                    hiprandState_t,
+                                    hiprandStateXORWOW_t,
+                                    hiprandStatePhilox4_32_10_t,
+                                    hiprandStateMRG32k3a_t>::value,
+                  "Used StateType is not supported");
     return rocrand_normal_double2(state);
 }
 
@@ -597,8 +549,7 @@ double2 hiprand_normal2_double(StateType * state)
 ///
 /// \param state - Pointer to a Philox state to use
 /// \return Four normally distributed random <tt>double</tt> values as \p double4
-QUALIFIERS
-double4 hiprand_normal4_double(hiprandStatePhilox4_32_10_t * state)
+QUALIFIERS double4 hiprand_normal4_double(hiprandStatePhilox4_32_10_t* state)
 {
     return rocrand_normal_double4(state);
 }
@@ -612,9 +563,7 @@ double4 hiprand_normal4_double(hiprandStatePhilox4_32_10_t * state)
 /// \param stddev - Standard deviation value of log-normal distribution
 /// \return Log-normally distributed random <tt>float</tt> value
 template<class StateType>
-QUALIFIERS
-float hiprand_log_normal(StateType * state,
-                         float mean, float stddev)
+QUALIFIERS float hiprand_log_normal(StateType* state, float mean, float stddev)
 {
     check_state_type<StateType>();
     return rocrand_log_normal(state, mean, stddev);
@@ -632,21 +581,15 @@ float hiprand_log_normal(StateType * state,
 /// \param stddev - Standard deviation value of log-normal distribution
 /// \return Two log-normally distributed random <tt>float</tt> values as \p float2
 template<class StateType>
-QUALIFIERS
-float2 hiprand_log_normal2(StateType * state,
-                           float mean, float stddev)
+QUALIFIERS float2 hiprand_log_normal2(StateType* state, float mean, float stddev)
 {
     check_state_type<StateType>();
-    static_assert(
-        detail::is_any_of<
-            StateType,
-            hiprandState_t,
-            hiprandStateXORWOW_t,
-            hiprandStatePhilox4_32_10_t,
-            hiprandStateMRG32k3a_t
-        >::value,
-        "Used StateType is not supported"
-    );
+    static_assert(detail::is_any_of<StateType,
+                                    hiprandState_t,
+                                    hiprandStateXORWOW_t,
+                                    hiprandStatePhilox4_32_10_t,
+                                    hiprandStateMRG32k3a_t>::value,
+                  "Used StateType is not supported");
     return rocrand_log_normal2(state, mean, stddev);
 }
 
@@ -656,9 +599,7 @@ float2 hiprand_log_normal2(StateType * state,
 /// \param mean - Mean value of log-normal distribution
 /// \param stddev - Standard deviation value of log-normal distribution
 /// \return Four log-normally distributed random <tt>float</tt> values as \p float4
-QUALIFIERS
-float4 hiprand_log_normal4(hiprandStatePhilox4_32_10_t * state,
-                           float mean, float stddev)
+QUALIFIERS float4 hiprand_log_normal4(hiprandStatePhilox4_32_10_t* state, float mean, float stddev)
 {
     return rocrand_log_normal4(state, mean, stddev);
 }
@@ -672,9 +613,7 @@ float4 hiprand_log_normal4(hiprandStatePhilox4_32_10_t * state,
 /// \param stddev - Standard deviation value of log-normal distribution
 /// \return Log-normally distributed random <tt>double</tt> value
 template<class StateType>
-QUALIFIERS
-double hiprand_log_normal_double(StateType * state,
-                                 double mean, double stddev)
+QUALIFIERS double hiprand_log_normal_double(StateType* state, double mean, double stddev)
 {
     check_state_type<StateType>();
     return rocrand_log_normal_double(state, mean, stddev);
@@ -692,21 +631,15 @@ double hiprand_log_normal_double(StateType * state,
 /// \param stddev - Standard deviation value of log-normal distribution
 /// \return Two log-normally distributed random <tt>double</tt> values as \p double2
 template<class StateType>
-QUALIFIERS
-double2 hiprand_log_normal2_double(StateType * state,
-                                   double mean, double stddev)
+QUALIFIERS double2 hiprand_log_normal2_double(StateType* state, double mean, double stddev)
 {
     check_state_type<StateType>();
-    static_assert(
-        detail::is_any_of<
-            StateType,
-            hiprandState_t,
-            hiprandStateXORWOW_t,
-            hiprandStatePhilox4_32_10_t,
-            hiprandStateMRG32k3a_t
-        >::value,
-        "Used StateType is not supported"
-    );
+    static_assert(detail::is_any_of<StateType,
+                                    hiprandState_t,
+                                    hiprandStateXORWOW_t,
+                                    hiprandStatePhilox4_32_10_t,
+                                    hiprandStateMRG32k3a_t>::value,
+                  "Used StateType is not supported");
     return rocrand_log_normal_double2(state, mean, stddev);
 }
 
@@ -716,9 +649,9 @@ double2 hiprand_log_normal2_double(StateType * state,
 /// \param mean - Mean value of log-normal distribution
 /// \param stddev - Standard deviation value of log-normal distribution
 /// \return Four log-normally distributed random <tt>double</tt> values as \p double4
-QUALIFIERS
-double4 hiprand_log_normal4_double(hiprandStatePhilox4_32_10_t * state,
-                                   double mean, double stddev)
+QUALIFIERS double4 hiprand_log_normal4_double(hiprandStatePhilox4_32_10_t* state,
+                                              double                       mean,
+                                              double                       stddev)
 {
     return rocrand_log_normal_double4(state, mean, stddev);
 }
@@ -731,8 +664,7 @@ double4 hiprand_log_normal4_double(hiprandStatePhilox4_32_10_t * state,
 /// \param lambda - Lambda (mean) parameter of Poisson distribution
 /// \return Poisson-distributed random <tt>unsigned int</tt> value
 template<class StateType>
-QUALIFIERS
-uint hiprand_poisson(StateType * state, double lambda)
+QUALIFIERS uint hiprand_poisson(StateType* state, double lambda)
 {
     check_state_type<StateType>();
     return rocrand_poisson(state, lambda);
@@ -743,8 +675,7 @@ uint hiprand_poisson(StateType * state, double lambda)
 /// \param state - Pointer to a Philox state to use
 /// \param lambda - Lambda (mean) parameter of Poisson distribution
 /// \return Four Poisson-distributed random <tt>unsigned int</tt> values as \p uint4
-QUALIFIERS
-uint4 hiprand_poisson4(hiprandStatePhilox4_32_10_t * state, double lambda)
+QUALIFIERS uint4 hiprand_poisson4(hiprandStatePhilox4_32_10_t* state, double lambda)
 {
     return rocrand_poisson4(state, lambda);
 }
@@ -760,8 +691,8 @@ uint4 hiprand_poisson4(hiprandStatePhilox4_32_10_t * state, double lambda)
 ///
 /// See also: hiprandCreatePoissonDistribution()
 template<class StateType>
-QUALIFIERS
-uint hiprand_discrete(StateType * state, hiprandDiscreteDistribution_t discrete_distribution)
+QUALIFIERS uint hiprand_discrete(StateType*                    state,
+                                 hiprandDiscreteDistribution_t discrete_distribution)
 {
     check_state_type<StateType>();
     return rocrand_discrete(state, discrete_distribution);
@@ -775,13 +706,12 @@ uint hiprand_discrete(StateType * state, hiprandDiscreteDistribution_t discrete_
 /// \return Four random <tt>unsigned int</tt> values as \p uint4
 ///
 /// See also: hiprandCreatePoissonDistribution()
-QUALIFIERS
-uint4 hiprand_discrete4(hiprandStatePhilox4_32_10_t * state,
-                        hiprandDiscreteDistribution_t discrete_distribution)
+QUALIFIERS uint4 hiprand_discrete4(hiprandStatePhilox4_32_10_t*  state,
+                                   hiprandDiscreteDistribution_t discrete_distribution)
 {
     return rocrand_discrete4(state, discrete_distribution);
 }
 
 /// @} // end of group hipranddevice
 
-#endif // HIPRAND_KERNEL_HCC_H_
+#endif // HIPRAND_KERNEL_ROCM_H_

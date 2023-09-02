@@ -1,3 +1,25 @@
+# MIT License
+#
+# Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 function (print_configuration_summary)
     message(STATUS "")
     message(STATUS "******** Summary ********")
@@ -18,7 +40,7 @@ if (BUILD_WITH_LIB STREQUAL "CUDA")
 endif()
     message(STATUS "  Build type                 : ${CMAKE_BUILD_TYPE}")
     message(STATUS "  Install prefix             : ${CMAKE_INSTALL_PREFIX}")
-if(HIP_COMPILER STREQUAL "hcc" OR HIP_COMPILER STREQUAL "clang")
+if(HIP_COMPILER STREQUAL "clang")
     message(STATUS "  Device targets             : ${AMDGPU_TARGETS}")
 else()
     message(STATUS "  Device targets             : ${NVGPU_TARGETS}")
@@ -29,5 +51,6 @@ endif()
     message(STATUS "  BUILD_TEST                 : ${BUILD_TEST}")
     message(STATUS "  BUILD_BENCHMARK            : ${BUILD_BENCHMARK}")
     message(STATUS "  BUILD_ADDRESS_SANITIZER    : ${BUILD_ADDRESS_SANITIZER}")
+    message(STATUS "  DOWNLOAD_ROCRAND           : ${DOWNLOAD_ROCRAND}")
     message(STATUS "  DEPENDENCIES_FORCE_DOWNLOAD: ${DEPENDENCIES_FORCE_DOWNLOAD}")
 endfunction()
