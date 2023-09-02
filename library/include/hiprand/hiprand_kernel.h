@@ -1,4 +1,4 @@
-// Copyright (c) 2017-2022 Advanced Micro Devices, Inc. All rights reserved.
+// Copyright (c) 2017-2023 Advanced Micro Devices, Inc. All rights reserved.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -60,10 +60,10 @@
 #define HIPRAND_MT19937_DEFAULT_SEED 0ULL
 /** @} */ // end of group hipranddevice
 
-#if defined(__HIP_PLATFORM_HCC__) || defined(__HIP_PLATFORM_AMD__)
-#include "hiprand/hiprand_kernel_hcc.h"
+#if defined(__HIP_PLATFORM_AMD__)
+    #include "hiprand/hiprand_kernel_rocm.h"
 #else
-#include "hiprand/hiprand_kernel_nvcc.h"
+    #include "hiprand/hiprand_kernel_nvcc.h"
 #endif
 
 #endif // HIPRAND_KERNEL_H_

@@ -1,6 +1,6 @@
 # MIT License
 #
-# Copyright (c) 2018 Advanced Micro Devices, Inc. All rights reserved.
+# Copyright (c) 2018-2023 Advanced Micro Devices, Inc. All rights reserved.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -92,6 +92,42 @@ endif()
 
 # For downloading, building, and installing required dependencies
 include(cmake/DownloadProject.cmake)
+
+# NOTE: HIPCC includes the default ROCm install directory as a system include directory (-isystem) for header files.
+#       This makes it possible that different rocRAND headers are found than those of the package found with
+#       find_package. CMake option CMAKE_NO_SYSTEM_FROM_IMPORTED can be used to change the -isystem to -I and to
+#       workaround this problem.
+if (NOT BUILD_WITH_LIB STREQUAL "CUDA")
+    if (NOT ROCRAND_PATH STREQUAL "")
+        # Search manually-specified rocRAND path.
+        # This assumes that there is no system-installed rocRAND or that CMAKE_NO_SYSTEM_FROM_IMPORTED is ON.
+        find_package(rocrand REQUIRED CONFIG PATHS ${ROCRAND_PATH} NO_DEFAULT_PATH)
+    elseif (${DOWNLOAD_ROCRAND})
+        # Download and install rocRAND.
+        # This assumes that there is no system-installed rocRAND or that CMAKE_NO_SYSTEM_FROM_IMPORTED is ON.
+        set(ROCRAND_ROOT "${CMAKE_CURRENT_BINARY_DIR}/deps/rocrand" CACHE PATH "Path to downloaded rocRAND install.")
+        download_project(
+                PROJ rocrand
+                GIT_REPOSITORY https://github.com/ROCmSoftwarePlatform/rocRAND.git
+                GIT_TAG develop
+                GIT_SHALLOW TRUE
+                INSTALL_DIR ${ROCRAND_ROOT}
+                CMAKE_ARGS -DBUILD_TEST=OFF -DCMAKE_INSTALL_PREFIX=<INSTALL_DIR> -DCMAKE_PREFIX_PATH=/opt/rocm
+                -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+                LOG_DOWNLOAD TRUE
+                LOG_CONFIGURE TRUE
+                LOG_BUILD TRUE
+                LOG_INSTALL TRUE
+                BUILD_PROJECT TRUE
+                UPDATE_DISCONNECTED TRUE # Never update automatically from the remote repository
+        )
+        # search only the install location of the downloaded rocrand
+        find_package(rocrand REQUIRED CONFIG PATHS ${ROCRAND_ROOT} NO_DEFAULT_PATH)
+    else ()
+        # If neither alternative is specified, follow default search paths which include the default install location.
+        find_package(rocrand REQUIRED CONFIG)
+    endif ()
+endif ()
 
 # Fortran Wrapper
 if(BUILD_FORTRAN_WRAPPER)

@@ -1,3 +1,25 @@
+# MIT License
+#
+# Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 # hipRAND library
 # Get hipRAND sources
 if (BUILD_WITH_LIB STREQUAL "CUDA")
@@ -125,55 +147,7 @@ if (WIN32)
     endif()	
 endif()
 
-# Fortran wrappers for hipRAND and rocRAND
+# Fortran wrappers for hipRAND
 if(BUILD_FORTRAN_WRAPPER)
     add_subdirectory(src/fortran)
-endif()
-
-if(NOT HIPRAND_SUBMODULE)
-    set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/../LICENSE.txt")
-    if(WIN32)
-        set(CPACK_SOURCE_GENERATOR "ZIP")
-        set(CPACK_GENERATOR "ZIP")
-        set(CMAKE_INSTALL_PREFIX "C:/hipSDK" CACHE PATH "Install path" FORCE)
-        set(INSTALL_PREFIX "C:/hipSDK")
-        set(CPACK_SET_DESTDIR OFF)
-        set(CPACK_PACKAGE_INSTALL_DIRECTORY "C:/hipSDK")
-        set(CPACK_PACKAGING_INSTALL_PREFIX "")
-        set(CPACK_INCLUDE_TOPLEVEL_DIRECTORY OFF)
-    else()
-        if(NOT CPACK_PACKAGING_INSTALL_PREFIX)
-            set(CPACK_PACKAGING_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
-        endif()
-    endif()
-
-    if( HIP_RUNTIME_LOWER STREQUAL "rocclr" )
-        rocm_package_add_dependencies("hip-rocclr >= 3.5.0")
-    elseif( HIP_RUNTIME STREQUAL "cuda" )
-        rocm_package_add_dependencies("hip-nvcc >= 3.5.0")
-    endif( )
-    rocm_package_add_dependencies("rocrand >= ${hipRAND_VERSION}")
-
-    set(CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST_ADDITION "\${CPACK_PACKAGING_INSTALL_PREFIX}" "\${CPACK_PACKAGING_INSTALL_PREFIX}/include")
-
-    if (BUILD_WITH_LIB STREQUAL "CUDA")
-        set(package_name hiprand-alt)
-    else()
-        set(package_name hiprand)
-    endif()
-
-    set(HIPRAND_CONFIG_DIR "\${CPACK_PACKAGING_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}" CACHE PATH "Path placed into ldconfig file")
-
-    rocm_create_package(
-        NAME ${package_name}
-        DESCRIPTION "Radeon Open Compute RAND library"
-        MAINTAINER "hipRAND Maintainer <hiprand-maintainer@amd.com>"
-        LDCONFIG
-        LDCONFIG_DIR ${HIPRAND_CONFIG_DIR}
-    )
-else()
-    rocm_join_if_set(", " CPACK_DEBIAN_RUNTIME_PACKAGE_PROVIDES "hiprand (= ${hipRAND_VERSION})")
-    rocm_join_if_set(", " CPACK_RPM_RUNTIME_PACKAGE_PROVIDES "hiprand = ${hipRAND_VERSION}")
-    rocm_join_if_set(", " CPACK_DEBIAN_DEVEL_PACKAGE_PROVIDES "hiprand-dev (= ${hipRAND_VERSION})")
-    rocm_join_if_set(", " CPACK_RPM_DEVEL_PACKAGE_PROVIDES "hiprand-devel = ${hipRAND_VERSION}")
 endif()

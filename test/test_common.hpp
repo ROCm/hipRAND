@@ -1,4 +1,4 @@
-// Copyright (c) 2019-2022 Advanced Micro Devices, Inc. All rights reserved.
+// Copyright (c) 2019-2023 Advanced Micro Devices, Inc. All rights reserved.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -50,12 +50,12 @@ bool supports_hmm()
 
 bool use_hmm()
 {
-    if (getenv("ROCRAND_USE_HMM") == nullptr)
+    if(getenv("HIPRAND_USE_HMM") == nullptr)
     {
         return false;
     }
 
-    if (strcmp(getenv("ROCRAND_USE_HMM"), "1") == 0)
+    if(strcmp(getenv("HIPRAND_USE_HMM"), "1") == 0)
     {
         return true;
     }
@@ -63,7 +63,7 @@ bool use_hmm()
 }
 
 // Helper for HMM allocations: if HMM is requested through
-// setting environment variable ROCRAND_USE_HMM=1
+// setting environment variable HIPRAND_USE_HMM=1
 template <class T>
 hipError_t hipMallocHelper(T** devPtr, size_t size)
 {

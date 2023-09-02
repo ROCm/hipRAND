@@ -1,4 +1,4 @@
-// Copyright (c) 2017-2022 Advanced Micro Devices, Inc. All rights reserved.
+// Copyright (c) 2017-2023 Advanced Micro Devices, Inc. All rights reserved.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -26,6 +26,7 @@
 #endif // QUALIFIERS
 
 #include <hip/hip_runtime.h>
+#include <hiprand/hiprand.h>
 #include <type_traits>
 
 #include <curand_kernel.h>
@@ -50,8 +51,6 @@ DEFINE_HIPRAND_STATE(hiprandStateScrambledSobol64, curandStateScrambledSobol64)
 #undef DEFINE_HIPRAND_STATE
 
 typedef curandDiscreteDistribution_t hiprandDiscreteDistribution_t;
-typedef curandDirectionVectors32_t hiprandDirectionVectors32_t;
-typedef curandDirectionVectors64_t   hiprandDirectionVectors64_t;
 
 /// \cond
 namespace detail {
@@ -293,7 +292,7 @@ template<class StateType>
 QUALIFIERS unsigned long long int hiprand_long_long(StateType* state)
 {
     check_state_type<StateType>();
-    return rocrand(state);
+    return curand(state);
 }
 
 template<class StateType>
