@@ -22,12 +22,6 @@
 
 cmake_minimum_required(VERSION 3.16 FATAL_ERROR)
 
-#
-# hipRAND project
-#
-project(hipRAND CXX)
-
-set(hipRAND_VERSION "2.10.16")
 
 if(DEFINED ENV{ROCM_PATH})
   set (ROCM_PATH "$ENV{ROCM_PATH}" CACHE PATH "The path to the ROCm installation.")
@@ -51,6 +45,12 @@ else()
       set(CPACK_PACKAGING_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
   endif()
 endif()
+
+#
+# hipRAND project
+#
+project(hipRAND CXX)
+set(hipRAND_VERSION "2.10.16")
 
 # Build options
 option(BUILD_FORTRAN_WRAPPER "Build Fortran wrapper" OFF)
