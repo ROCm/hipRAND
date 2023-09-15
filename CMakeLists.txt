@@ -80,8 +80,26 @@ set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE CACHE BOOL "Add paths to linker searc
 # Set the default value of BUILD_SHARED_LIBS
 set(BUILD_SHARED_LIBS ON CACHE BOOL "Build shared")
 
-# Include cmake scripts
-include(cmake/Dependencies.cmake)
+include(cmake/ROCmCMakeBuildToolsDependency.cmake)
+
+# Set target IDs for compilation
+if (NOT BUILD_WITH_LIB STREQUAL "CUDA")
+  set( AMDGPU_TARGETS "all" CACHE STRING "Compile for which gpu architectures?")
+  # Set the AMDGPU_TARGETS with backward compatiblity
+  rocm_check_target_ids(DEFAULT_AMDGPU_TARGETS
+      TARGETS "gfx803;gfx900:xnack-;gfx906:xnack-;gfx908:xnack-;gfx90a:xnack-;gfx90a:xnack+;gfx1030;gfx1100;gfx1101;gfx1102"
+  )
+  if (AMDGPU_TARGETS)
+      if( AMDGPU_TARGETS STREQUAL "all" )
+        set( gpus "${DEFAULT_AMDGPU_TARGETS}")
+      else()
+        set( gpus "${AMDGPU_TARGETS}")
+      endif()
+      # must FORCE set this AMDGPU_TARGETS before any find_package( hip ...), in this file
+      # to override CACHE var and set --offload-arch flags via hip-config.cmake hip::device dependency
+      set( AMDGPU_TARGETS "${gpus}" CACHE STRING "AMD GPU targets to compile for" FORCE )
+  endif()
+endif()
 
 # Detect compiler support for target ID
 # This section is deprecated. Please use rocm_check_target_ids for future use.
@@ -101,6 +119,9 @@ else()
   list(APPEND CMAKE_PREFIX_PATH ${ROCM_PATH} ${ROCM_PATH}/hip ${ROCM_PATH}/llvm)
   find_package(hip REQUIRED CONFIG PATHS ${HIP_DIR} ${ROCM_PATH})
 endif()
+
+# Include cmake scripts
+include(cmake/Dependencies.cmake)
 
 # Build option to disable -Werror
 option(DISABLE_WERROR "Disable building with Werror" ON)
