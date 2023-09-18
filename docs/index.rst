@@ -2,12 +2,9 @@
 hipRAND User Guide
 ==================
 
-.. toctree::
-   :maxdepth: 3
-   :caption: Contents:
-   :numbered:
+Overview
+--------
 
-   introduction
-   installing
-   cpp_api
-   python_api
+The hipRAND library is a wrapper library which allows users to easily port CUDA applications that use the cuRAND library to the HIP layer. In a ROCm environment hipRAND uses rocRAND, however in a CUDA environment cuRAND is used instead.
+
+hipRAND provides both C/C++ and Python API wrappers.
