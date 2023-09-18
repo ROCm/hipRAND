@@ -13,13 +13,9 @@ babel==2.12.1
     #   pydata-sphinx-theme
     #   sphinx
 beautifulsoup4==4.12.2
-    # via
-    #   exhale
-    #   pydata-sphinx-theme
+    # via pydata-sphinx-theme
 breathe==4.35.0
-    # via
-    #   exhale
-    #   rocm-docs-core
+    # via rocm-docs-core
 certifi==2023.7.22
     # via requests
 cffi==1.15.1
@@ -40,8 +36,6 @@ docutils==0.19
     #   myst-parser
     #   pydata-sphinx-theme
     #   sphinx
-exhale==0.2.4
-    # via -r requirements.in
 fastjsonschema==2.18.0
     # via rocm-docs-core
 gitdb==4.0.10
@@ -60,8 +54,6 @@ jinja2==3.1.2
     # via
     #   myst-parser
     #   sphinx
-lxml==4.9.3
-    # via exhale
 markdown-it-py==2.2.0
     # via
     #   mdit-py-plugins
@@ -110,8 +102,6 @@ requests==2.31.0
     #   sphinx
 rocm-docs-core==0.24.1
     # via -r requirements.in
-six==1.16.0
-    # via exhale
 smmap==5.0.1
     # via gitdb
 snowballstemmer==2.2.0
@@ -121,7 +111,6 @@ soupsieve==2.5
 sphinx==5.3.0
     # via
     #   breathe
-    #   exhale
     #   myst-parser
     #   pydata-sphinx-theme
     #   rocm-docs-core
