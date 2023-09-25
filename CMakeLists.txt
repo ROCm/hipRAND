@@ -80,8 +80,6 @@ set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE CACHE BOOL "Add paths to linker searc
 # Set the default value of BUILD_SHARED_LIBS
 set(BUILD_SHARED_LIBS ON CACHE BOOL "Build shared")
 
-# Include cmake scripts
-include(cmake/Dependencies.cmake)
 
 # Detect compiler support for target ID
 # This section is deprecated. Please use rocm_check_target_ids for future use.
@@ -101,6 +99,9 @@ else()
   list(APPEND CMAKE_PREFIX_PATH ${ROCM_PATH} ${ROCM_PATH}/hip ${ROCM_PATH}/llvm)
   find_package(hip REQUIRED CONFIG PATHS ${HIP_DIR} ${ROCM_PATH})
 endif()
+
+# Include cmake scripts
+include(cmake/Dependencies.cmake)
 
 # Build option to disable -Werror
 option(DISABLE_WERROR "Disable building with Werror" ON)
