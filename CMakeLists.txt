@@ -64,7 +64,7 @@ set(ROCRAND_PATH "" CACHE PATH "Path to rocRAND install.")
 list(APPEND CMAKE_MODULE_PATH
     ${CMAKE_CURRENT_SOURCE_DIR}/cmake
     ${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules
-    ${HIP_DIR}/cmake ${ROCM_PATH}/hip/cmake # FindHIP.cmake
+    ${HIP_DIR}/cmake ${ROCM_PATH}/lib/cmake/hip # FindHIP.cmake
     ${ROCM_PATH}/llvm
 )
 
