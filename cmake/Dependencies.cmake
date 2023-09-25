@@ -25,71 +25,6 @@
 # HIP dependency is handled earlier in the project cmake file
 # when VerifyCompiler.cmake is included.
 
-# Find or download/install rocm-cmake project
-find_package(ROCM 0.7.3 QUIET CONFIG PATHS ${ROCM_PATH})
-if(NOT ROCM_FOUND)
-    set(PROJECT_EXTERN_DIR "${CMAKE_CURRENT_BINARY_DIR}/deps")
-    file( TO_NATIVE_PATH "${PROJECT_EXTERN_DIR}" PROJECT_EXTERN_DIR_NATIVE)
-    set(rocm_cmake_tag "master" CACHE STRING "rocm-cmake tag to download")
-    file(
-        DOWNLOAD https://github.com/RadeonOpenCompute/rocm-cmake/archive/${rocm_cmake_tag}.tar.gz
-        ${PROJECT_EXTERN_DIR}/rocm-cmake-${rocm_cmake_tag}.tar.gz
-        STATUS rocm_cmake_download_status LOG rocm_cmake_download_log
-    )
-    list(GET rocm_cmake_download_status 0 rocm_cmake_download_error_code)
-    if(rocm_cmake_download_error_code)
-        message(FATAL_ERROR "Error: downloading "
-            "https://github.com/RadeonOpenCompute/rocm-cmake/archive/${rocm_cmake_tag}.zip failed "
-            "error_code: ${rocm_cmake_download_error_code} "
-            "log: ${rocm_cmake_download_log} "
-        )
-    endif()
-
-    execute_process(
-        COMMAND ${CMAKE_COMMAND} -E tar xzvf ${PROJECT_EXTERN_DIR}/rocm-cmake-${rocm_cmake_tag}.tar.gz
-        WORKING_DIRECTORY ${PROJECT_EXTERN_DIR}
-    )
-    execute_process(
-        COMMAND ${CMAKE_COMMAND} -S ${PROJECT_EXTERN_DIR}/rocm-cmake-${rocm_cmake_tag} -B ${PROJECT_EXTERN_DIR}/rocm-cmake-${rocm_cmake_tag}/build
-        WORKING_DIRECTORY ${PROJECT_EXTERN_DIR}
-    )
-    execute_process(
-        COMMAND ${CMAKE_COMMAND} --install ${PROJECT_EXTERN_DIR}/rocm-cmake-${rocm_cmake_tag}/build --prefix ${PROJECT_EXTERN_DIR}/rocm
-        WORKING_DIRECTORY ${PROJECT_EXTERN_DIR} )
-    if(rocm_cmake_unpack_error_code)
-        message(FATAL_ERROR "Error: unpacking ${CMAKE_CURRENT_BINARY_DIR}/rocm-cmake-${rocm_cmake_tag}.zip failed")
-    endif()
-    find_package(ROCM 0.7.3 REQUIRED CONFIG PATHS ${PROJECT_EXTERN_DIR})
-endif()
-
-include(ROCMSetupVersion)
-include(ROCMCreatePackage)
-include(ROCMInstallTargets)
-include(ROCMPackageConfigHelpers)
-include(ROCMInstallSymlinks)
-include(ROCMCheckTargetIds)
-include(ROCMUtilities)
-include(ROCMClients)
-include(ROCMHeaderWrapper)
-
-if (NOT BUILD_WITH_LIB STREQUAL "CUDA")
-  set( AMDGPU_TARGETS "all" CACHE STRING "Compile for which gpu architectures?")
-  # Set the AMDGPU_TARGETS with backward compatiblity
-  rocm_check_target_ids(DEFAULT_AMDGPU_TARGETS
-      TARGETS "gfx803;gfx900:xnack-;gfx906:xnack-;gfx908:xnack-;gfx90a:xnack-;gfx90a:xnack+;gfx940;gfx941;gfx942;gfx1030;gfx1100;gfx1101;gfx1102"
-  )
-  if (AMDGPU_TARGETS)
-      if( AMDGPU_TARGETS STREQUAL "all" )
-        set( gpus "${DEFAULT_AMDGPU_TARGETS}")
-      else()
-        set( gpus "${AMDGPU_TARGETS}")
-      endif()
-      # must FORCE set this AMDGPU_TARGETS before any find_package( hip ...), in this file
-      # to override CACHE var and set --offload-arch flags via hip-config.cmake hip::device dependency
-      set( AMDGPU_TARGETS "${gpus}" CACHE STRING "AMD GPU targets to compile for" FORCE )
-  endif()
-endif()
-
 # For downloading, building, and installing required dependencies
 include(cmake/DownloadProject.cmake)
 
@@ -169,5 +104,3 @@ if(BUILD_TEST)
     find_package(GTest CONFIG REQUIRED PATHS ${GTEST_ROOT})
   endif()
 endif()
-
-
