@@ -6,12 +6,14 @@ Full documentation for rocRAND is available at [https://rocrand.readthedocs.io/e
 ### Changed
 - Removed the option to build hipRAND as a submodule for rocRAND.
 - Removed references to and workarounds for deprecated hcc
+### Fixed
+- Build error when using clang++ directly due to unsupported references to amdgpu-target
 
-## (Unreleased) hipRAND-2.10.17 for ROCm 5.6.0
+## hipRAND-2.10.17 for ROCm 5.6.0
 ### Fixed
 - Fixed benchmark and unit test builds on Windows.
 
-## (Unreleased) hipRAND-2.10.16 for ROCm 5.5.0
+## hipRAND-2.10.16 for ROCm 5.5.0
 ### Added
 - rocRAND backend support for Sobol 64, Scrambled Sobol 32 and 64, and MT19937.
 - `hiprandGenerateLongLong` for generating 64-bits uniformly distributed integers with Sobol 64 and Scrambled Sobol 64.
