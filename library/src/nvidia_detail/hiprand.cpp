@@ -108,6 +108,20 @@ curandDirectionVectorSet_t to_curand_direction_vector_set_type(hiprandDirectionV
     throw HIPRAND_STATUS_TYPE_ERROR;
 }
 
+curandOrdering_t to_curand_ordering(hiprandOrdering_t ordering)
+{
+    switch(ordering)
+    {
+        case HIPRAND_ORDERING_PSEUDO_BEST: return CURAND_ORDERING_PSEUDO_BEST;
+        case HIPRAND_ORDERING_PSEUDO_DEFAULT: return CURAND_ORDERING_PSEUDO_DEFAULT;
+        case HIPRAND_ORDERING_PSEUDO_SEEDED: return CURAND_ORDERING_PSEUDO_SEEDED;
+        case HIPRAND_ORDERING_PSEUDO_LEGACY: return CURAND_ORDERING_PSEUDO_LEGACY;
+        case HIPRAND_ORDERING_PSEUDO_DYNAMIC: return CURAND_ORDERING_PSEUDO_DYNAMIC;
+        case HIPRAND_ORDERING_QUASI_DEFAULT: return CURAND_ORDERING_QUASI_DEFAULT;
+    }
+    throw HIPRAND_STATUS_TYPE_ERROR;
+}
+
 hiprandStatus_t HIPRANDAPI
 hiprandCreateGenerator(hiprandGenerator_t * generator, hiprandRngType_t rng_type)
 {
@@ -364,6 +378,20 @@ hiprandSetGeneratorOffset(hiprandGenerator_t generator, unsigned long long offse
             offset
         )
     );
+}
+
+hiprandStatus_t HIPRANDAPI hiprandSetGeneratorOrdering(hiprandGenerator_t generator,
+                                                       hiprandOrdering_t  order)
+{
+    try
+    {
+        return to_hiprand_status(
+            curandSetGeneratorOrdering((curandGenerator_t)(generator), to_curand_ordering(order)));
+    }
+    catch(const hiprandStatus_t& error)
+    {
+        return error;
+    }
 }
 
 hiprandStatus_t HIPRANDAPI
