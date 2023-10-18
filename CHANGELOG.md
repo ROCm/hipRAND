@@ -5,6 +5,9 @@ Documentation for hipRAND is available at
 
 ## (Unreleased) hipRAND-x.y.z for ROCm 6.0.0
 
+### Additions
+* Added support for setting generator output ordering in C and C++ API
+
 ### Removals
 
 * Removed the option to build hipRAND as a submodule to rocRAND
