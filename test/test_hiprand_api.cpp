@@ -1,4 +1,4 @@
-// Copyright (c) 2017-2022 Advanced Micro Devices, Inc. All rights reserved.
+// Copyright (c) 2017-2023 Advanced Micro Devices, Inc. All rights reserved.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -49,6 +49,13 @@ constexpr hiprandRngType_t hiprand_rng_types_32[] = {HIPRAND_RNG_PSEUDO_XORWOW,
 constexpr hiprandRngType_t hiprand_rng_types_64[]
     = {HIPRAND_RNG_QUASI_SOBOL64, HIPRAND_RNG_QUASI_SCRAMBLED_SOBOL64};
 
+constexpr hiprandOrdering_t hiprand_ordering_types[] = {HIPRAND_ORDERING_PSEUDO_BEST,
+                                                        HIPRAND_ORDERING_PSEUDO_DEFAULT,
+                                                        HIPRAND_ORDERING_PSEUDO_SEEDED,
+                                                        HIPRAND_ORDERING_PSEUDO_LEGACY,
+                                                        HIPRAND_ORDERING_PSEUDO_DYNAMIC,
+                                                        HIPRAND_ORDERING_QUASI_DEFAULT};
+
 class hiprand_api : public ::testing::TestWithParam<hiprandRngType_t>
 {};
 
@@ -56,6 +63,9 @@ class hiprand_api_32 : public ::testing::TestWithParam<hiprandRngType_t>
 {};
 
 class hiprand_api_64 : public ::testing::TestWithParam<hiprandRngType_t>
+{};
+
+class hiprand_ordering : public ::testing::TestWithParam<hiprandOrdering_t>
 {};
 
 void hiprand_generate_test_func(hiprandRngType_t rng_type)
@@ -512,3 +522,41 @@ INSTANTIATE_TEST_SUITE_P(hiprand_32, hiprand_api_32, ::testing::ValuesIn(hiprand
 INSTANTIATE_TEST_SUITE_P(hiprand_64, hiprand_api_64, ::testing::ValuesIn(hiprand_rng_types_64));
 
 INSTANTIATE_TEST_SUITE_P(hiprand, hiprand_api, ::testing::ValuesIn(hiprand_rng_types));
+
+TEST_P(hiprand_ordering, hiprand_ordering_test)
+{
+    const hiprandOrdering_t ordering = GetParam();
+
+    hiprandGenerator_t     generator = 0;
+    const hiprandRngType_t rng_type  = ordering == HIPRAND_ORDERING_QUASI_DEFAULT
+                                           ? HIPRAND_RNG_QUASI_SOBOL32
+                                           : HIPRAND_RNG_PSEUDO_XORWOW;
+    HIPRAND_CHECK(hiprandCreateGenerator(&generator, rng_type));
+    HIPRAND_CHECK(hiprandSetGeneratorOrdering(generator, ordering));
+
+    const size_t  output_size = 8192;
+    unsigned int* output;
+    HIP_CHECK(hipMallocHelper((void**)&output, output_size * sizeof(unsigned int)));
+
+    HIPRAND_CHECK(hiprandGenerate(generator, output, output_size));
+    HIP_CHECK(hipDeviceSynchronize());
+
+    HIP_CHECK(hipFree(output));
+
+    HIPRAND_CHECK(hiprandDestroyGenerator(generator));
+}
+
+TEST_P(hiprand_ordering, hiprand_invalid_ordering_test)
+{
+    const hiprandOrdering_t ordering = GetParam();
+    const hiprandRngType_t  rng_type = ordering == HIPRAND_ORDERING_QUASI_DEFAULT
+                                           ? HIPRAND_RNG_PSEUDO_XORWOW
+                                           : HIPRAND_RNG_QUASI_SOBOL32;
+
+    hiprandGenerator_t generator = 0;
+    HIPRAND_CHECK(hiprandCreateGenerator(&generator, rng_type));
+    ASSERT_EQ(hiprandSetGeneratorOrdering(generator, ordering), HIPRAND_STATUS_OUT_OF_RANGE);
+    HIPRAND_CHECK(hiprandDestroyGenerator(generator));
+}
+
+INSTANTIATE_TEST_SUITE_P(hiprand, hiprand_ordering, ::testing::ValuesIn(hiprand_ordering_types));
