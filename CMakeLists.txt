@@ -58,7 +58,7 @@ option(BUILD_TEST "Build tests (requires googletest)" OFF)
 option(BUILD_BENCHMARK "Build benchmarks" OFF)
 option(BUILD_ADDRESS_SANITIZER "Build with address sanitizer enabled" OFF)
 option(DOWNLOAD_ROCRAND "Download rocRAND if it is not found in the default install directory or the manually-specified directory" OFF)
-option(CODE_COVERAGE "Build with code coverage flags (clang only)" OFF)
+option(BUILD_CODE_COVERAGE "Build with code coverage enabled" OFF)
 set(ROCRAND_PATH "" CACHE PATH "Path to rocRAND install.")
 
 # CMake modules
@@ -152,8 +152,10 @@ if(BUILD_ADDRESS_SANITIZER AND BUILD_SHARED_LIBS)
   add_link_options(-fuse-ld=lld)
 endif()
 
-if(CODE_COVERAGE)
+if(BUILD_CODE_COVERAGE)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fprofile-instr-generate -fcoverage-mapping")
+  add_compile_options(-fprofile-arcs -ftest-coverage)
+  add_link_options(--coverage -lgcov)
 endif()
 
 # FOR HANDLING ENABLE/DISABLE OPTIONAL BACKWARD COMPATIBILITY for FILE/FOLDER REORG
@@ -224,3 +226,48 @@ rocm_create_package(
         LDCONFIG
         LDCONFIG_DIR ${HIPRAND_CONFIG_DIR}
 )
+
+if(BUILD_CODE_COVERAGE)
+  #
+  # Run coverage analysis
+  #
+  add_custom_target(coverage_analysis
+    COMMAND echo Coverage GTEST_FILTER=\${GTEST_FILTER}
+    COMMAND ctest --output-on-failure --gtest_filter=\"\${GTEST_FILTER}\"
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    )
+
+  add_dependencies(coverage_analysis hiprand)
+
+  #
+  # Prepare coverage output
+  # This little script is generated because the option '--gcov-tool <program name>' of lcov cannot take arguments.
+  #
+  add_custom_target(coverage_output
+    DEPENDS coverage_analysis
+    COMMAND mkdir -p lcoverage
+    COMMAND echo "\\#!/bin/bash" > llvm-gcov.sh
+    COMMAND echo "\\# THIS FILE HAS BEEN GENERATED" >> llvm-gcov.sh
+    COMMAND printf "exec /opt/rocm/llvm/bin/llvm-cov gcov $$\\@" >> llvm-gcov.sh
+    COMMAND chmod +x llvm-gcov.sh
+    )
+
+  #
+  # Generate coverage output.
+  #
+  add_custom_command(TARGET coverage_output
+    COMMAND lcov --directory . --base-directory . --gcov-tool ${CMAKE_BINARY_DIR}/llvm-gcov.sh --capture -o lcoverage/raw_main_coverage.info
+    COMMAND lcov --remove lcoverage/raw_main_coverage.info "'/opt/*'" "'/usr/*'" -o lcoverage/main_coverage.info
+    COMMAND genhtml lcoverage/main_coverage.info --output-directory lcoverage
+    )
+
+  add_custom_target(coverage DEPENDS coverage_output)
+
+  #
+  # Coverage cleanup
+  #
+  add_custom_target(coverage_cleanup
+    COMMAND find ${CMAKE_BINARY_DIR} -name *.gcda -delete
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    )
+endif()
