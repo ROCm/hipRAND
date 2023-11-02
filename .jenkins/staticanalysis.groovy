@@ -12,31 +12,6 @@ import java.nio.file.Path
 def runCompileCommand(platform, project, jobName, boolean debug=false)
 {
     project.paths.construct_build_prefix()
-<<<<<<< HEAD
-=======
-
-    def command = """#!/usr/bin/env bash
-            set -ex
-            make -C ${project.paths.project_build_prefix}/python/hiprand/docs html
-            """
-
-    try
-    {
-        platform.runCommand(this, command)
-    }
-    catch(e)
-    {
-        throw e
-    }
-
-    publishHTML([allowMissing: false,
-                alwaysLinkToLastBuild: false,
-                keepAll: false,
-                reportDir: "${project.paths.project_build_prefix}/python/hiprand/docs/build/html",
-                reportFiles: "index.html",
-                reportName: "Documentation",
-                reportTitles: "Documentation"])
->>>>>>> 411c4a6 (Revert "remove .jenkins dir")
 }
 
 def runCI =
