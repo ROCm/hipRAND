@@ -162,6 +162,7 @@ deps:rocrand-static:
       -D BUILD_FORTRAN_WRAPPER=OFF
       -D DEPENDENCIES_FORCE_DOWNLOAD=ON
       -D BUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
+      -D DISABLE_WERROR=OFF
     - cmake --build ${CI_PROJECT_DIR}/build
     - cmake --build ${CI_PROJECT_DIR}/build --target package
 
