@@ -56,6 +56,9 @@ constexpr hiprandOrdering_t hiprand_ordering_types[] = {HIPRAND_ORDERING_PSEUDO_
                                                         HIPRAND_ORDERING_PSEUDO_DYNAMIC,
                                                         HIPRAND_ORDERING_QUASI_DEFAULT};
 
+// Not all generators have been implemented on the host yet.
+constexpr hiprandRngType_t hiprand_host_rng_types[] = {HIPRAND_RNG_PSEUDO_PHILOX4_32_10};
+
 class hiprand_api : public ::testing::TestWithParam<hiprandRngType_t>
 {};
 
@@ -66,6 +69,9 @@ class hiprand_api_64 : public ::testing::TestWithParam<hiprandRngType_t>
 {};
 
 class hiprand_ordering : public ::testing::TestWithParam<hiprandOrdering_t>
+{};
+
+class hiprand_host : public ::testing::TestWithParam<hiprandRngType_t>
 {};
 
 void hiprand_generate_test_func(hiprandRngType_t rng_type)
@@ -560,3 +566,34 @@ TEST_P(hiprand_ordering, hiprand_invalid_ordering_test)
 }
 
 INSTANTIATE_TEST_SUITE_P(hiprand, hiprand_ordering, ::testing::ValuesIn(hiprand_ordering_types));
+
+void hiprand_generate_uniform_host_test_func(hiprandRngType_t rng_type)
+{
+    hiprandGenerator_t generator = 0;
+    HIP_CHECK(hiprandCreateGeneratorHost(&generator, rng_type));
+
+    constexpr size_t   output_size = 8192;
+    std::vector<float> output_host(output_size);
+
+    // generate
+    HIPRAND_CHECK(hiprandGenerateUniform(generator, output_host.data(), output_size));
+    HIP_CHECK(hipDeviceSynchronize());
+
+    double mean = 0;
+    for(auto v : output_host)
+    {
+        mean += static_cast<double>(v);
+    }
+    mean = mean / output_size;
+    EXPECT_NEAR(mean, 0.5, 0.1);
+
+    HIPRAND_CHECK(hiprandDestroyGenerator(generator));
+}
+
+TEST_P(hiprand_host, hiprand_generate_uniform_host)
+{
+    const hiprandRngType_t rng_type = GetParam();
+    hiprand_generate_uniform_host_test_func(rng_type);
+}
+
+INSTANTIATE_TEST_SUITE_P(hiprand, hiprand_host, ::testing::ValuesIn(hiprand_host_rng_types));
