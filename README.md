@@ -13,7 +13,7 @@ You can find our documentation at
 
 ## Documentation
 
-To build our documentation, use the following code:
+To build our documentation, use the following commands:
 
 ```bash
 # Go to hipRAND docs directory
