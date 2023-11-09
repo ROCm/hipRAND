@@ -48,7 +48,7 @@ You can download pre-built packages from
 [ROCm's package servers](https://rocm.github.io/install.html#installing-from-amd-rocm-repositories),
 or by clicking the github releases tab (this option could have a newer version).
 
-Once downloaded, use the following code to install hipRAND:
+Once downloaded, use the following command to install hipRAND:
 
 `sudo apt update && sudo apt install hiprand`
 
