@@ -381,8 +381,6 @@ public:
         {
         }
 
-        param_type(const param_type& params) = default;
-
         /// \brief Returns the deviation distribution parameter.
         ///
         /// The default value is 1.0.
@@ -574,8 +572,6 @@ public:
         {
         }
 
-        param_type(const param_type& params) = default;
-
         /// \brief Returns the deviation distribution parameter.
         ///
         /// The default value is 1.0.
@@ -765,8 +761,6 @@ public:
             : m_mean(mean)
         {
         }
-
-        param_type(const param_type& params) = default;
 
         /// \brief Returns the mean distribution parameter.
         ///
