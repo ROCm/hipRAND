@@ -117,9 +117,15 @@ hiprandStatus_t HIPRANDAPI hiprandCreateGenerator(hiprandGenerator_t* generator,
 hiprandStatus_t HIPRANDAPI hiprandCreateGeneratorHost(hiprandGenerator_t* generator,
                                                       hiprandRngType_t    rng_type)
 {
-    (void)generator;
-    (void)rng_type;
-    return HIPRAND_STATUS_NOT_IMPLEMENTED;
+    try
+    {
+        return to_hiprand_status(rocrand_create_generator_host((rocrand_generator*)generator,
+                                                               to_rocrand_rng_type(rng_type)));
+    }
+    catch(const hiprandStatus_t& error)
+    {
+        return error;
+    }
 }
 
 hiprandStatus_t HIPRANDAPI hiprandDestroyGenerator(hiprandGenerator_t generator)
