@@ -10,6 +10,7 @@ Documentation for hipRAND is available at
 * `hiprandCreateGeneratorHost` dispatches to `rocrand_create_generator_host` when using the rocRAND backend
   instead of returning with `HIPRAND_STATUS_NOT_IMPLEMENTED`
 * Added the option to create a host generator to the Fortran wrapper
+* Added the option to create a host generator to the Python wrapper
 
 ### Removals
 
