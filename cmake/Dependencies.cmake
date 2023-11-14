@@ -37,7 +37,7 @@ if (NOT BUILD_WITH_LIB STREQUAL "CUDA")
         # Search manually-specified rocRAND path.
         # This assumes that there is no system-installed rocRAND or that CMAKE_NO_SYSTEM_FROM_IMPORTED is ON.
         find_package(rocrand REQUIRED CONFIG PATHS ${ROCRAND_PATH} NO_DEFAULT_PATH)
-    elseif (${DOWNLOAD_ROCRAND})
+    elseif (DOWNLOAD_ROCRAND)
         # Download and install rocRAND.
         # This assumes that there is no system-installed rocRAND or that CMAKE_NO_SYSTEM_FROM_IMPORTED is ON.
         download_project(
