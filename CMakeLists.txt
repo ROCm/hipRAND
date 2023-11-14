@@ -97,31 +97,21 @@ include(cmake/ROCmCMakeBuildToolsDependency.cmake)
 
 # Set target IDs for compilation
 if (NOT BUILD_WITH_LIB STREQUAL "CUDA")
-  set( AMDGPU_TARGETS "all" CACHE STRING "Compile for which gpu architectures?")
-  # Set the AMDGPU_TARGETS with backward compatiblity
-  rocm_check_target_ids(DEFAULT_AMDGPU_TARGETS
-      TARGETS "gfx803;gfx900:xnack-;gfx906:xnack-;gfx908:xnack-;gfx90a:xnack-;gfx90a:xnack+;gfx940;gfx941;gfx942;gfx1030;gfx1100;gfx1101;gfx1102"
-  )
-  if (AMDGPU_TARGETS)
-      if( AMDGPU_TARGETS STREQUAL "all" )
-        set( gpus "${DEFAULT_AMDGPU_TARGETS}")
-      else()
-        set( gpus "${AMDGPU_TARGETS}")
-      endif()
-      # must FORCE set this AMDGPU_TARGETS before any find_package( hip ...), in this file
-      # to override CACHE var and set --offload-arch flags via hip-config.cmake hip::device dependency
-      set( AMDGPU_TARGETS "${gpus}" CACHE STRING "AMD GPU targets to compile for" FORCE )
+  if (NOT DEFINED AMDGPU_TARGETS)
+    set(GPU_TARGETS "all" CACHE STRING "GPU architectures to compile for")
+  else()
+    set(GPU_TARGETS "${AMDGPU_TARGETS}" CACHE STRING "GPU architectures to compile for")
   endif()
-endif()
+  set_property(CACHE GPU_TARGETS PROPERTY STRINGS "all")
 
-# Detect compiler support for target ID
-# This section is deprecated. Please use rocm_check_target_ids for future use.
-if( CMAKE_CXX_COMPILER MATCHES ".*/hipcc$" )
-    execute_process(COMMAND ${CMAKE_CXX_COMPILER} "--help"
-        OUTPUT_VARIABLE CXX_OUTPUT
-        OUTPUT_STRIP_TRAILING_WHITESPACE
-        ERROR_STRIP_TRAILING_WHITESPACE)
-    string(REGEX MATCH ".mcode\-object\-version" TARGET_ID_SUPPORT ${CXX_OUTPUT})
+  if(GPU_TARGETS STREQUAL "all")
+    rocm_check_target_ids(DEFAULT_AMDGPU_TARGETS
+      TARGETS "gfx803;gfx900:xnack-;gfx906:xnack-;gfx908:xnack-;gfx90a:xnack-;gfx90a:xnack+;gfx940;gfx941;gfx942;gfx1030;gfx1100;gfx1101;gfx1102"
+    )
+    set(GPU_TARGETS "${DEFAULT_AMDGPU_TARGETS}" CACHE STRING "GPU architectures to compile for" FORCE)
+  endif()
+else()
+  set(GPU_TARGETS "all" CACHE INTERNAL "")
 endif()
 
 # Verify that hipcc or HIP-aware clang is used on ROCM software
@@ -169,9 +159,6 @@ if(BUILD_CODE_COVERAGE)
   add_compile_options(-fprofile-arcs -ftest-coverage)
   add_link_options(--coverage -lgcov)
 endif()
-
-# FOR HANDLING ENABLE/DISABLE OPTIONAL BACKWARD COMPATIBILITY for FILE/FOLDER REORG
-option(BUILD_FILE_REORG_BACKWARD_COMPATIBILITY "Build with file/folder reorg with backward compatibility enabled" ON)
 
 # Set version variables
 rocm_setup_version( VERSION "${hipRAND_VERSION}" )
