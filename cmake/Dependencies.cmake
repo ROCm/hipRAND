@@ -40,7 +40,6 @@ if (NOT BUILD_WITH_LIB STREQUAL "CUDA")
     elseif (${DOWNLOAD_ROCRAND})
         # Download and install rocRAND.
         # This assumes that there is no system-installed rocRAND or that CMAKE_NO_SYSTEM_FROM_IMPORTED is ON.
-        set(ROCRAND_ROOT "${CMAKE_CURRENT_BINARY_DIR}/deps/rocrand" CACHE PATH "Path to downloaded rocRAND install.")
         download_project(
                 PROJ rocrand
                 GIT_REPOSITORY https://github.com/ROCmSoftwarePlatform/rocRAND.git

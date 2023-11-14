@@ -59,7 +59,19 @@ option(BUILD_BENCHMARK "Build benchmarks" OFF)
 option(BUILD_ADDRESS_SANITIZER "Build with address sanitizer enabled" OFF)
 option(DOWNLOAD_ROCRAND "Download rocRAND if it is not found in the default install directory or the manually-specified directory" OFF)
 option(BUILD_CODE_COVERAGE "Build with code coverage enabled" OFF)
-set(ROCRAND_PATH "" CACHE PATH "Path to rocRAND install.")
+option(DEPENDENCIES_FORCE_DOWNLOAD "Do not use system installed dependencies, always download and build them" OFF)
+
+set(BUILD_WITH_LIB "ROCM" CACHE STRING "Select backend library to build with (ROCM or CUDA)")
+set_property(CACHE BUILD_WITH_LIB PROPERTY STRINGS "ROCM" "CUDA")
+
+if (BUILD_WITH_LIB STREQUAL "CUDA")
+  set(ROCRAND_PATH "" CACHE INTERNAL "")
+  set(ROCRAND_ROOT "" CACHE INTERNAL "")
+else()
+  # Not relevant for CUDA builds
+  set(ROCRAND_PATH "" CACHE PATH "Path to rocRAND install.")
+  set(ROCRAND_ROOT "${CMAKE_CURRENT_BINARY_DIR}/deps/rocrand" CACHE PATH "Path to downloaded rocRAND install.")
+endif()
 
 # CMake modules
 list(APPEND CMAKE_MODULE_PATH
