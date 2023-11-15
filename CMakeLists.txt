@@ -32,18 +32,9 @@ set (ROCM_PATH "/opt/rocm" CACHE PATH "The path to the ROCm installation.")
 if (WIN32)
   SET( CMAKE_INSTALL_PREFIX "C:/hipSDK" CACHE PATH "Install path" FORCE )
   SET( INSTALL_PREFIX "C:/hipSDK" )
-  SET( CPACK_SET_DESTDIR FALSE )
-  SET( CPACK_PACKAGE_INSTALL_DIRECTORY "C:/hipSDK" )
-  SET( CPACK_PACKAGING_INSTALL_PREFIX "" )
-  set( CPACK_INCLUDE_TOPLEVEL_DIRECTORY OFF )
 else()
   set(CMAKE_INSTALL_PREFIX "${ROCM_PATH}" CACHE PATH "Install path prefix, prepended onto install directories")
-
-  #Adding CMAKE_PREFIX_PATH
   list( APPEND CMAKE_PREFIX_PATH ${ROCM_PATH}/llvm ${ROCM_PATH} )
-  if(NOT CPACK_PACKAGING_INSTALL_PREFIX)
-      set(CPACK_PACKAGING_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
-  endif()
 endif()
 
 #
@@ -53,25 +44,40 @@ project(hipRAND CXX)
 set(hipRAND_VERSION "2.10.17")
 
 # Build options
+option(BUILD_ADDRESS_SANITIZER "Build with address sanitizer enabled" OFF)
+option(BUILD_BENCHMARK "Build benchmarks" OFF)
+option(BUILD_CODE_COVERAGE "Build with code coverage enabled" OFF)
+option(BUILD_FILE_REORG_BACKWARD_COMPATIBILITY "Build with file/folder reorg with backward compatibility enabled" OFF)
 option(BUILD_FORTRAN_WRAPPER "Build Fortran wrapper" OFF)
 option(BUILD_TEST "Build tests (requires googletest)" OFF)
-option(BUILD_BENCHMARK "Build benchmarks" OFF)
-option(BUILD_ADDRESS_SANITIZER "Build with address sanitizer enabled" OFF)
-option(DOWNLOAD_ROCRAND "Download rocRAND if it is not found in the default install directory or the manually-specified directory" OFF)
-option(BUILD_CODE_COVERAGE "Build with code coverage enabled" OFF)
 option(DEPENDENCIES_FORCE_DOWNLOAD "Do not use system installed dependencies, always download and build them" OFF)
+option(DISABLE_WERROR "Disable building with Werror" ON)
+option(DOWNLOAD_ROCRAND "Download rocRAND if it is not found in the default install directory or the manually-specified directory" OFF)
+option(CMAKE_INSTALL_RPATH_USE_LINK_PATH ON)
+option(BUILD_SHARED_LIBS "Build shared" ON)
 
 set(BUILD_WITH_LIB "ROCM" CACHE STRING "Select backend library to build with (ROCM or CUDA)")
 set_property(CACHE BUILD_WITH_LIB PROPERTY STRINGS "ROCM" "CUDA")
 
 if (BUILD_WITH_LIB STREQUAL "CUDA")
+  # Not relevant for CUDA builds
   set(ROCRAND_PATH "" CACHE INTERNAL "")
   set(ROCRAND_ROOT "" CACHE INTERNAL "")
 else()
-  # Not relevant for CUDA builds
   set(ROCRAND_PATH "" CACHE PATH "Path to rocRAND install.")
   set(ROCRAND_ROOT "${CMAKE_CURRENT_BINARY_DIR}/deps/rocrand" CACHE PATH "Path to downloaded rocRAND install.")
 endif()
+
+set(HIPRAND_CONFIG_DIR "\${CPACK_PACKAGING_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}" CACHE PATH "Path placed into ldconfig file")
+
+if (BUILD_TEST)
+  set(GTEST_ROOT "${CMAKE_CURRENT_BINARY_DIR}/deps/gtest" CACHE PATH "Path to place downloaded googletest.")
+else()
+  set(GTEST_ROOT "" CACHE INTERNAL "")
+endif()
+
+mark_as_advanced(CMAKE_INSTALL_RPATH_USE_LINK_PATH)
+mark_as_advanced(HIPRAND_CONFIG_DIR)
 
 # CMake modules
 list(APPEND CMAKE_MODULE_PATH
@@ -87,11 +93,6 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
     set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build." FORCE)
     set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "" "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
 endif()
-
-set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE CACHE BOOL "Add paths to linker search and installed rpath")
-
-# Set the default value of BUILD_SHARED_LIBS
-set(BUILD_SHARED_LIBS ON CACHE BOOL "Build shared")
 
 include(cmake/ROCmCMakeBuildToolsDependency.cmake)
 
@@ -126,9 +127,6 @@ endif()
 # Include cmake scripts
 include(cmake/Dependencies.cmake)
 
-# Build option to disable -Werror
-option(DISABLE_WERROR "Disable building with Werror" ON)
-
 # Build CXX flags
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -138,10 +136,6 @@ if(DISABLE_WERROR)
 else()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Werror")
 endif()
-
-# FOR HANDLING ENABLE/DISABLE OPTIONAL BACKWARD COMPATIBILITY for FILE/FOLDER REORG
-option(BUILD_FILE_REORG_BACKWARD_COMPATIBILITY "Build with file/folder reorg with backward compatibility enabled" OFF)
-
 
 # HIP on Windows: xhip is required with clang++ to get __half defined
 if (WIN32)
@@ -189,8 +183,6 @@ set(CPACK_RPM_PACKAGE_LICENSE "MIT")
 if(WIN32)
     set(CPACK_SOURCE_GENERATOR "ZIP")
     set(CPACK_GENERATOR "ZIP")
-    set(CMAKE_INSTALL_PREFIX "C:/hipSDK" CACHE PATH "Install path" FORCE)
-    set(INSTALL_PREFIX "C:/hipSDK")
     set(CPACK_SET_DESTDIR OFF)
     set(CPACK_PACKAGE_INSTALL_DIRECTORY "C:/hipSDK")
     set(CPACK_PACKAGING_INSTALL_PREFIX "")
@@ -215,8 +207,6 @@ if (BUILD_WITH_LIB STREQUAL "CUDA")
 else()
     set(package_name hiprand)
 endif()
-
-set(HIPRAND_CONFIG_DIR "\${CPACK_PACKAGING_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}" CACHE PATH "Path placed into ldconfig file")
 
 rocm_create_package(
         NAME ${package_name}
