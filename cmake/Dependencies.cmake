@@ -37,10 +37,9 @@ if (NOT BUILD_WITH_LIB STREQUAL "CUDA")
         # Search manually-specified rocRAND path.
         # This assumes that there is no system-installed rocRAND or that CMAKE_NO_SYSTEM_FROM_IMPORTED is ON.
         find_package(rocrand REQUIRED CONFIG PATHS ${ROCRAND_PATH} NO_DEFAULT_PATH)
-    elseif (${DOWNLOAD_ROCRAND})
+    elseif (DOWNLOAD_ROCRAND)
         # Download and install rocRAND.
         # This assumes that there is no system-installed rocRAND or that CMAKE_NO_SYSTEM_FROM_IMPORTED is ON.
-        set(ROCRAND_ROOT "${CMAKE_CURRENT_BINARY_DIR}/deps/rocrand" CACHE PATH "Path to downloaded rocRAND install.")
         download_project(
                 PROJ rocrand
                 GIT_REPOSITORY https://github.com/ROCmSoftwarePlatform/rocRAND.git
@@ -86,7 +85,6 @@ if(BUILD_TEST)
 
   if(NOT TARGET GTest::GTest AND NOT TARGET GTest::gtest)
     message(STATUS "GTest not found or force download GTest on. Downloading and building GTest.")
-    set(GTEST_ROOT ${CMAKE_CURRENT_BINARY_DIR}/deps/gtest CACHE PATH "")
     download_project(
       PROJ                googletest
       GIT_REPOSITORY      https://github.com/google/googletest.git
