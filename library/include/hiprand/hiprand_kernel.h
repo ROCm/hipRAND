@@ -28,7 +28,7 @@
 #include <hip/hip_runtime.h>
 #include <hiprand/hiprand.h>
 
-/** \addtogroup hipranddevice
+/** \defgroup hipranddevice hipRAND device functions
  *
  *  @{
  */
@@ -58,6 +58,52 @@
  * \brief Default seed for MT19937 PRNG.
  */
 #define HIPRAND_MT19937_DEFAULT_SEED 0ULL
+
+/**
+ * \brief XORWOW PRNG state type
+ */
+typedef struct hiprandStateXORWOW hiprandStateXORWOW_t;
+
+/**
+ * \brief Deprecated alias of hiprandStateXORWOW_t
+ * \deprecated Please use hiprandStateXORWOW_t directly.
+ */
+typedef hiprandStateXORWOW_t hipRandState_t;
+
+/**
+ * \brief PHILOX PRNG state type
+ */
+typedef struct hiprandStatePhilox4_32_10 hiprandStatePhilox4_32_10_t;
+
+/**
+ * \brief MRG32k3a PRNG state type
+ */
+typedef struct hiprandStateMRG32k3a hiprandStateMRG32k3a_t;
+
+/**
+ * \brief MTGP32 PRNG state type
+ */
+typedef struct hiprandStateMtgp32 hiprandStateMtgp32_t;
+
+/**
+ * \brief Scrambled SOBOL32 QRNG state type
+ */
+typedef struct hiprandStateScrambledSobol32 hiprandStateScrambledSobol32_t;
+
+/**
+ * \brief Scrambled SOBOL64 QRNG state type
+ */
+typedef struct hiprandStateScrambledSobol64 hiprandStateScrambledSobol64_t;
+
+/**
+ * \brief SOBOL32 QRNG state type
+ */
+typedef struct hiprandStateSobol32 hiprandStateSobol32_t;
+
+/**
+ * \brief SOBOL64 QRNG state type
+ */
+typedef struct hiprandStateSobol64 hiprandStateSobol64_t;
 /** @} */ // end of group hipranddevice
 
 #if defined(__HIP_PLATFORM_AMD__)

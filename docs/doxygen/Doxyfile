@@ -774,7 +774,6 @@ WARN_LOGFILE           =
 
 INPUT = \
     mainpage.dox \
-    hipranddevice.dox \
     hiprandhost.dox \
     hiprandhostcpp.dox \
     ../../library/include/hiprand
