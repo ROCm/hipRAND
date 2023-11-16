@@ -294,11 +294,11 @@ QUALIFIERS void skipahead(unsigned long long n, StateType* state)
 
 /// \brief Updates PRNG state skipping \p n sequences ahead.
 ///
-///      PRNG     | Sequence size [Number of elements]
-/// ------------- | -------------
-/// XORWOW        | 2^67
-/// Philox        | 4 * 2^64
-/// MRG32k3a      | 2^67
+/// | PRNG          | Sequence size [Number of elements] |
+/// |---------------|------------------------------------|
+/// | XORWOW        | \f$ 2^{67} \f$                     |
+/// | Philox        | \f$ 4 \times 2^{64} \f$            |
+/// | MRG32k3a      | \f$ 2^{67} \f$                     |
 ///
 /// \tparam StateType - Random number generator state type.
 /// \p StateType type must be one of following types:
@@ -324,11 +324,11 @@ QUALIFIERS void skipahead_sequence(unsigned long long n, StateType* state)
 
 /// \brief Updates PRNG state skipping \p n subsequences ahead.
 ///
-///      PRNG     | Subsequence size [Number of elements]
-/// ------------- | -------------
-/// XORWOW        | 2^67
-/// Philox        | 4 * 2^64
-/// MRG32k3a      | 2^127
+/// | PRNG         | Subsequence size [Number of elements] |
+/// |--------------|---------------------------------------|
+/// | XORWOW       | \f$ 2^{67} \f$                        |
+/// | Philox       | \f$ 4 \times 2^{64} \f$               |
+/// | MRG32k3a     | \f$ 2^{127} \f$                       |
 ///
 /// \tparam StateType - Random number generator state type.
 /// \p StateType type must be one of following types:
