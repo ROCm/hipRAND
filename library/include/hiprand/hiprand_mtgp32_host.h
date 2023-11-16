@@ -45,13 +45,10 @@ typedef mtgp32_fast_params mtgp32_fast_param_t;
  * - HIPRAND_STATUS_ALLOCATION_FAILED if parameters could not be loaded
  * - HIPRAND_STATUS_SUCCESS if parameters are loaded
  */
-inline __host__
-hiprandStatus_t hiprandMakeMTGP32Constants(const mtgp32_params_fast_t params[],
-                                           mtgp32_kernel_params_t * p)
+inline hiprandStatus_t hiprandMakeMTGP32Constants(const mtgp32_params_fast_t params[],
+                                                  mtgp32_kernel_params_t*    p)
 {
-    return to_hiprand_status(
-        rocrand_make_constant(params, p)
-    );
+    return to_hiprand_status(rocrand_make_constant(params, p));
 }
 
 /**
@@ -70,16 +67,13 @@ hiprandStatus_t hiprandMakeMTGP32Constants(const mtgp32_params_fast_t params[],
  * - HIPRAND_STATUS_ALLOCATION_FAILED if states could not be initialized
  * - HIPRAND_STATUS_SUCCESS if states are initialized
  */
-inline __host__
-hiprandStatus_t hiprandMakeMTGP32KernelState(hiprandStateMtgp32_t *s,
-                                             mtgp32_params_fast_t params[],
-                                             mtgp32_kernel_params_t *k,
-                                             int n,
-                                             unsigned long long seed)
+inline hiprandStatus_t hiprandMakeMTGP32KernelState(hiprandStateMtgp32_t*   s,
+                                                    mtgp32_params_fast_t    params[],
+                                                    mtgp32_kernel_params_t* k,
+                                                    int                     n,
+                                                    unsigned long long      seed)
 {
-    return to_hiprand_status(
-        rocrand_make_state_mtgp32(s, params, n, seed)
-    );
+    return to_hiprand_status(rocrand_make_state_mtgp32(s, params, n, seed));
 }
 
 #else // for HIP NVCC platfrom
