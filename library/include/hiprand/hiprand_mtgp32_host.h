@@ -38,8 +38,8 @@ typedef mtgp32_fast_params mtgp32_fast_param_t;
  * Loads parameters for use by kernel functions on the host-side and copies the
  * results to the specified location in device memory.
  *
- * \param params - Pointer to an array of type mtgp32_params_fast_t allocated in host memory
- * \param p - Pointer to a mtgp32_kernel_params_t structure allocated in device memory
+ * \param[in] params Pointer to an array of type mtgp32_params_fast_t allocated in host memory
+ * \param[out] p Pointer to a mtgp32_kernel_params_t structure allocated in device memory
  *
  * \return
  * - HIPRAND_STATUS_ALLOCATION_FAILED if parameters could not be loaded
@@ -57,11 +57,18 @@ inline hiprandStatus_t hiprandMakeMTGP32Constants(const mtgp32_params_fast_t par
  * Initializes MTGP32 states on the host-side by allocating a state array in host
  * memory, initializes that array, and copies the result to device memory.
  *
- * \param s - Pointer to an array of states in device memory
- * \param params - Pointer to an array of type mtgp32_params_fast_t in host memory
- * \param k - Pointer to a mtgp32_kernel_params_t structure allocated in device memory
- * \param n - Number of states to initialize
- * \param seed - Seed value
+ * \param[out] s Pointer to an array of states in device memory
+ * \param[in] params Pointer to an array of type mtgp32_params_fast_t in host memory
+ * \param[in] k Pointer to a mtgp32_kernel_params_t structure allocated in device memory
+ * \param n Number of states to initialize
+ * \param seed Seed value
+ *
+ * - On the cuRAND backend `k` must be initialized by calling hiprandMakeMTGP32Constants() with the
+ *   the same `params`
+ * - On the rocRAND backend `k` is ignored
+ *
+ * For maximum portability application should initialize `k` as required by cuRAND, but when only
+ * targeting the rocRAND backend it may be left uninitialized.
  *
  * \return
  * - HIPRAND_STATUS_ALLOCATION_FAILED if states could not be initialized
