@@ -98,7 +98,9 @@ Where ``<compiler>>`` should be set to ``hipcc`` or ``amdclang`` on ROCm softwar
 * ``ROCRAND_PATH`` specifies a rocRAND install other than the default system installed one.
 * ``DOWNLOAD_ROCRAND`` specifies that rocRAND will be downloaded and installed in the build directory.
 
-If using ``ROCRAND_PATH`` or ``DOWNLOAD_ROCRAND`` and rocRAND is installed on the system in the default location, ``CMAKE_NO_SYSTEM_FROM_IMPORTED=ON`` must be passed.
+If using ``ROCRAND_PATH`` or ``DOWNLOAD_ROCRAND`` and rocRAND is also installed on the system in the default location then ``CMAKE_NO_SYSTEM_FROM_IMPORTED=ON`` should be passed
+when configuring the project.
+Otherwise the headers of rocRAND might be resolved to the system installed version instead of the specified version, leading to errors or missing functionality.
 
 Building the Python API Wrapper
 -------------------------------
