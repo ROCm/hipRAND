@@ -12,15 +12,21 @@ Prebuilt Packages
 
 Installing the prebuilt hipRAND packages requires a ROCm-enabled platform. See the `ROCm documentation <https://docs.amd.com/>`_ for more information. After installing ROCm or enabling the ROCm repositories, hipRAND can be obtained using the system package manager.
 
-For Ubuntu and Debian::
+For Ubuntu and Debian:
+
+.. code-block:: shell
 
     sudo apt-get install hiprand
 
-For CentOS::
+For CentOS:
+
+.. code-block:: shell
 
     sudo yum install hiprand
 
-For SLES::
+For SLES:
+
+.. code-block:: shell
 
     sudo dnf install hiprand
 
@@ -47,7 +53,9 @@ To build hipRAND for the CUDA platform instead, the following software is requir
 Obtaining Sources
 ^^^^^^^^^^^^^^^^^
 
-The hipRAND sources are available from the `hipRAND GitHub Repository <https://github.com/ROCmSoftwarePlatform/hipRAND>`_. Use the branch that matches the system-installed version of ROCm. For example on a system that has ROCm 5.4 installed, use the following command to obtain hipRAND sources::
+The hipRAND sources are available from the `hipRAND GitHub Repository <https://github.com/ROCmSoftwarePlatform/hipRAND>`_. Use the branch that matches the system-installed version of ROCm. For example on a system that has ROCm 5.4 installed, use the following command to obtain hipRAND sources:
+
+.. code-block:: shell
 
     git checkout -b release/rocm-rel-5.4 https://github.com/ROCmSoftwarePlatform/hipRAND.git
 
@@ -55,6 +63,8 @@ Building the Library
 ^^^^^^^^^^^^^^^^^^^^
 
 After obtaining the sources and dependencies, hipRAND can be built for ROCm software using the installation script::
+
+.. code-block:: shell
 
     cd hipRAND
     ./install --install
@@ -64,7 +74,9 @@ This automatically builds all required dependencies, excluding HIP and Git, and 
 Building with CMake
 ^^^^^^^^^^^^^^^^^^^
 
-For a more elaborate installation process, hipRAND can be built manually using CMake. This enables certain configuration options that are not exposed to the ``./install`` script. In general, hipRAND can be built using CMake by configuring as follows::
+For a more elaborate installation process, hipRAND can be built manually using CMake. This enables certain configuration options that are not exposed to the ``./install`` script. In general, hipRAND can be built using CMake by configuring as follows:
+
+.. code-block:: shell
 
     cd hipRAND; mkdir build; cd build
     # Configure the project
@@ -76,7 +88,7 @@ For a more elaborate installation process, hipRAND can be built manually using C
     # Install
     [sudo] make install
 
-Where ``<compiler>>`` should be set to ``hipcc`` on ROCm software, or to a regular C++ compiler such as ``g++`` on a CUDA platform.
+Where ``<compiler>>`` should be set to ``hipcc`` or ``amdclang`` on ROCm software, or to a regular C++ compiler such as ``g++`` on a CUDA platform.
 
 * ``BUILD_WITH_LIB`` controls whether to build hipRAND with the rocRAND or cuRAND backend. If set to ``CUDA``, hipRAND will be built using the cuRAND backend. Otherwise, the rocRAND backend will be used.
 * ``BUILD_FORTRAN_WRAPPER`` controls whether to build the Fortran wrapper. Defaults to ``OFF``.
@@ -101,19 +113,25 @@ The hipRAND Python API Wrapper requires the following dependencies:
 * NumPy (will be installed automatically as a dependency if necessary)
 
 Note: If hipRAND is built from sources but not installed or installed in
-non-standard directory, set the ``ROCRAND_PATH`` or ``HIPRAND_PATH`` environment variable to the path containing ``libhiprand.so``. For example::
+non-standard directory, set the ``ROCRAND_PATH`` or ``HIPRAND_PATH`` environment variable to the path containing ``libhiprand.so``. For example:
+
+.. code-block:: shell
 
     export HIPRAND_PATH=~/hipRAND/build/library/
 
 Installing
 ^^^^^^^^^^
 
-The Python hipRAND module can be installed using pip::
+The Python hipRAND module can be installed using pip:
+
+.. code-block:: shell
 
     cd hipRAND/python/hiprand
     pip install .
 
-The tests can be executed as follows::
+The tests can be executed as follows:
+
+.. code-block:: shell
 
     cd hipRAND/python/hiprand
     python tests/hiprand_test.py
