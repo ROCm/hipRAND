@@ -1,4 +1,4 @@
-# Copyright (c) 2017-2022 Advanced Micro Devices, Inc. All rights reserved.
+# Copyright (c) 2017-2023 Advanced Micro Devices, Inc. All rights reserved.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -28,7 +28,7 @@ from ctypes import *
 import numbers
 import numpy as np
 
-from .hip import load_hip, HIP_PATHS
+from .hip import load_hip, HIP_PATHS, stream_synchronize
 from .hip import empty, DeviceNDArray, device_pointer
 
 from .utils import find_library, expand_paths
@@ -159,9 +159,10 @@ class HipRandError(Exception):
 class RNG(object):
     """Random number generator base class."""
 
-    def __init__(self, rngtype, offset=None, stream=None):
+    def __init__(self, rngtype, offset=None, stream=None, *, is_host=False):
         self._gen = c_void_p()
-        check_hiprand(hiprand.hiprandCreateGenerator(byref(self._gen), rngtype))
+        create_fun = hiprand.hiprandCreateGeneratorHost if is_host else hiprand.hiprandCreateGenerator
+        check_hiprand(create_fun(byref(self._gen), rngtype))
         finalize(self, RNG._finalize, self._gen)
 
         self._offset = 0
@@ -171,6 +172,8 @@ class RNG(object):
         self._stream = None
         if stream is not None:
             self.stream = stream
+
+        self._is_host = is_host
 
     @classmethod
     def _finalize(cls, gen):
@@ -203,12 +206,11 @@ class RNG(object):
         check_hiprand(hiprand.hiprandSetStream(self._gen, stream))
         self._stream = stream
 
-    def _generate(self, gen_func, ary, size, *args):
-        if size is not None:
-            if size > ary.size:
-                raise ValueError("requested size is greater than ary")
-        else:
+    def _generate_device(self, gen_func, ary, size, *args):
+        if size is None:
             size = ary.size
+        elif size > ary.size:
+            raise ValueError("requested size is greater than ary")
 
         if isinstance(ary, np.ndarray):
             dary, needs_conversion = empty(size, ary.dtype), True
@@ -221,6 +223,29 @@ class RNG(object):
 
         if needs_conversion:
             dary.copy_to_host(ary)
+
+    def _generate_host(self, gen_func, ary, size, *args):
+        if size is None:
+            size = ary.size
+        elif size > ary.size:
+            raise ValueError("requested size is greater than ary")
+
+        if isinstance(ary, DeviceNDArray):
+            raise TypeError("Generate called with a device-side array on a host-side generator. "
+                            "For device arrays, instantiate a device-side generator")
+        elif not isinstance(ary, np.ndarray):
+            raise TypeError("unsupported type {}".format(type(ary)))
+
+        check_hiprand(gen_func(self._gen, ctypes.c_void_p(ary.ctypes.data), c_size_t(size), *args))
+        # If we're generating on the host, synchronize the kernel to match the
+        # behavior of a device-side generator being called with a host array (_generate_device).
+        stream_synchronize(self.stream)
+
+    def _generate(self, gen_func, ary, size, *args):
+        if self._is_host:
+            self._generate_host(gen_func, ary, size, *args)
+        else:
+            self._generate_device(gen_func, ary, size, *args)
 
     def generate(self, ary, size=None):
         """Generates uniformly distributed integers.
@@ -364,12 +389,14 @@ class PRNG(RNG):
     PHILOX4_32_10 = HIPRAND_RNG_PSEUDO_PHILOX4_32_10
     """PHILOX_4x32 (10 rounds) pseudo-random generator type"""
 
-    def __init__(self, rngtype=DEFAULT, seed=None, offset=None, stream=None):
+    def __init__(self, rngtype=DEFAULT, seed=None, offset=None, stream=None, *, is_host=False):
         """__init__(self, rngtype=DEFAULT, seed=None, offset=None, stream=None)
         Creates a new pseudo-random number generator.
 
         A new pseudo-random number generator of type **rngtype** is initialized
-        with given **seed**, **offset** and **stream**.
+        with given **seed**, **offset** and **stream**. If **is_host** is set to true, the generator
+        operates on the host CPU and memory instead on the device. Note, that not all generators
+        may support the host option.
 
         Values of **rngtype**:
 
@@ -384,6 +411,7 @@ class PRNG(RNG):
         :param seed:    Initial seed value
         :param offset:  Initial offset of random numbers sequence
         :param stream:  HIP stream for all kernel launches of the generator
+        :param is_host:    If True, the generator operates on the host CPU, not on the device
 
         Example::
 
@@ -395,7 +423,7 @@ class PRNG(RNG):
             gen.poisson(a, 10.0)
             print(a)
         """
-        super(PRNG, self).__init__(rngtype, offset=offset, stream=stream)
+        super(PRNG, self).__init__(rngtype, offset=offset, stream=stream, is_host=is_host)
 
         self._seed = None
         if seed is not None:
@@ -427,12 +455,14 @@ class QRNG(RNG):
     SCRAMBLED_SOBOL64 = HIPRAND_RNG_QUASI_SCRAMBLED_SOBOL64
     """Scrambled Sobol64 quasi-random generator type"""
 
-    def __init__(self, rngtype=DEFAULT, ndim=None, offset=None, stream=None):
+    def __init__(self, rngtype=DEFAULT, ndim=None, offset=None, stream=None, *, is_host=False):
         """
         Creates a new quasi-random number generator.
 
         A new quasi-random number generator of type **rngtype** is initialized
-        with given **ndim**, **offset** and **stream**.
+        with given **ndim**, **offset** and **stream**. If **is_host** is set to true, the generator
+        operates on the host CPU and memory instead on the device. Note, that not all generators
+        may support the host option.
 
         Values of **rngtype**:
 
@@ -448,6 +478,7 @@ class QRNG(RNG):
         :param ndim:    Number of dimensions
         :param offset:  Initial offset of random numbers sequence
         :param stream:  HIP stream for all kernel launches of the generator
+        :param is_host:    If True, the generator operates on the host CPU, not on the device
 
         Example::
 
@@ -460,7 +491,7 @@ class QRNG(RNG):
             print(a)
         """
 
-        super(QRNG, self).__init__(rngtype, offset=offset, stream=stream)
+        super(QRNG, self).__init__(rngtype, offset=offset, stream=stream, is_host=is_host)
 
         self._ndim = 1
         if ndim is not None:
