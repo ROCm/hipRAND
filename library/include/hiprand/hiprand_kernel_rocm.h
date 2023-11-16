@@ -60,10 +60,19 @@ DEFINE_HIPRAND_STATE(hiprandStateScrambledSobol64, rocrand_state_scrambled_sobol
 #undef DEFINE_HIPRAND_STATE
 
 typedef rocrand_discrete_distribution hiprandDiscreteDistribution_t;
-
-typedef mtgp32_params      mtgp32_kernel_params_t;
-typedef mtgp32_fast_params mtgp32_fast_param_t;
 /// \endcond
+
+/// \brief Opaque MTGP32 PRNG state parameters in the device format
+typedef mtgp32_params      mtgp32_kernel_params_t;
+
+#ifdef HIPRAND_DOXYGEN
+/// \brief Opaque MTGP32 PRNG state parameters in the host format
+typedef struct mtgp32_params_fast mtgp32_params_fast_t;
+#endif
+
+/// \brief Deprecated alias of mtgp32_params_fast_t
+/// \deprecated please use mtgp32_params_fast_t directly.
+typedef mtgp32_fast_params mtgp32_fast_param_t;
 
 /// \cond
 namespace detail
@@ -187,7 +196,7 @@ QUALIFIERS void hiprand_mtgp32_set_params(hiprandStateMtgp32_t*   state,
 /// current subsequence should be skipped
 /// \param state - Pointer to a state to initialize
 ///
-/// See also: hiprandMakeMTGP32KernelState()
+/// \note MTGP32 must be initialized from the host using hiprandMakeMTGP32KernelState().
 template<class StateType>
 QUALIFIERS void hiprand_init(const unsigned long long seed,
                              const unsigned long long subsequence,
