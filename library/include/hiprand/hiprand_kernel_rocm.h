@@ -60,10 +60,19 @@ DEFINE_HIPRAND_STATE(hiprandStateScrambledSobol64, rocrand_state_scrambled_sobol
 #undef DEFINE_HIPRAND_STATE
 
 typedef rocrand_discrete_distribution hiprandDiscreteDistribution_t;
-
-typedef mtgp32_params      mtgp32_kernel_params_t;
-typedef mtgp32_fast_params mtgp32_fast_param_t;
 /// \endcond
+
+/// \brief Opaque MTGP32 PRNG state parameters in the device format
+typedef mtgp32_params      mtgp32_kernel_params_t;
+
+#ifdef HIPRAND_DOXYGEN
+/// \brief Opaque MTGP32 PRNG state parameters in the host format
+typedef struct mtgp32_params_fast mtgp32_params_fast_t;
+#endif
+
+/// \brief Deprecated alias of mtgp32_params_fast_t
+/// \deprecated please use mtgp32_params_fast_t directly.
+typedef mtgp32_fast_params mtgp32_fast_param_t;
 
 /// \cond
 namespace detail
@@ -179,7 +188,7 @@ QUALIFIERS void hiprand_mtgp32_set_params(hiprandStateMtgp32_t*   state,
 ///
 /// \tparam StateType - Pseudorandom number generator state type.
 /// \p StateType type must be one of following types:
-/// \p hiprandStateXORWOW_t, \p hiprandStatePhilox4_32_10_t, or \p hiprandStateMRG32k3a_t
+/// ::hiprandStateXORWOW_t, ::hiprandStatePhilox4_32_10_t or ::hiprandStateMRG32k3a_t
 ///
 /// \param seed - Pseudorandom number generator's seed
 /// \param subsequence - Number of subsequence to skipahead
@@ -187,7 +196,7 @@ QUALIFIERS void hiprand_mtgp32_set_params(hiprandStateMtgp32_t*   state,
 /// current subsequence should be skipped
 /// \param state - Pointer to a state to initialize
 ///
-/// See also: hiprandMakeMTGP32KernelState()
+/// \note MTGP32 must be initialized from the host using hiprandMakeMTGP32KernelState().
 template<class StateType>
 QUALIFIERS void hiprand_init(const unsigned long long seed,
                              const unsigned long long subsequence,
@@ -267,9 +276,9 @@ QUALIFIERS void hiprand_init(hiprandDirectionVectors64_t     direction_vectors,
 ///
 /// \tparam StateType - Random number generator state type.
 /// \p StateType type must be one of following types:
-/// \p hiprandStateXORWOW_t, \p hiprandStatePhilox4_32_10_t, \p hiprandStateMRG32k3a_t,
-/// \p hiprandStateSobol32_t, \p hiprandStateScrambledSobol32_t,
-/// \p hiprandStateSobol64_t, or \p hiprandStateScrambledSobol64_t.
+/// ::hiprandStateXORWOW_t, ::hiprandStatePhilox4_32_10_t, ::hiprandStateMRG32k3a_t,
+/// ::hiprandStateSobol32_t, ::hiprandStateScrambledSobol32_t,
+/// ::hiprandStateSobol64_t or ::hiprandStateScrambledSobol64_t.
 ///
 /// \param n - Number of states to skipahead
 /// \param state - Pointer to a state to modify
@@ -285,16 +294,16 @@ QUALIFIERS void skipahead(unsigned long long n, StateType* state)
 
 /// \brief Updates PRNG state skipping \p n sequences ahead.
 ///
-///      PRNG     | Sequence size [Number of elements]
-/// ------------- | -------------
-/// XORWOW        | 2^67
-/// Philox        | 4 * 2^64
-/// MRG32k3a      | 2^67
+/// | PRNG          | Sequence size [Number of elements] |
+/// |---------------|------------------------------------|
+/// | XORWOW        | \f$ 2^{67} \f$                     |
+/// | Philox        | \f$ 4 \times 2^{64} \f$            |
+/// | MRG32k3a      | \f$ 2^{67} \f$                     |
 ///
 /// \tparam StateType - Random number generator state type.
 /// \p StateType type must be one of following types:
-/// \p hiprandStateXORWOW_t, \p hiprandStatePhilox4_32_10_t,
-/// or \p hiprandStateMRG32k3a_t
+/// ::hiprandStateXORWOW_t, ::hiprandStatePhilox4_32_10_t,
+/// or ::hiprandStateMRG32k3a_t
 ///
 /// \param n - Number of subsequences to skipahead
 /// \param state - Pointer to a state to update
@@ -315,16 +324,16 @@ QUALIFIERS void skipahead_sequence(unsigned long long n, StateType* state)
 
 /// \brief Updates PRNG state skipping \p n subsequences ahead.
 ///
-///      PRNG     | Subsequence size [Number of elements]
-/// ------------- | -------------
-/// XORWOW        | 2^67
-/// Philox        | 4 * 2^64
-/// MRG32k3a      | 2^127
+/// | PRNG         | Subsequence size [Number of elements] |
+/// |--------------|---------------------------------------|
+/// | XORWOW       | \f$ 2^{67} \f$                        |
+/// | Philox       | \f$ 4 \times 2^{64} \f$               |
+/// | MRG32k3a     | \f$ 2^{127} \f$                       |
 ///
 /// \tparam StateType - Random number generator state type.
 /// \p StateType type must be one of following types:
-/// \p hiprandStateXORWOW_t, \p hiprandStatePhilox4_32_10_t,
-/// or \p hiprandStateMRG32k3a_t
+/// ::hiprandStateXORWOW_t, ::hiprandStatePhilox4_32_10_t
+/// or ::hiprandStateMRG32k3a_t
 ///
 /// \param n - Number of subsequences to skipahead
 /// \param state - Pointer to a state to update
@@ -348,8 +357,8 @@ QUALIFIERS void skipahead_subsequence(unsigned long long n, StateType* state)
 ///
 /// \tparam StateType - Random number generator state type.
 /// \p StateType type must be one of following types:
-/// \p hiprandStateXORWOW_t, \p hiprandStatePhilox4_32_10_t, \p hiprandStateMRG32k3a_t,
-/// \p hiprandStateMtgp32_t, \p hiprandStateSobol32_t, \p hiprandStateScrambledSobol32_t.
+/// ::hiprandStateXORWOW_t, ::hiprandStatePhilox4_32_10_t, ::hiprandStateMRG32k3a_t,
+/// ::hiprandStateMtgp32_t, ::hiprandStateSobol32_t, ::hiprandStateScrambledSobol32_t.
 ///
 /// \param state - Pointer to a RNG state to use
 /// \return Uniformly distributed random 32-bit <tt>unsigned int</tt>
@@ -375,7 +384,7 @@ QUALIFIERS uint4 hiprand4(hiprandStatePhilox4_32_10_t* state)
 ///
 /// \tparam StateType - Random number generator state type.
 /// \p StateType type must be one of the following types:
-/// \p hiprandStateSobol64_t or \p hiprandStateScrambledSobol64_t.
+/// ::hiprandStateSobol64_t or ::hiprandStateScrambledSobol64_t.
 ///
 /// \param state - Pointer to a RNG state to use
 /// \return Uniformly distributed random 64-bit <tt>unsigned long long int</tt>
@@ -417,10 +426,10 @@ QUALIFIERS float4 hiprand_uniform4(hiprandStatePhilox4_32_10_t* state)
 /// \param state - Pointer to a RNG state to use
 /// \return Uniformly distributed random <tt>double</tt> value
 ///
-/// Note: When \p state is of type: \p hiprandStateMRG32k3a_t, \p hiprandStateMtgp32_t,
-/// \p hiprandStateSobol32_t, or \p hiprandStateScrambledSobol32_t then the returned
+/// \note When \p state is of type: ::hiprandStateMRG32k3a_t, ::hiprandStateMtgp32_t,
+/// ::hiprandStateSobol32_t or ::hiprandStateScrambledSobol32_t then the returned
 /// \p double value is generated using only 32 random bits (one <tt>unsigned int</tt> value).
-/// In case of the Sobol types, this is done to guarantee the quasirandom properties.
+/// In case of the Sobol types, this is done to guarantee the quasi-random properties.
 template<class StateType>
 QUALIFIERS double hiprand_uniform_double(StateType* state)
 {
@@ -471,8 +480,8 @@ QUALIFIERS float hiprand_normal(StateType* state)
 ///
 /// \tparam StateType - Random number generator state type.
 /// \p StateType type must be one of following types:
-/// \p hiprandStateXORWOW_t, \p hiprandStatePhilox4_32_10_t,
-/// or \p hiprandStateMRG32k3a_t
+/// ::hiprandStateXORWOW_t, ::hiprandStatePhilox4_32_10_t,
+/// or ::hiprandStateMRG32k3a_t
 ///
 /// \param state - Pointer to a RNG state to use
 /// \return Two normally distributed random <tt>float</tt> values as \p float2
@@ -524,8 +533,8 @@ QUALIFIERS double hiprand_normal_double(StateType* state)
 ///
 /// \tparam StateType - Random number generator state type.
 /// \p StateType type must be one of following types:
-/// \p hiprandStateXORWOW_t, \p hiprandStatePhilox4_32_10_t,
-/// or \p hiprandStateMRG32k3a_t
+/// ::hiprandStateXORWOW_t, ::hiprandStatePhilox4_32_10_t,
+/// or ::hiprandStateMRG32k3a_t
 ///
 /// \param state - Pointer to a RNG state to use
 /// \return Two normally distributed random <tt>double</tt> values as \p double2
@@ -573,8 +582,8 @@ QUALIFIERS float hiprand_log_normal(StateType* state, float mean, float stddev)
 ///
 /// \tparam StateType - Random number generator state type.
 /// \p StateType type must be one of following types:
-/// \p hiprandStateXORWOW_t, \p hiprandStatePhilox4_32_10_t,
-/// or \p hiprandStateMRG32k3a_t
+/// ::hiprandStateXORWOW_t, ::hiprandStatePhilox4_32_10_t,
+/// or ::hiprandStateMRG32k3a_t
 ///
 /// \param state - Pointer to a RNG state to use
 /// \param mean - Mean value of log-normal distribution
@@ -623,8 +632,8 @@ QUALIFIERS double hiprand_log_normal_double(StateType* state, double mean, doubl
 ///
 /// \tparam StateType - Random number generator state type.
 /// \p StateType type must be one of following types:
-/// \p hiprandStateXORWOW_t, \p hiprandStatePhilox4_32_10_t,
-/// \p hiprandStateMRG32k3a_t, or \p hiprandStateMtgp32_t.
+/// ::hiprandStateXORWOW_t, ::hiprandStatePhilox4_32_10_t,
+/// ::hiprandStateMRG32k3a_t or hiprandStateMtgp32_t.
 ///
 /// \param state - Pointer to a RNG state to use
 /// \param mean - Mean value of log-normal distribution
