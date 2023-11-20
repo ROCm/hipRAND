@@ -81,11 +81,12 @@
 #      target_link_libraries(bar "-lcurand" hip::hiprand)
 #    endif()
 #
+@PACKAGE_INIT@
 
 # Fortran wrapper
 if(@BUILD_FORTRAN_WRAPPER@)
-    set_and_check(hiprand_FORTRAN_SRC_DIR "@FORTRAN_SRCS_INSTALL_DIR@")
-    set_and_check(hiprand_FORTRAN_SRC_DIRS "@FORTRAN_SRCS_INSTALL_DIR@")
+    set_and_check(hiprand_FORTRAN_SRC_DIR  "${PACKAGE_PREFIX_DIR}/hiprand/src/fortran")
+    set_and_check(hiprand_FORTRAN_SRC_DIRS "${PACKAGE_PREFIX_DIR}/hiprand/src/fortran")
     set(hiprand_FORTRAN_FOUND YES)
 else()
     set(hiprand_FORTRAN_FOUND NOTFOUND)
