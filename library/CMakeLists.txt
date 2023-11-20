@@ -90,9 +90,14 @@ rocm_install(
 )
 
 set(FORTRAN_SRCS_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/hiprand/src/fortran")
-configure_file(
+set(LIB_INSTALL_DIR ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR})
+set(CONFIG_PACKAGE_INSTALL_DIR ${LIB_INSTALL_DIR}/cmake/hiprand)
+
+include(CMakePackageConfigHelpers)
+configure_package_config_file(
     src/hiprand-fortran-config.cmake.in
     ${CMAKE_CURRENT_BINARY_DIR}/hiprand-fortran-config.cmake
+    INSTALL_DESTINATION ${CONFIG_PACKAGE_INSTALL_DIR}
 )
 
 if (BUILD_WITH_LIB STREQUAL "CUDA")
