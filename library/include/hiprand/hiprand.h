@@ -64,7 +64,7 @@
 
 #if defined(__HIP_PLATFORM_AMD__)
     #include "hiprand/hiprand_rocm.h"
-#elif defined(__HIP_PLATFORM_NVCC__)
+#elif defined(__HIP_PLATFORM_NVIDIA__)
     #include "hiprand/hiprand_nvcc.h"
 #endif
 
