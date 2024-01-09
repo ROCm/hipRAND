@@ -344,7 +344,7 @@ TEST(hiprand_kernel_h_default, hiprand_init)
     hiprand_kernel_h_hiprand_init_test<state_type>();
 }
 
-#ifdef __HIP_PLATFORM_NVCC__
+#ifdef __HIP_PLATFORM_NVIDIA__
 TEST(hiprand_kernel_h_philox4x32_10, hiprand_init_nvcc)
 {
     typedef hiprandStatePhilox4_32_10_t state_type;
