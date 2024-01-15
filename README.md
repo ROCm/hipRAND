@@ -5,11 +5,11 @@ application and the backend RAND library, where it marshals inputs to the backen
 application. hipRAND exports an interface that doesn't require the client to change, regardless of the
 chosen backend.
 
-hipRAND supports [rocRAND](https://github.com/ROCmSoftwarePlatform/rocRAND) and
+hipRAND supports [rocRAND](https://github.com/ROCm/rocRAND) and
 [cuRAND](https://developer.nvidia.com/curand).
 
 You can find our documentation at
-[https://rocm.docs.amd.com/projects/hipRAND/en/latest/](https://rocm.docs.amd.com/projects/hipRAND/en/latest/).
+[hipRAND User Guide/](https://rocm.docs.amd.com/projects/hipRAND/en/latest/).
 
 ## Documentation
 
@@ -44,8 +44,7 @@ You must have the following installed to use hipRAND:
 
 ## Build and install
 
-You can download pre-built packages from
-[ROCm's package servers](https://rocm.github.io/install.html#installing-from-amd-rocm-repositories),
+You can download pre-built packages by following the [ROCm Install Guide](https://rocm.docs.amd.com/projects/install-on-linux/en/latest/how-to/native-install/index.html),
 or by clicking the github releases tab (this option could have a newer version).
 
 Once downloaded, use the following command to install hipRAND:
@@ -69,13 +68,13 @@ supported platforms):
 * Manual build:
 
   If you use a distribution other than Ubuntu, or want more control over the build process, the
-  [hipRAND build wiki](https://github.com/ROCmSoftwarePlatform/hipRAND/wiki/Build) has helpful
+  [hipRAND build wiki](https://github.com/ROCm/hipRAND/wiki/Build) has helpful
   information on how to configure CMake and build manually.
 
 ### Supported functions
 
 You can find a list of
-[exported functions](https://github.com/ROCmSoftwarePlatform/hipRAND/wiki/Exported-functions) on
+[exported functions](https://github.com/ROCm/hipRAND/wiki/Exported-functions) on
 the wiki.
 
 ## Interface examples
