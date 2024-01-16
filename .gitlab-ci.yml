@@ -1,6 +1,6 @@
 # MIT License
 #
-# Copyright (c) 2017-2023 Advanced Micro Devices, Inc. All rights reserved.
+# Copyright (c) 2017-2024 Advanced Micro Devices, Inc. All rights reserved.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -269,6 +269,9 @@ test:rocm:
     - .test:ctest
     - .gpus:rocm
     - .rocm:rocrand-install
+  before_script:
+    - !reference [".rocm:cmake-minimum", before_script]
+    - !reference [".rocm:rocrand-install", before_script]
 
 test:nvcc:
   needs:
@@ -309,6 +312,7 @@ test:rocm-python:
   needs:
     - build:rocm-cmake-minimum
   before_script:
+    - !reference [".deps:rocm", before_script]
     - !reference [".rocm:rocrand-install", before_script]
     - !reference [".test:python", before_script]
 
@@ -320,6 +324,9 @@ test:nvcc-python:
     - .test:python
   needs:
     - build:nvcc-cmake-minimum
+  before_script:
+    - !reference [".deps:nvcc", before_script]
+    - !reference [".test:python", before_script]
 
 .test:package:
   stage: test
