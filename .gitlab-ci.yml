@@ -32,6 +32,7 @@ include:
       - /deps-docs.yaml
       - /deps-rocm.yaml
       - /deps-nvcc.yaml
+      - /deps-windows.yaml
       - /gpus-rocm.yaml
       - /gpus-nvcc.yaml
       - /rules.yaml
@@ -248,6 +249,72 @@ build:nvcc-cmake-minimum:
     - .nvcc:build
     - .save-artifacts
 
+.rocm-windows:build:
+  extends:
+    - .deps:visual-studio-devshell
+    - .deps:rocm-windows
+    - .gpus:rocm-gpus-windows
+    - .rules:build
+  needs: []
+  stage: build
+  variables:
+    ROCRAND_GIT_BRANCH: "develop_stream"
+    BUILD_TYPE: Release
+  script:
+    # Configure and install rocRAND
+    - $branch_name=$ROCRAND_GIT_BRANCH
+    - if ($CI_COMMIT_BRANCH -eq "develop" -or $CI_COMMIT_BRANCH -eq "master") { $branch_name=$CI_COMMIT_BRANCH }
+    - git clone -b $branch_name https://gitlab-ci-token:$CI_JOB_TOKEN@$ROCRAND_GIT_URL
+    - \& cmake
+      -S "$ROCRAND_DIR"
+      -B "$ROCRAND_DIR/build"
+      -G Ninja
+      -D BUILD_BENCHMARK=OFF
+      -D BUILD_FORTRAN_WRAPPER=OFF
+      -D BUILD_SHARED_LIBS=$BUILD_SHARED_LIBS
+      -D BUILD_TEST=OFF
+      -D CMAKE_BUILD_TYPE=$BUILD_TYPE
+      -D CMAKE_CXX_COMPILER:FILEPATH="$ROCM_PATH/bin/clang++.exe"
+      -D CMAKE_INSTALL_PREFIX:PATH="$ROCRAND_DIR/build/install"
+      -D GPU_TARGETS=$GPU_TARGETS *>&1
+    - \& cmake --build "$ROCRAND_DIR/build" --target install *>&1
+    # Configure hipRAND
+    - \& cmake
+      -S "$CI_PROJECT_DIR"
+      -B "$CI_PROJECT_DIR/build"
+      -G Ninja
+      -D BUILD_BENCHMARK=ON
+      -D BUILD_FORTRAN_WRAPPER=OFF
+      -D BUILD_SHARED_LIBS=$BUILD_SHARED_LIBS
+      -D BUILD_TEST=ON
+      -D CMAKE_BUILD_TYPE=$BUILD_TYPE
+      -D CMAKE_CXX_COMPILER:FILEPATH="$ROCM_PATH/bin/clang++.exe"
+      -D CMAKE_INSTALL_PREFIX:PATH="$CI_PROJECT_DIR/build/install"
+      -D CMAKE_PREFIX_PATH:PATH="$ROCRAND_DIR/build/install"
+      -D DISABLE_WERROR=OFF
+      -D GPU_TARGETS=$GPU_TARGETS *>&1
+    # Build hipRAND
+    - \& cmake --build "$CI_PROJECT_DIR/build" *>&1
+    # Copy rocRAND.dll to the test directory
+    - if ($BUILD_SHARED_LIBS -eq "ON") { & cmake -E copy "$ROCRAND_DIR/build/install/bin/rocRAND.dll" "$CI_PROJECT_DIR/build/test" *>&1 }
+  artifacts:
+    paths:
+      - $CI_PROJECT_DIR/build/
+      - $ROCRAND_DIR/build/install
+    expire_in: 2 weeks
+
+build:rocm-windows:
+  extends:
+    - .rocm-windows:build
+  variables:
+    BUILD_SHARED_LIBS: "ON"
+
+build:rocm-windows-static:
+  extends:
+    - .rocm-windows:build
+  variables:
+    BUILD_SHARED_LIBS: "OFF"
+
 .test:ctest:
   extends:
     - .rules:test
@@ -429,3 +496,48 @@ test:doc:
   extends:
     - .rules:test
     - .build:docs
+
+.rocm-windows:test:
+  extends:
+    - .gpus:rocm-windows
+    - .rules:test
+  stage: test
+  variables:
+    BUILD_TYPE: Release
+  script:
+    - \& ctest --test-dir "$CI_PROJECT_DIR/build" --output-on-failure --no-tests=error *>&1
+
+test:rocm-windows:
+  extends:
+    - .rocm-windows:test
+  needs:
+    - build:rocm-windows
+
+.rocm-windows:test-install:
+  extends:
+    - .deps:rocm-windows
+    - .deps:visual-studio-devshell
+    - .gpus:rocm-windows
+    - .rules:test
+  stage: test
+  variables:
+    BUILD_TYPE: Release
+  script:
+    - \& cmake --build "$CI_PROJECT_DIR/build" --target install *>&1
+    - \& cmake
+      -S "$CI_PROJECT_DIR/test/package"
+      -B "$CI_PROJECT_DIR/build/install_test"
+      -G Ninja
+      -D CMAKE_BUILD_TYPE=$BUILD_TYPE
+      -D CMAKE_CXX_COMPILER:FILEPATH="$ROCM_PATH/bin/clang++.exe"
+      -D CMAKE_PREFIX_PATH="$CI_PROJECT_DIR/build/install;$ROCRAND_DIR/build/install" *>&1
+    - \& cmake --build "$CI_PROJECT_DIR/build/install_test" *>&1
+    - \& cmake -E copy "$ROCRAND_DIR/build/install/bin/rocRAND.dll" "$CI_PROJECT_DIR/build/install_test" *>&1
+    - \& cmake -E copy "$CI_PROJECT_DIR/build/install/bin/hipRAND.dll" "$CI_PROJECT_DIR/build/install_test" *>&1
+    - \& ctest --test-dir "$CI_PROJECT_DIR/build/install_test" --output-on-failure --no-tests=error *>&1
+
+test:rocm-windows-install:
+  extends:
+    - .rocm-windows:test-install
+  needs:
+    - build:rocm-windows
