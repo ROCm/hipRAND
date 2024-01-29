@@ -1,6 +1,6 @@
 # MIT License
 #
-# Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
+# Copyright (c) 2023-2024 Advanced Micro Devices, Inc. All rights reserved.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -72,6 +72,10 @@ if (BUILD_WITH_LIB STREQUAL "CUDA")
 else()
     # Remove this check when we no longer build with older rocm stack(ie < 1.8.2)
     target_link_libraries(hiprand PRIVATE roc::rocrand hip::device)
+endif()
+
+if(NOT BUILD_SHARED_LIBS)
+    target_compile_definitions(hiprand PUBLIC HIPRAND_STATIC_BUILD)
 endif()
 
 rocm_set_soversion(hiprand ${hiprand_SOVERSION})
