@@ -85,3 +85,7 @@ CMakeLists.txt.user
 
 # Visual Studio / VSCode folders
 .vs*/**/*
+
+# documentation artifacts
+_build/
+.venv
