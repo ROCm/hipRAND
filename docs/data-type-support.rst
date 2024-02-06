@@ -1,6 +1,6 @@
 Data type support
 ******************************************
 
-hipRAND's data type support is matching the installed cuRAND data type support. The detailed description can be found at :doc:`rocRAND's data type support page.<rocrand:data-type-support>`
+hipRAND's data type support is matching cuRAND's data type support. On AMD hardware, the backend is provided by rocRAND. The detailed description, which includes a comparison to cuRAND's data type support, can be found at :doc:`rocRAND's data type support page.<rocrand:data-type-support>`
 
-The ROCm data type support summary can be found at :doc:`Supported data types in ROCm<rocm:about/compatibility/precission-support>`
+You can find the ROCm data type support summary at :doc:`Supported data types in ROCm<rocm:about/compatibility/precission-support>`
