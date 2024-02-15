@@ -50,7 +50,7 @@ endif()
 # hipRAND project
 #
 project(hipRAND CXX)
-set(hipRAND_VERSION "2.10.16")
+set(hipRAND_VERSION "2.10.17")
 
 # Build options
 option(BUILD_FORTRAN_WRAPPER "Build Fortran wrapper" OFF)
