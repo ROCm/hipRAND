@@ -36,7 +36,7 @@ You must have the following installed to use hipRAND:
 
 * CMake (3.16 or later)
 * For AMD GPUs:
-  * AMD ROCm platform (5.0.0 or later)
+  * AMD ROCm Software (5.0.0 or later)
   * rocRAND library
 * For NVIDIA GPUs:
   * CUDA Toolkit

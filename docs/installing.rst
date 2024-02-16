@@ -34,9 +34,9 @@ Requirements
 
 To build hipRAND, CMake version 3.10 or later is required.
 
-Additionally, to build hipRAND for the ROCm platform, the following software are required:
+Additionally, to build hipRAND for ROCm software, the following software are required:
 
-* AMD ROCm platform (version 5.0.0 or later).
+* AMD ROCm Software (version 5.0.0 or later).
 * `rocRAND <https://github.com/ROCmSoftwarePlatform/rocRAND.git>`_
 
 To build hipRAND for the CUDA platform instead, the following software is required:
@@ -54,7 +54,7 @@ The hipRAND sources are available from the `hipRAND GitHub Repository <https://g
 Building the Library
 ^^^^^^^^^^^^^^^^^^^^
 
-After obtaining the sources and dependencies, hipRAND can be built for the ROCm platform using the installation script::
+After obtaining the sources and dependencies, hipRAND can be built for ROCm software using the installation script::
 
     cd hipRAND
     ./install --install
@@ -76,7 +76,7 @@ For a more elaborate installation process, hipRAND can be built manually using C
     # Install
     [sudo] make install
 
-Where ``<compiler>>`` should be set to ``hipcc`` on a ROCm platform, or to a regular C++ compiler such as ``g++`` on a CUDA platform.
+Where ``<compiler>>`` should be set to ``hipcc`` on ROCm software, or to a regular C++ compiler such as ``g++`` on a CUDA platform.
 
 * ``BUILD_WITH_LIB`` controls whether to build hipRAND with the rocRAND or cuRAND backend. If set to ``CUDA``, hipRAND will be built using the cuRAND backend. Otherwise, the rocRAND backend will be used.
 * ``BUILD_FORTRAN_WRAPPER`` controls whether to build the Fortran wrapper. Defaults to ``OFF``.

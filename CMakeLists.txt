@@ -112,7 +112,7 @@ if( CMAKE_CXX_COMPILER MATCHES ".*/hipcc$" )
     string(REGEX MATCH ".mcode\-object\-version" TARGET_ID_SUPPORT ${CXX_OUTPUT})
 endif()
 
-# Verify that hipcc or HIP-aware clang is used on ROCM platform
+# Verify that hipcc or HIP-aware clang is used on ROCM software
 # TODO: Fix VerifyCompiler for Windows
 if (NOT WIN32)
   include(cmake/VerifyCompiler.cmake)
