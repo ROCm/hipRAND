@@ -113,6 +113,7 @@ else()
         NAME hiprand
         NAMESPACE hip::
         DEPENDS PACKAGE hip
+        STATIC_DEPENDS PACKAGE rocrand
         INCLUDE "${CMAKE_CURRENT_BINARY_DIR}/hiprand-fortran-config.cmake"
     )
 endif()
