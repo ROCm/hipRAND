@@ -8,7 +8,7 @@ def runCI =
 {
     nodeDetails, jobName->
     
-    def prj = new rocProject('hipRAND', 'PreCheckin')
+    def prj = new rocProject('hipRAND', 'static')
     prj.libraryDependencies = ['rocRAND']
 
     def nodes = new dockerNodes(nodeDetails, jobName, prj)
@@ -22,9 +22,8 @@ def runCI =
         platform, project->
 
         commonGroovy = load "${project.paths.project_src_prefix}/.jenkins/common.groovy"
-        commonGroovy.runCompileCommand(platform, project, jobName, false, true)
+        commonGroovy.runCompileCommand(platform, project, jobName, debug=false, staticLibrary=true, sameOrg=true)
     }
-
     
     def testCommand =
     {
