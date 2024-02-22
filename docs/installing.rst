@@ -10,7 +10,7 @@ This chapter describes how to obtain hipRAND. There are two main methods: the ea
 Prebuilt Packages
 -----------------
 
-Installing the prebuilt hipRAND packages requires a ROCm-enabled platform. See the `ROCm documentation <https://docs.amd.com/>`_ for more information. After installing ROCm or enabling the ROCm repositories, hipRAND can be obtained using the system package manager.
+Installing the prebuilt hipRAND packages requires a ROCm-enabled platform. See the `ROCm documentation <https://rocm.docs.amd.com/>`_ for more information. After installing ROCm or enabling the ROCm repositories, hipRAND can be obtained using the system package manager.
 
 For Ubuntu and Debian::
 
