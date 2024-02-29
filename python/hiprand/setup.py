@@ -20,7 +20,7 @@ setup(
     long_description=readme,
     author="Advanced Micro Devices, Inc.",
     # author_email="",
-    url="https://github.com/ROCmSoftwarePlatform/hipRAND",
+    url="https://github.com/ROCm/hipRAND",
     license="MIT",
     packages=["hiprand"],
     install_requires=REQUIRED_PACKAGES,
