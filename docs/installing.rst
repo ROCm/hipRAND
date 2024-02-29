@@ -10,7 +10,7 @@ This chapter describes how to obtain hipRAND. There are two main methods: the ea
 Prebuilt Packages
 -----------------
 
-Installing the prebuilt hipRAND packages requires a ROCm-enabled platform. See the `ROCm documentation <https://docs.amd.com/>`_ for more information. After installing ROCm or enabling the ROCm repositories, hipRAND can be obtained using the system package manager.
+Installing the prebuilt hipRAND packages requires a ROCm-enabled platform. See the `ROCm documentation <https://rocm.docs.amd.com/>`_ for more information. After installing ROCm or enabling the ROCm repositories, hipRAND can be obtained using the system package manager.
 
 For Ubuntu and Debian:
 
@@ -43,7 +43,7 @@ To build hipRAND, CMake version 3.10 or later is required.
 Additionally, to build hipRAND for ROCm software, the following software are required:
 
 * AMD ROCm Software (version 5.0.0 or later).
-* `rocRAND <https://github.com/ROCmSoftwarePlatform/rocRAND.git>`_
+* `rocRAND <https://github.com/ROCm/rocRAND.git>`_
 
 To build hipRAND for the CUDA platform instead, the following software is required:
 
@@ -53,11 +53,11 @@ To build hipRAND for the CUDA platform instead, the following software is requir
 Obtaining Sources
 ^^^^^^^^^^^^^^^^^
 
-The hipRAND sources are available from the `hipRAND GitHub Repository <https://github.com/ROCmSoftwarePlatform/hipRAND>`_. Use the branch that matches the system-installed version of ROCm. For example on a system that has ROCm 5.4 installed, use the following command to obtain hipRAND sources:
+The hipRAND sources are available from the `hipRAND GitHub Repository <https://github.com/ROCm/hipRAND>`_. Use the branch that matches the system-installed version of ROCm. For example on a system that has ROCm 5.4 installed, use the following command to obtain hipRAND sources:
 
 .. code-block:: shell
 
-    git checkout -b release/rocm-rel-5.4 https://github.com/ROCmSoftwarePlatform/hipRAND.git
+    git checkout -b release/rocm-rel-5.4 https://github.com/ROCm/hipRAND.git
 
 Building the Library
 ^^^^^^^^^^^^^^^^^^^^
