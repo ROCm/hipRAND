@@ -965,6 +965,14 @@ public:
         generator = NULL;
     }
 
+    philox4x32_10_engine(const philox4x32_10_engine&) = delete;
+
+    philox4x32_10_engine(philox4x32_10_engine&&) = delete;
+
+    philox4x32_10_engine& operator=(const philox4x32_10_engine&) = delete;
+
+    philox4x32_10_engine& operator=(philox4x32_10_engine&&) = delete;
+
     /// Destructs the engine.
     ///
     /// See also: hiprandDestroyGenerator()
@@ -1150,6 +1158,14 @@ public:
         generator = NULL;
     }
 
+    xorwow_engine(const xorwow_engine&) = delete;
+
+    xorwow_engine(xorwow_engine&&) = delete;
+
+    xorwow_engine& operator=(const xorwow_engine&) = delete;
+
+    xorwow_engine& operator=(xorwow_engine&&) = delete;
+
     /// \copydoc philox4x32_10_engine::~philox4x32_10_engine()
     ~xorwow_engine() noexcept(false)
     {
@@ -1291,6 +1307,14 @@ public:
         }
         generator = NULL;
     }
+
+    mrg32k3a_engine(const mrg32k3a_engine&) = delete;
+
+    mrg32k3a_engine(mrg32k3a_engine&&) = delete;
+
+    mrg32k3a_engine& operator=(const mrg32k3a_engine&) = delete;
+
+    mrg32k3a_engine& operator=(mrg32k3a_engine&&) = delete;
 
     /// \copydoc philox4x32_10_engine::~philox4x32_10_engine()
     ~mrg32k3a_engine() noexcept(false)
@@ -1434,6 +1458,14 @@ public:
         }
         generator = NULL;
     }
+
+    mtgp32_engine(const mtgp32_engine&) = delete;
+
+    mtgp32_engine(mtgp32_engine&&) = delete;
+
+    mtgp32_engine& operator=(const mtgp32_engine&) = delete;
+
+    mtgp32_engine& operator=(mtgp32_engine&&) = delete;
 
     /// \copydoc philox4x32_10_engine::~philox4x32_10_engine()
     ~mtgp32_engine() noexcept(false)
@@ -1723,6 +1755,14 @@ public:
         }
         generator = NULL;
     }
+
+    sobol32_engine(const sobol32_engine&) = delete;
+
+    sobol32_engine(sobol32_engine&&) = delete;
+
+    sobol32_engine& operator=(const sobol32_engine&) = delete;
+
+    sobol32_engine& operator=(sobol32_engine&&) = delete;
 
     /// \copydoc philox4x32_10_engine::~philox4x32_10_engine()
     ~sobol32_engine() noexcept(false)
