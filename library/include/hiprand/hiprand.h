@@ -132,6 +132,27 @@ typedef enum hiprandRngType {
     HIPRAND_RNG_QUASI_SCRAMBLED_SOBOL64 = 504  ///< Scrambled Sobol64 quasirandom generator
 } hiprandRngType_t;
 
+/**
+ * \brief hipRAND generator ordering
+ */
+typedef enum hiprandOrdering
+{
+    HIPRAND_ORDERING_PSEUDO_BEST = 100, ///< Best ordering for pseudorandom results
+    HIPRAND_ORDERING_PSEUDO_DEFAULT
+    = 101, ///< Specific default thread sequence for pseudorandom results, same as HIPRAND_ORDERING_PSEUDO_BEST
+    HIPRAND_ORDERING_PSEUDO_SEEDED
+    = 102, ///< Specific seeding pattern for fast lower quality pseudorandom results
+    HIPRAND_ORDERING_PSEUDO_LEGACY
+    = 103, ///< Specific legacy sequence for pseudorandom results. This remains the same across releases, but not across backends.
+    HIPRAND_ORDERING_PSEUDO_DYNAMIC
+    = 104, ///< Specific ordering adjusted to the device it is being executed on, provides the best performance
+    HIPRAND_ORDERING_QUASI_DEFAULT
+    = 201 ///< Specific n-dimensional ordering for quasirandom results
+} hiprandOrdering_t;
+
+/**
+ * \brief hipRAND vector set for quasirandom generators.
+ */
 typedef enum hiprandDirectionVectorSet
 {
     HIPRAND_DIRECTION_VECTORS_32_JOEKUO6           = 101,
@@ -650,6 +671,34 @@ hiprandSetPseudoRandomGeneratorSeed(hiprandGenerator_t generator, unsigned long 
  */
 hiprandStatus_t HIPRANDAPI
 hiprandSetGeneratorOffset(hiprandGenerator_t generator, unsigned long long offset);
+
+/**
+ * \brief Sets the ordering of a random number generator.
+ *
+ * Sets the ordering of the results of a random number generator.
+ *
+ * - This operation resets the generator's internal state.
+ * - This operation does not change the generator's seed.
+ *
+ * \param generator - Random number generator
+ * \param order - New ordering of results
+ *
+ * The ordering choices for pseudorandom sequences are
+ * HIPRAND_ORDERING_PSEUDO_DEFAULT and
+ * HIPRAND_ORDERING_PSEUDO_LEGACY.
+ * The default ordering is HIPRAND_ORDERING_PSEUDO_DEFAULT, which is equal to
+ * HIPRAND_ORDERING_PSEUDO_LEGACY for now.
+ *
+ * For quasirandom sequences there is only one ordering, HIPRAND_ORDERING_QUASI_DEFAULT.
+ *
+ * \return
+ * - HIPRAND_STATUS_NOT_INITIALIZED if the generator was not initialized \n
+ * - HIPRAND_STATUS_OUT_OF_RANGE if the ordering is not valid \n
+ * - HIPRAND_STATUS_SUCCESS if the ordering was successfully set \n
+ * - HIPRAND_STATUS_TYPE_ERROR if generator's type is not valid
+ */
+hiprandStatus_t HIPRANDAPI hiprandSetGeneratorOrdering(hiprandGenerator_t generator,
+                                                       hiprandOrdering_t  order);
 
 /**
  * \brief Set the number of dimensions of a quasi-random number generator.

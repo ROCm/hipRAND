@@ -3,12 +3,28 @@
 Documentation for hipRAND is available at
 [https://rocm.docs.amd.com/projects/hipRAND/en/latest/](https://rocm.docs.amd.com/projects/hipRAND/en/latest/).
 
-## (Unreleased) hipRAND-x.y.z for ROCm 6.0.0
+## hipRAND-2.11.0 for ROCm 6.2.0
+
+### Additions
+
+* Added support for setting generator output ordering in C and C++ API
+* `hiprandCreateGeneratorHost` dispatches to `rocrand_create_generator_host` when using the rocRAND backend
+  instead of returning with `HIPRAND_STATUS_NOT_IMPLEMENTED`
+* Added the option to create a host generator to the Fortran wrapper
+* Added the option to create a host generator to the Python wrapper
+
+### Changes
+
+* For internal testing with HMM the environment variable `ROCRAND_USE_HMM` was used in previous
+  versions, it is now changed to `HIPRAND_USE_HMM`.
+* The device API documentation is improved in this version.
 
 ### Removals
 
 * Removed the option to build hipRAND as a submodule to rocRAND
 * Removed references to, and workarounds for, the deprecated `hcc`
+* Support for finding rocRAND based on the environment variable `ROCRAND_DIR` has been removed
+  `ROCRAND_PATH` can be used instead.
 
 ### Fixes
 

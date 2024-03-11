@@ -1,4 +1,4 @@
-// Copyright (c) 2017-2022 Advanced Micro Devices, Inc. All rights reserved.
+// Copyright (c) 2017-2023 Advanced Micro Devices, Inc. All rights reserved.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -25,6 +25,13 @@
 #include <hiprand/hiprand.hpp>
 
 #include "test_common.hpp"
+
+constexpr hiprandOrdering_t hiprand_ordering_types[] = {HIPRAND_ORDERING_PSEUDO_BEST,
+                                                        HIPRAND_ORDERING_PSEUDO_DEFAULT,
+                                                        HIPRAND_ORDERING_PSEUDO_SEEDED,
+                                                        HIPRAND_ORDERING_PSEUDO_LEGACY,
+                                                        HIPRAND_ORDERING_PSEUDO_DYNAMIC,
+                                                        HIPRAND_ORDERING_QUASI_DEFAULT};
 
 template<typename test_type>
 struct hiprand_cpp_wrapper : public ::testing::Test
@@ -61,6 +68,9 @@ struct hiprand_cpp_wrapper_offset : public ::testing::Test
 {
     typedef test_type engine_type;
 };
+
+class hiprand_ordering : public ::testing::TestWithParam<hiprandOrdering_t>
+{};
 
 typedef ::testing::Types<hiprand_cpp::mrg32k3a,
                          hiprand_cpp::mt19937,
@@ -632,3 +642,40 @@ TEST(hiprand_cpp_wrapper, hiprand_poisson_dist_param)
     d3.param(d1.param());
     ASSERT_TRUE(d1.param() == d3.param());
 }
+
+template<typename Engine>
+void hiprand_ordering_test_template(hiprandOrdering_t ordering)
+{
+    Engine engine;
+    engine.order(ordering);
+}
+
+TEST_P(hiprand_ordering, hiprand_ordering_test)
+{
+    const hiprandOrdering_t ordering = GetParam();
+    if(ordering == HIPRAND_ORDERING_QUASI_DEFAULT)
+    {
+        ASSERT_NO_THROW(hiprand_ordering_test_template<hiprand_cpp::sobol32>(ordering));
+    }
+    else
+    {
+        ASSERT_NO_THROW(hiprand_ordering_test_template<hiprand_cpp::xorwow>(ordering));
+    }
+}
+
+TEST_P(hiprand_ordering, hiprand_invalid_ordering_test)
+{
+    const hiprandOrdering_t ordering = GetParam();
+    if(ordering == HIPRAND_ORDERING_QUASI_DEFAULT)
+    {
+        ASSERT_THROW(hiprand_ordering_test_template<hiprand_cpp::xorwow>(ordering),
+                     hiprand_cpp::error);
+    }
+    else
+    {
+        ASSERT_THROW(hiprand_ordering_test_template<hiprand_cpp::sobol32>(ordering),
+                     hiprand_cpp::error);
+    }
+}
+
+INSTANTIATE_TEST_SUITE_P(hiprand, hiprand_ordering, ::testing::ValuesIn(hiprand_ordering_types));

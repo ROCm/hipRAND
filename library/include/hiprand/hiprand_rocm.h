@@ -27,7 +27,15 @@ typedef struct rocrand_generator_base_type hiprandGenerator_st;
 
 typedef struct rocrand_discrete_distribution_st hiprandDiscreteDistribution_st;
 
+/// \addtogroup hipranddevice
+/// @{
+
+/// \brief Convenience typedef for Sobol 32 direction vector array
 typedef unsigned int       hiprandDirectionVectors32_t[32];
+
+/// \brief Convenience typedef for Sobol 64 direction vector array
 typedef unsigned long long hiprandDirectionVectors64_t[64];
+
+/// @} // end of group hipranddevice
 
 #endif // HIPRAND_ROCM_H_

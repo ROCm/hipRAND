@@ -1,6 +1,6 @@
 # MIT License
 #
-# Copyright (c) 2017-2023 Advanced Micro Devices, Inc. All rights reserved.
+# Copyright (c) 2017-2024 Advanced Micro Devices, Inc. All rights reserved.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -48,7 +48,7 @@ clang-format:
   stage: lint
   needs: []
   tags:
-    - rocm-build
+    - build
   variables:
     CLANG_FORMAT: "/opt/rocm/llvm/bin/clang-format"
     GIT_CLANG_FORMAT: "/opt/rocm/llvm/bin/git-clang-format"
@@ -65,7 +65,7 @@ copyright-date:
   stage: lint
   needs: []
   tags:
-    - rocm-build
+    - build
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
   script:
@@ -128,7 +128,7 @@ copyright-date:
 
 deps:rocrand:
   tags:
-    - rocm-build
+    - build
   needs: []
   extends:
     - .rocm:cmake-minimum
@@ -138,7 +138,7 @@ deps:rocrand:
 
 deps:rocrand-static:
   tags:
-    - rocm-build
+    - build
   needs: []
   extends:
     - .rocm:cmake-minimum
@@ -152,6 +152,8 @@ deps:rocrand-static:
     - .gpus:rocm-gpus
     - .rules:build
   script:
+    - $SUDO_CMD apt-get update -qq
+    - $SUDO_CMD apt-get install -y flang
     - cmake
       -S ${CI_PROJECT_DIR}
       -B ${CI_PROJECT_DIR}/build
@@ -159,9 +161,10 @@ deps:rocrand-static:
       -D CMAKE_CXX_COMPILER=${COMPILER}
       -D BUILD_TEST=ON
       -D BUILD_BENCHMARK=ON
-      -D BUILD_FORTRAN_WRAPPER=OFF
+      -D BUILD_FORTRAN_WRAPPER=ON
       -D DEPENDENCIES_FORCE_DOWNLOAD=ON
       -D BUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
+      -D DISABLE_WERROR=OFF
     - cmake --build ${CI_PROJECT_DIR}/build
     - cmake --build ${CI_PROJECT_DIR}/build --target package
 
@@ -172,6 +175,8 @@ deps:rocrand-static:
     - .rules:build
   needs: []
   script:
+    - $SUDO_CMD apt-get update -qq
+    - $SUDO_CMD apt-get install -y flang
     - cmake
       -S ${CI_PROJECT_DIR}
       -B ${CI_PROJECT_DIR}/build
@@ -179,7 +184,7 @@ deps:rocrand-static:
       -D CMAKE_CXX_COMPILER=${COMPILER}
       -D BUILD_TEST=ON
       -D BUILD_BENCHMARK=ON
-      -D BUILD_FORTRAN_WRAPPER=OFF
+      -D BUILD_FORTRAN_WRAPPER=ON
       -D DEPENDENCIES_FORCE_DOWNLOAD=ON
       -D NVGPU_TARGETS=${GPU_TARGETS}
       -D BUILD_WITH_LIB=CUDA
@@ -191,10 +196,8 @@ deps:rocrand-static:
     paths:
       - ${CI_PROJECT_DIR}/build/library/
       - ${CI_PROJECT_DIR}/build/test/test_*
-      - ${CI_PROJECT_DIR}/build/test/CTestTestfile.cmake
-      - ${CI_PROJECT_DIR}/build/test/linkage/CTestTestfile.cmake
+      - ${CI_PROJECT_DIR}/build/**/CTestTestfile.cmake
       - ${CI_PROJECT_DIR}/build/CMakeCache.txt
-      - ${CI_PROJECT_DIR}/build/CTestTestfile.cmake
       - ${CI_PROJECT_DIR}/build/*.deb
       - ${CI_PROJECT_DIR}/build/*.zip
       - ${ROCRAND_DIR}/build/rocrand*.deb
@@ -206,7 +209,7 @@ deps:rocrand-static:
 
 build:rocm-cmake-minimum:
   tags:
-    - rocm-build
+    - build
   needs:
     - deps:rocrand
   extends:
@@ -222,7 +225,7 @@ build:rocm-cmake-minimum:
 
 build:rocm-static-cmake-minimum:
   tags:
-    - rocm-build
+    - build
   needs:
     - deps:rocrand-static
   extends:
@@ -238,7 +241,7 @@ build:rocm-static-cmake-minimum:
 
 build:nvcc-cmake-minimum:
   tags:
-    - nvcc-build
+    - build
   needs: []
   extends:
     - .nvcc:cmake-minimum
@@ -250,6 +253,8 @@ build:nvcc-cmake-minimum:
     - .rules:test
   stage: test
   script:
+    - $SUDO_CMD apt-get update -qq
+    - $SUDO_CMD apt-get install -y flang
     - cd ${CI_PROJECT_DIR}/build
     # Parallel execution (with other AMDGPU processes) can oversubscribe the SDMA queue.
     # This causes the hipMemcpy to fail, which is not reported as an error by HIP.
@@ -264,6 +269,9 @@ test:rocm:
     - .test:ctest
     - .gpus:rocm
     - .rocm:rocrand-install
+  before_script:
+    - !reference [".rocm:cmake-minimum", before_script]
+    - !reference [".rocm:rocrand-install", before_script]
 
 test:nvcc:
   needs:
@@ -304,6 +312,7 @@ test:rocm-python:
   needs:
     - build:rocm-cmake-minimum
   before_script:
+    - !reference [".deps:rocm", before_script]
     - !reference [".rocm:rocrand-install", before_script]
     - !reference [".test:python", before_script]
 
@@ -315,6 +324,9 @@ test:nvcc-python:
     - .test:python
   needs:
     - build:nvcc-cmake-minimum
+  before_script:
+    - !reference [".deps:nvcc", before_script]
+    - !reference [".test:python", before_script]
 
 .test:package:
   stage: test
@@ -412,6 +424,8 @@ test:nvcc-install:
 
 test:doc:
   stage: test
+  variables:
+    SPHINX_DIR: $DOCS_DIR/sphinx
   extends:
     - .rules:test
     - .build:docs

@@ -86,6 +86,20 @@ rocrand_direction_vector_set to_rocrand_direction_vector_set_type(hiprandDirecti
     throw HIPRAND_STATUS_TYPE_ERROR;
 }
 
+rocrand_ordering to_rocrand_ordering(hiprandOrdering_t ordering)
+{
+    switch(ordering)
+    {
+        case HIPRAND_ORDERING_PSEUDO_BEST: return ROCRAND_ORDERING_PSEUDO_BEST;
+        case HIPRAND_ORDERING_PSEUDO_DEFAULT: return ROCRAND_ORDERING_PSEUDO_DEFAULT;
+        case HIPRAND_ORDERING_PSEUDO_SEEDED: return ROCRAND_ORDERING_PSEUDO_SEEDED;
+        case HIPRAND_ORDERING_PSEUDO_LEGACY: return ROCRAND_ORDERING_PSEUDO_LEGACY;
+        case HIPRAND_ORDERING_PSEUDO_DYNAMIC: return ROCRAND_ORDERING_PSEUDO_DYNAMIC;
+        case HIPRAND_ORDERING_QUASI_DEFAULT: return ROCRAND_ORDERING_QUASI_DEFAULT;
+    }
+    throw HIPRAND_STATUS_TYPE_ERROR;
+}
+
 hiprandStatus_t HIPRANDAPI hiprandCreateGenerator(hiprandGenerator_t* generator,
                                                   hiprandRngType_t    rng_type)
 {
@@ -103,9 +117,15 @@ hiprandStatus_t HIPRANDAPI hiprandCreateGenerator(hiprandGenerator_t* generator,
 hiprandStatus_t HIPRANDAPI hiprandCreateGeneratorHost(hiprandGenerator_t* generator,
                                                       hiprandRngType_t    rng_type)
 {
-    (void)generator;
-    (void)rng_type;
-    return HIPRAND_STATUS_NOT_IMPLEMENTED;
+    try
+    {
+        return to_hiprand_status(rocrand_create_generator_host((rocrand_generator*)generator,
+                                                               to_rocrand_rng_type(rng_type)));
+    }
+    catch(const hiprandStatus_t& error)
+    {
+        return error;
+    }
 }
 
 hiprandStatus_t HIPRANDAPI hiprandDestroyGenerator(hiprandGenerator_t generator)
@@ -241,6 +261,20 @@ hiprandStatus_t HIPRANDAPI hiprandSetGeneratorOffset(hiprandGenerator_t generato
                                                      unsigned long long offset)
 {
     return to_hiprand_status(rocrand_set_offset((rocrand_generator)(generator), offset));
+}
+
+hiprandStatus_t HIPRANDAPI hiprandSetGeneratorOrdering(hiprandGenerator_t generator,
+                                                       hiprandOrdering_t  order)
+{
+    try
+    {
+        return to_hiprand_status(
+            rocrand_set_ordering((rocrand_generator)(generator), to_rocrand_ordering(order)));
+    }
+    catch(const hiprandStatus_t& error)
+    {
+        return error;
+    }
 }
 
 hiprandStatus_t HIPRANDAPI hiprandSetQuasiRandomGeneratorDimensions(hiprandGenerator_t generator,

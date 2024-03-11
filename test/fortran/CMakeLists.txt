@@ -15,7 +15,16 @@ target_include_directories(${test_hiprand}
     PRIVATE
         "$<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/library/fortran>"
 )
-target_link_libraries(${test_hiprand} hiprand_fortran)
+target_link_libraries(${test_hiprand} PRIVATE hiprand_fortran hip::host)
+if(HIP_COMPILER STREQUAL "nvcc")
+    if(CMAKE_VERSION VERSION_LESS 3.17)
+        find_package(CUDA REQUIRED)
+    else()
+        find_package(CUDAToolkit)
+        set(CUDA_LIBRARIES CUDA::cudart)
+    endif()
+    target_link_libraries(${test_hiprand} PRIVATE ${CUDA_LIBRARIES})
+endif()
 set_target_properties(${test_hiprand}
     PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/test"
