@@ -1,4 +1,4 @@
-!! Copyright (c) 2017-2022 Advanced Micro Devices, Inc. All rights reserved.
+!! Copyright (c) 2017-2023 Advanced Micro Devices, Inc. All rights reserved.
 !!
 !! Permission is hereby granted, free of charge, to any person obtaining a copy
 !! of this software and associated documentation files (the "Software"), to deal
@@ -63,6 +63,18 @@ contains
         call assert_equals(hipSuccess, hipFree(d_x))
         call assert_equals(HIPRAND_STATUS_SUCCESS, hiprandDestroyGenerator(gen))
     end subroutine test_hiprandGenerate
+
+    !> Test hiprandGenerate with host generator.
+    subroutine test_hiprandGenerate_host()
+        integer(kind =8) :: gen
+        integer(kind =4), target, dimension(128) :: h_x
+        integer(c_size_t), parameter :: output_size = 128
+        call assert_equals(HIPRAND_STATUS_SUCCESS, hiprandCreateGeneratorHost(gen, &
+        HIPRAND_RNG_PSEUDO_PHILOX4_32_10))
+        call assert_equals(HIPRAND_STATUS_SUCCESS, hiprandGenerate(gen, c_loc(h_x), output_size))
+        call assert_equals(hipSuccess, hipDeviceSynchronize())
+        call assert_equals(HIPRAND_STATUS_SUCCESS, hiprandDestroyGenerator(gen))
+    end subroutine test_hiprandGenerate_host
 
     !> Test hiprandGenerateLongLong.
     subroutine test_hiprandGenerateLongLong()
@@ -234,6 +246,9 @@ contains
         setup,teardown,suite_name)
 
     call run_fruit_test_case(test_hiprandGenerate,'test_hiprandGenerate',&
+        setup,teardown,suite_name)
+
+    call run_fruit_test_case(test_hiprandGenerate_host,'test_hiprandGenerate_host',&
         setup,teardown,suite_name)
 
     call run_fruit_test_case(test_hiprandGenerateLongLong,'test_hiprandGenerateLongLong',&
