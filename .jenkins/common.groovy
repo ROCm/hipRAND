@@ -26,7 +26,7 @@ def runCompileCommand(platform, project, jobName, boolean debug=false, boolean s
     String useCUDA = ''
     if (platform.jenkinsLabel.contains('cuda'))
     {
-        compiler = '-DCMAKE_CXX_COMPILER=g++'
+        toolchainOrCompiler = '-DCMAKE_CXX_COMPILER=g++'
         useCUDA = '-DBUILD_WITH_LIB=CUDA'
         amdgpuTargets = ''
     }
@@ -39,7 +39,7 @@ def runCompileCommand(platform, project, jobName, boolean debug=false, boolean s
                 # gfxTargetParser reads gfxarch and adds target features such as xnack
                 ${auxiliary.gfxTargetParser()}
                 echo "ROCM_PATH = \${ROCM_PATH}"
-                ${cmake} --toolchain=toolchain-linux.cmake ${useCUDA} ${buildTypeArg} ${buildStatic} ${amdgpuTargets} -DBUILD_TEST=ON -DBUILD_BENCHMARK=ON ../..
+                ${cmake} ${toolchainOrCompiler} ${useCUDA} ${buildTypeArg} ${buildStatic} ${amdgpuTargets} -DBUILD_TEST=ON -DBUILD_BENCHMARK=ON ../..
                 make -j\$(nproc)
                 """
 
