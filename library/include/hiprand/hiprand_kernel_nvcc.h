@@ -465,7 +465,7 @@ double4 hiprand_log_normal4_double(hiprandStatePhilox4_32_10_t * state,
 
 template<class StateType>
 QUALIFIERS
-uint hiprand_poisson(StateType * state, double lambda)
+unsigned int hiprand_poisson(StateType * state, double lambda)
 {
     check_state_type<StateType>();
     return curand_poisson(state, lambda);
@@ -479,7 +479,7 @@ uint4 hiprand_poisson4(hiprandStatePhilox4_32_10_t * state, double lambda)
 
 template<class StateType>
 QUALIFIERS
-uint hiprand_discrete(StateType * state, hiprandDiscreteDistribution_t discrete_distribution)
+unsigned int hiprand_discrete(StateType * state, hiprandDiscreteDistribution_t discrete_distribution)
 {
     check_state_type<StateType>();
     return curand_discrete(state, discrete_distribution);
