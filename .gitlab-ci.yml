@@ -166,6 +166,7 @@ deps:rocrand-static:
       -D DEPENDENCIES_FORCE_DOWNLOAD=ON
       -D BUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
       -D DISABLE_WERROR=OFF
+      -D GPU_TARGETS=${GPU_TARGETS}
     - cmake --build ${CI_PROJECT_DIR}/build
     - cmake --build ${CI_PROJECT_DIR}/build --target package
 
