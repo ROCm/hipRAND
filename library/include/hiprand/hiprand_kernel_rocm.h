@@ -673,7 +673,7 @@ QUALIFIERS double4 hiprand_log_normal4_double(hiprandStatePhilox4_32_10_t* state
 /// \param lambda - Lambda (mean) parameter of Poisson distribution
 /// \return Poisson-distributed random <tt>unsigned int</tt> value
 template<class StateType>
-QUALIFIERS uint hiprand_poisson(StateType* state, double lambda)
+QUALIFIERS unsigned int hiprand_poisson(StateType* state, double lambda)
 {
     check_state_type<StateType>();
     return rocrand_poisson(state, lambda);
@@ -700,7 +700,7 @@ QUALIFIERS uint4 hiprand_poisson4(hiprandStatePhilox4_32_10_t* state, double lam
 ///
 /// See also: hiprandCreatePoissonDistribution()
 template<class StateType>
-QUALIFIERS uint hiprand_discrete(StateType*                    state,
+QUALIFIERS unsigned int hiprand_discrete(StateType*                    state,
                                  hiprandDiscreteDistribution_t discrete_distribution)
 {
     check_state_type<StateType>();
