@@ -1,4 +1,4 @@
-// Copyright (c) 2017-2023 Advanced Micro Devices, Inc. All rights reserved.
+// Copyright (c) 2017-2024 Advanced Micro Devices, Inc. All rights reserved.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -119,8 +119,10 @@ hiprandStatus_t HIPRANDAPI hiprandCreateGeneratorHost(hiprandGenerator_t* genera
 {
     try
     {
-        return to_hiprand_status(rocrand_create_generator_host((rocrand_generator*)generator,
-                                                               to_rocrand_rng_type(rng_type)));
+        // cuRAND's host generator does not enqueue the generation on the stream
+        return to_hiprand_status(
+            rocrand_create_generator_host_blocking((rocrand_generator*)generator,
+                                                   to_rocrand_rng_type(rng_type)));
     }
     catch(const hiprandStatus_t& error)
     {
