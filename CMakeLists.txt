@@ -150,8 +150,9 @@ endif()
 
 if(BUILD_CODE_COVERAGE)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fprofile-instr-generate -fcoverage-mapping")
-  add_compile_options(-fprofile-arcs -ftest-coverage)
-  add_link_options(--coverage -lgcov)
+  add_compile_options(-fprofile-arcs -ftest-coverage --coverage)
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} --coverage")
+  add_link_options(-lgcov)
 endif()
 
 # Set version variables
