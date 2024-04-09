@@ -17,6 +17,7 @@ Documentation for hipRAND is available at
 * For internal testing with HMM the environment variable `ROCRAND_USE_HMM` was used in previous
   versions, it is now changed to `HIPRAND_USE_HMM`.
 * The device API documentation is improved in this version.
+* Static library: moved all internal symbols to namespaces to avoid potential symbol name collisions when linking.
 
 ### Removals
 
