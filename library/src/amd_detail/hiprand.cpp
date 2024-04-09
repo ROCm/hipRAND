@@ -24,9 +24,8 @@
 
 #include <hiprand/hiprand.h>
 
-#if defined(__cplusplus)
-extern "C" {
-#endif /* __cplusplus */
+namespace
+{
 
 hiprandStatus_t to_hiprand_status(rocrand_status status)
 {
@@ -99,6 +98,8 @@ rocrand_ordering to_rocrand_ordering(hiprandOrdering_t ordering)
     }
     throw HIPRAND_STATUS_TYPE_ERROR;
 }
+
+} // namespace
 
 hiprandStatus_t HIPRANDAPI hiprandCreateGenerator(hiprandGenerator_t* generator,
                                                   hiprandRngType_t    rng_type)
@@ -344,7 +345,3 @@ hiprandStatus_t HIPRANDAPI hiprandGetScrambleConstants64(const unsigned long lon
 {
     return to_hiprand_status(rocrand_get_scramble_constants64(constants));
 }
-
-#if defined(__cplusplus)
-}
-#endif /* __cplusplus */
