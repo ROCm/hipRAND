@@ -62,14 +62,14 @@ The hipRAND sources are available from the `hipRAND GitHub Repository <https://g
 Building the Library
 ^^^^^^^^^^^^^^^^^^^^
 
-After obtaining the sources and dependencies, hipRAND can be built for ROCm software using the installation script::
+After obtaining the sources and dependencies, hipRAND can be built for ROCm software using the installation script:
 
 .. code-block:: shell
 
     cd hipRAND
     ./install --install
 
-This automatically builds all required dependencies, excluding HIP and Git, and installs the project to ``/opt/rocm`` if everything went well. See ``./install --help`` for further information.
+This automatically builds all required dependencies, excluding Git and the requirements listed above, and installs the project to ``/opt/rocm`` if everything went well. See ``./install --help`` for further information. The clients, enabled by option ``--clients``, consist of the hipRAND tests and add the additional dependency of `googletest <https://github.com/google/googletest>`_.
 
 Building with CMake
 ^^^^^^^^^^^^^^^^^^^
@@ -88,7 +88,7 @@ For a more elaborate installation process, hipRAND can be built manually using C
     # Install
     [sudo] make install
 
-Where ``<compiler>>`` should be set to ``hipcc`` or ``amdclang`` on ROCm software, or to a regular C++ compiler such as ``g++`` on a CUDA platform.
+Where ``<compiler>`` should be set to ``hipcc`` or ``amdclang`` on ROCm software, or to a regular C++ compiler such as ``g++`` on a CUDA platform. The default build configuration is ``Release``.
 
 * ``BUILD_WITH_LIB`` controls whether to build hipRAND with the rocRAND or cuRAND backend. If set to ``CUDA``, hipRAND will be built using the cuRAND backend. Otherwise, the rocRAND backend will be used.
 * ``BUILD_FORTRAN_WRAPPER`` controls whether to build the Fortran wrapper. Defaults to ``OFF``.
@@ -96,11 +96,36 @@ Where ``<compiler>>`` should be set to ``hipcc`` or ``amdclang`` on ROCm softwar
 * ``BUILD_BENCHMARK`` controls whether to build the hipRAND benchmarks. Defaults to ``OFF``.
 * ``BUILD_ADDRESS_SANITIZER`` controls whether to build with address sanitization enabled. Defaults to ``OFF``.
 * ``ROCRAND_PATH`` specifies a rocRAND install other than the default system installed one.
-* ``DOWNLOAD_ROCRAND`` specifies that rocRAND will be downloaded and installed in the build directory.
+* ``DOWNLOAD_ROCRAND`` specifies that rocRAND will be downloaded and installed in the build directory. Defaults to ``OFF``.
+* ``DEPENDENCIES_FORCE_DOWNLOAD`` specifices that system-installed dependencies will not be used, they will always be downloaded and built. Defaults to ``OFF``.
 
 If using ``ROCRAND_PATH`` or ``DOWNLOAD_ROCRAND`` and rocRAND is also installed on the system in the default location then ``CMAKE_NO_SYSTEM_FROM_IMPORTED=ON`` should be passed
 when configuring the project.
 Otherwise the headers of rocRAND might be resolved to the system installed version instead of the specified version, leading to errors or missing functionality.
+
+Common build problems
+"""""""""""""""""""""
+
+* CMake error
+  
+  .. code-block:: shell
+
+      Could not find a package configuration file provided by "rocrand" with any of the following names:
+
+      rocrandConfig.cmake
+      rocrand-config.cmake
+
+  Solution: install `rocRAND <https://github.com/ROCm/rocRAND.git>`_.
+* CMake error
+
+  .. code-block:: shell
+
+      Could not find a package configuration file provided by "ROCM" with any of the following names:
+
+      ROCMConfig.cmake
+      rocm-config.cmake
+
+  Solution: install `ROCm CMake modules <https://github.com/RadeonOpenCompute/rocm-cmake>`_.
 
 Building the Python API Wrapper
 -------------------------------

@@ -1,4 +1,4 @@
-// Copyright (c) 2017-2023 Advanced Micro Devices, Inc. All rights reserved.
+// Copyright (c) 2017-2024 Advanced Micro Devices, Inc. All rights reserved.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -31,14 +31,26 @@
 
 /// \cond HIPRAND_DOCS_MACRO
 #ifndef HIPRANDAPI
-    #ifdef _WIN32
-        #ifdef hiprand_EXPORTS
+    #if defined(_WIN32) && !defined(HIPRAND_STATIC_BUILD)
+        #ifdef __clang__
+            // Not all versions of clang recognizes __declspec(dllimport) and __declspec(dllexport)
+            #define HIPRAND_DETAIL_HAS_DECLSPEC_ATTRIBUTE(attr) __has_declspec_attribute(attr)
+        #else
+            // We assume that the non-clang compilers on Windows do recognize
+            #define HIPRAND_DETAIL_HAS_DECLSPEC_ATTRIBUTE(attr) 1
+        #endif
+
+        #if defined(hiprand_EXPORTS) && HIPRAND_DETAIL_HAS_DECLSPEC_ATTRIBUTE(dllexport)
             /* We are building this library */
             #define HIPRANDAPI __declspec(dllexport)
-        #else
+        #elif HIPRAND_DETAIL_HAS_DECLSPEC_ATTRIBUTE(dllimport)
             /* We are using this library */
             #define HIPRANDAPI __declspec(dllimport)
+        #else
+            #define HIPRANDAPI
         #endif
+
+        #undef HIPRAND_DETAIL_HAS_DECLSPEC_ATTRIBUTE
     #else
         #define HIPRANDAPI
     #endif
