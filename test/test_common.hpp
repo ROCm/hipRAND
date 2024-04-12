@@ -1,4 +1,4 @@
-// Copyright (c) 2019-2023 Advanced Micro Devices, Inc. All rights reserved.
+// Copyright (c) 2019-2024 Advanced Micro Devices, Inc. All rights reserved.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,7 +24,6 @@
 #include <hip/hip_runtime.h>
 
 #include <cstdlib>
-#include <iostream>
 
 #define HIP_CHECK(state) ASSERT_EQ(state, hipSuccess)
 
@@ -37,18 +36,19 @@
     } \
 }
 
-bool supports_hmm()
+#ifdef _MSC_VER
+inline bool use_hmm()
 {
-    hipDeviceProp_t device_prop;
-    int device_id;
-    HIP_CHECK_NON_VOID(hipGetDevice(&device_id));
-    HIP_CHECK_NON_VOID(hipGetDeviceProperties(&device_prop, device_id));
-    if (device_prop.managedMemory == 1) return true;
-
-    return false;
+    char   buffer[2]{};
+    size_t size;
+    if(getenv_s(&size, buffer, "HIPRAND_USE_HMM") != 0)
+    {
+        return false;
+    }
+    return strcmp(buffer, "1") == 0;
 }
-
-bool use_hmm()
+#else
+inline bool use_hmm()
 {
     if(getenv("HIPRAND_USE_HMM") == nullptr)
     {
@@ -61,6 +61,7 @@ bool use_hmm()
     }
     return false;
 }
+#endif
 
 // Helper for HMM allocations: if HMM is requested through
 // setting environment variable HIPRAND_USE_HMM=1

@@ -1,6 +1,6 @@
 # MIT License
 #
-# Copyright (c) 2022-2023 Advanced Micro Devices, Inc. All rights reserved.
+# Copyright (c) 2022-2024 Advanced Micro Devices, Inc. All rights reserved.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -45,14 +45,6 @@ if (BUILD_WITH_LIB STREQUAL "CUDA")
 else()
   find_package(hip REQUIRED CONFIG PATHS ${ROCM_PATH})
 endif()
-
-# Get HIP options
-execute_process(
-    COMMAND ${HIP_HIPCONFIG_EXECUTABLE} --cpp_config
-    OUTPUT_VARIABLE HIP_CPP_CONFIG
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-    ERROR_STRIP_TRAILING_WHITESPACE
-)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -114,8 +106,11 @@ foreach(test_src ${hiprand_pkg_TEST_SRCS})
         target_link_libraries(${test_name}
             PRIVATE
                 hip::hiprand
-                "-L${HIP_ROOT_DIR}/lib -Wl,-rpath,${HIP_ROOT_DIR}/lib"
+                hip::host
         )
+        if(WIN32)
+            target_compile_options(${test_name} PRIVATE "-xhip")
+        endif()
     else()
         target_link_libraries(${test_name}
             PRIVATE
@@ -123,6 +118,15 @@ foreach(test_src ${hiprand_pkg_TEST_SRCS})
                 ${CUDA_curand_LIBRARY}
                 ${CUDA_LIBRARIES}
         )
+        # Get HIP options
+        execute_process(
+            COMMAND ${HIP_HIPCONFIG_EXECUTABLE} --cpp_config
+            OUTPUT_VARIABLE HIP_CPP_CONFIG
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+            ERROR_STRIP_TRAILING_WHITESPACE
+        )
+        separate_arguments(HIP_CPP_CONFIG UNIX_COMMAND "${HIP_CPP_CONFIG}")
+        target_compile_options(${test_name} PRIVATE ${HIP_CPP_CONFIG})
     endif()
     set_target_properties(${TEST_TARGET}
         PROPERTIES
