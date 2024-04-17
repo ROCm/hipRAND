@@ -20,7 +20,7 @@ To build our documentation, use the following commands:
 cd hipRAND; cd docs
 
 # Install Python dependencies
-python3 -m pip install -r .sphinx/requirements.txt
+python3 -m pip install -r sphinx/requirements.txt
 
 # Build the documentation
 python3 -m sphinx -T -E -b html -d _build/doctrees -D language=en . _build/html
@@ -36,7 +36,7 @@ You must have the following installed to use hipRAND:
 
 * CMake (3.16 or later)
 * For AMD GPUs:
-  * AMD ROCm platform (5.0.0 or later)
+  * AMD ROCm Software (5.0.0 or later)
   * rocRAND library
 * For NVIDIA GPUs:
   * CUDA Toolkit

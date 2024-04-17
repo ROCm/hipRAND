@@ -21,7 +21,7 @@
 # SOFTWARE.
 
 # Find HIP package and verify that correct C++ compiler was selected for available
-# platform. On ROCm platform host and device code is compiled by the same compiler.
+# platform. On ROCm software host and device code is compiled by the same compiler.
 # On CUDA host can be compiled by any C++ compiler while device code is compiled
 # by nvcc compiler (CMake's CUDA package handles this).
 

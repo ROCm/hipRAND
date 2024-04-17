@@ -138,7 +138,7 @@ fi
 #   BUILD_BENCHMARK - off by default.
 #
 # ! IMPORTANT !
-# On ROCm platform set C++ compiler to HIPCC. You can do it by adding 'CXX=<path-to-hipcc>'
+# On ROCm software set C++ compiler to HIPCC. You can do it by adding 'CXX=<path-to-hipcc>'
 # before 'cmake' or setting cmake option 'CMAKE_CXX_COMPILER' to path to the HIPCC compiler.
 #
 
