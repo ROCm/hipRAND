@@ -26,7 +26,7 @@ Our documentation is structured as follows:
   .. grid-item-card:: API reference
 
     * :ref:`data-type`
-    * :ref:`c-api`
+    * :ref:`cpp-api`
     * :ref:`python-api`
      
 To contribute to the documentation, refer to
