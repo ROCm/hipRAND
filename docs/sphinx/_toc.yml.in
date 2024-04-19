@@ -3,8 +3,10 @@
 root: index
 subtrees:
 - caption: Install
+  entries:
   - file: installing
 - caption: API reference
+  entries:
   - file: data-type-support
   - file: cpp-api
   - file: python-api
