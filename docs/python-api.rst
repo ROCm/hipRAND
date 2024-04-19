@@ -1,11 +1,10 @@
 ====================
-Python API Reference
+Python API reference
 ====================
 
-This chapter describes the hipRAND Python module API.
+This document describes the hipRAND APIs in Python.
 
-This wrapper has API similar to **pyculib.rand**
-(http://pyculib.readthedocs.io/en/latest/curand.html).
+The APIs in this wrapper are similar to `pyculib.rand <http://pyculib.readthedocs.io/en/latest/curand.html>`_.
 
 .. default-domain:: py
 .. py:currentmodule:: hiprand

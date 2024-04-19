@@ -1,8 +1,8 @@
 ===================
-C/C++ API Reference
+C/C++ API reference
 ===================
 
-This chapter describes the hipRAND C and C++ API.
+This document describes the hipRAND APIs available in C and C++.
 
 Device Functions
 ================
