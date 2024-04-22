@@ -14,7 +14,7 @@ hipRAND provides C, C++, and Python API wrappers.
 
 You can access hipRAND code on our `GitHub repository <https://github.com/ROCm/hipRAND>`_.
 
-Our documentation is structured as follows:
+The documentation is structured as follows:
 
 .. grid:: 2
   :gutter: 3
