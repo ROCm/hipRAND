@@ -10,10 +10,12 @@ Installation
 
 To install hipRAND, you can choose between the following two methods:
 
--   Using prebuilt packages from the ROCm repositories
--   Building from source   
+-   :ref:`Using prebuilt packages from the ROCm repositories <prebuilt-packages>`
+-   :ref:`Building from source <build-from-source>`   
 
 Both the methods are described below.
+
+.. _prebuilt-packages:
 
 Install using prebuilt packages
 --------------------------------
@@ -39,6 +41,8 @@ For SLES:
     sudo dnf install hiprand
 
 This installs hipRAND in the ``/opt/rocm`` directory.
+
+.. _build-from-source:
 
 Build hipRAND from source
 ----------------------------
