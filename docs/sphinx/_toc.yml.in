@@ -4,7 +4,7 @@ root: index
 subtrees:
 - caption: Install
   entries:
-  - file: installing
+  - file: installation
 - caption: API reference
   entries:
   - file: data-type-support
