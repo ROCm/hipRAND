@@ -70,8 +70,8 @@ if (BUILD_WITH_LIB STREQUAL "CUDA")
         ${CUDA_curand_LIBRARY}
     )
 else()
-    # Remove this check when we no longer build with older rocm stack(ie < 1.8.2)
-    target_link_libraries(hiprand PRIVATE roc::rocrand hip::device)
+    target_link_libraries(hiprand PRIVATE hip::device)
+    target_link_libraries(hiprand PUBLIC roc::rocrand hip::host)
 endif()
 
 if(NOT BUILD_SHARED_LIBS)
@@ -117,6 +117,7 @@ else()
         NAME hiprand
         NAMESPACE hip::
         DEPENDS PACKAGE hip
+        DEPENDS PACKAGE rocrand
         STATIC_DEPENDS PACKAGE rocrand
         INCLUDE "${CMAKE_CURRENT_BINARY_DIR}/hiprand-fortran-config.cmake"
     )
