@@ -194,16 +194,23 @@ else()
 endif()
 
 if( HIP_RUNTIME_LOWER STREQUAL "rocclr" )
+    set(HIP_RUNTIME_MINIMUM 4.5.0)
     if(BUILD_ADDRESS_SANITIZER)
         set(DEPENDS_HIP_RUNTIME "hip-runtime-amd-asan" )
     else()
         set(DEPENDS_HIP_RUNTIME "hip-runtime-amd" )
     endif()
-    rocm_package_add_dependencies("${DEPENDS_HIP_RUNTIME} >= 4.5.0")
+    rocm_package_add_dependencies(SHARED_DEPENDS "${DEPENDS_HIP_RUNTIME} >= ${HIP_RUNTIME_MINIMUM}")
+
+    ## add dependency on hip runtime for static libraries
+    rocm_package_add_deb_dependencies(STATIC_DEPENDS "hip-static-dev >= ${HIP_RUNTIME_MINIMUM}")
+    rocm_package_add_rpm_dependencies(STATIC_DEPENDS "hip-static-devel >= ${HIP_RUNTIME_MINIMUM}")
 elseif( HIP_RUNTIME STREQUAL "cuda" )
     rocm_package_add_dependencies("hip-nvcc >= 3.5.0")
 endif( )
 rocm_package_add_dependencies("rocrand >= ${hipRAND_VERSION}")
+rocm_package_add_deb_dependencies(STATIC_DEPENDS "rocrand-static-dev >= ${hipRAND_VERSION}")
+rocm_package_add_rpm_dependencies(STATIC_DEPENDS "rocrand-static-devel >= ${hipRAND_VERSION}")
 
 set(CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST_ADDITION "\${CPACK_PACKAGING_INSTALL_PREFIX}" "\${CPACK_PACKAGING_INSTALL_PREFIX}/include")
 
