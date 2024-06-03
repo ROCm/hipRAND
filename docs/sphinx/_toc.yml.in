@@ -4,12 +4,12 @@ root: index
 subtrees:
 - caption: Install
   entries:
-  - file: installation
+  - file: install/installation
 - caption: API reference
   entries:
-  - file: data-type-support
-  - file: cpp-api
-  - file: python-api
+  - file: api-reference/data-type-support
+  - file: api-reference/cpp-api
+  - file: api-reference/python-api
 - caption: About
   entries:
   - file: license
