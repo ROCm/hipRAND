@@ -2,11 +2,14 @@
 # These comments will also be removed.
 root: index
 subtrees:
-- entries:
-  - file: installing
-  - file: data-type-support
-  - file: cpp_api
-  - file: python_api
+- caption: Install
+  entries:
+  - file: install/installation
+- caption: API reference
+  entries:
+  - file: api-reference/data-type-support
+  - file: api-reference/cpp-api
+  - file: api-reference/python-api
 - caption: About
   entries:
   - file: license
