@@ -9,6 +9,7 @@ def runCI =
     nodeDetails, jobName->
     
     def prj = new rocProject('hipRAND', 'PreCheckin')
+    prj.libraryDependencies = ['rocRAND']
 
     def nodes = new dockerNodes(nodeDetails, jobName, prj)
 
