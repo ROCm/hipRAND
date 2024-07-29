@@ -11,7 +11,7 @@ def runCompileCommand(platform, project, jobName, boolean debug=false, boolean s
         project.libraryDependencies.each
         {
             libraryName ->
-            getDependenciesCommand += auxiliary.getLibrary(libraryName, platform.jenkinsLabel, 'develop', sameOrg)
+            getDependenciesCommand += auxiliary.getLibrary(libraryName, platform.jenkinsLabel, 'gfx1151', sameOrg)
         }
     }
 
@@ -72,4 +72,3 @@ def runPackageCommand(platform, project)
 }
 
 return this
-
