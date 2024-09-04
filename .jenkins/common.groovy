@@ -72,4 +72,3 @@ def runPackageCommand(platform, project)
 }
 
 return this
-
