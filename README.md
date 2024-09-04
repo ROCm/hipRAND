@@ -39,7 +39,7 @@ You must have the following installed to use hipRAND:
   * AMD ROCm Software (5.0.0 or later)
   * rocRAND library
 * For NVIDIA GPUs:
-  * CUDA Toolkit
+  * CUDA Toolkit 11.5.1 or newer
   * cuRAND library
 
 ## Build and install
