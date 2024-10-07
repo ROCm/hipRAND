@@ -22,11 +22,11 @@ def runCompileCommand(platform, project, jobName, boolean debug=false, boolean s
     String cmake = platform.jenkinsLabel.contains('centos') ? 'cmake3' : 'cmake'
     //Set CI node's gfx arch as target if PR, otherwise use default targets of the library
     String amdgpuTargets = env.BRANCH_NAME.startsWith('PR-') ? '-DAMDGPU_TARGETS=\$gfx_arch' : ''
-    String compiler = '/opt/rocm/bin/hipcc'
+    String toolchainOrCompiler="--toolchain=toolchain-linux.cmake"
     String useCUDA = ''
     if (platform.jenkinsLabel.contains('cuda'))
     {
-        compiler = 'g++'
+        toolchainOrCompiler = '-DCMAKE_CXX_COMPILER=g++'
         useCUDA = '-DBUILD_WITH_LIB=CUDA'
         amdgpuTargets = ''
     }
@@ -39,7 +39,7 @@ def runCompileCommand(platform, project, jobName, boolean debug=false, boolean s
                 # gfxTargetParser reads gfxarch and adds target features such as xnack
                 ${auxiliary.gfxTargetParser()}
                 echo "ROCM_PATH = \${ROCM_PATH}"
-                ${cmake} -DCMAKE_CXX_COMPILER=${compiler} ${useCUDA} ${buildTypeArg} ${buildStatic} ${amdgpuTargets} -DBUILD_TEST=ON -DBUILD_BENCHMARK=ON ../..
+                ${cmake} ${toolchainOrCompiler} ${useCUDA} ${buildTypeArg} ${buildStatic} ${amdgpuTargets} -DBUILD_TEST=ON -DBUILD_BENCHMARK=ON ../..
                 make -j\$(nproc)
                 """
 
@@ -49,7 +49,7 @@ def runCompileCommand(platform, project, jobName, boolean debug=false, boolean s
 def runTestCommand (platform, project)
 {
     String sudo = auxiliary.sudo(platform.jenkinsLabel)
- 
+
     def extraArgs = platform.jenkinsLabel.contains('cuda') ? "-E test_hiprand_linkage" : ""
     def testCommand = "ctest ${extraArgs} --output-on-failure"
 
