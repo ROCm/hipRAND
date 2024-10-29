@@ -6,10 +6,10 @@ application. hipRAND exports an interface that doesn't require the client to cha
 chosen backend.
 
 hipRAND supports [rocRAND](https://github.com/ROCm/rocRAND) and
-[cuRAND](https://developer.nvidia.com/curand).
+[NVIDIA CUDA cuRAND](https://developer.nvidia.com/curand).
 
-You can find our documentation at
-[hipRAND User Guide/](https://rocm.docs.amd.com/projects/hipRAND/en/latest/).
+> [!NOTE]
+> The published hipRAND documentation is available at [hipRAND](https://rocm.docs.amd.com/projects/hipRAND/en/latest/index.html) in an organized, easy-to-read format, with search and a table of contents. The documentation source files reside in the hipRAND/docs folder of this repository. As with all ROCm projects, the documentation is open source. For more information, see [Contribute to ROCm documentation](https://rocm.docs.amd.com/en/latest/contribute/contributing.html).
 
 ## Documentation
 
