@@ -162,6 +162,7 @@ deps:rocrand-static:
       -D GPU_TARGETS=${GPU_TARGETS}
       -D CMAKE_C_COMPILER_LAUNCHER=phc_sccache_c
       -D CMAKE_CXX_COMPILER_LAUNCHER=phc_sccache_cxx
+      -D CMAKE_CXX_STANDARD="$BUILD_VERSION"
     - cmake --build ${CI_PROJECT_DIR}/build
     - cmake --build ${CI_PROJECT_DIR}/build --target package
 
@@ -186,6 +187,7 @@ deps:rocrand-static:
       -D CMAKE_C_COMPILER_LAUNCHER=phc_sccache_c
       -D CMAKE_CXX_COMPILER_LAUNCHER=phc_sccache_cxx
       -D CMAKE_CUDA_COMPILER_LAUNCHER=phc_sccache_cuda
+      -D CMAKE_CXX_STANDARD=14
     - cmake --build ${CI_PROJECT_DIR}/build
     - cmake --build ${CI_PROJECT_DIR}/build --target package
 
@@ -217,6 +219,9 @@ build:rocm-cmake-minimum:
     - .rocm:rocrand-install
   variables:
     BUILD_SHARED_LIBS: "ON"
+  parallel:
+    matrix:
+      - BUILD_VERSION: [14, 17]
   before_script:
     - !reference [".rocm:cmake-minimum", before_script]
     - !reference [".rocm:rocrand-install", before_script]
@@ -233,6 +238,7 @@ build:rocm-static-cmake-minimum:
     - .rocm:rocrand-install
   variables:
     BUILD_SHARED_LIBS: "OFF"
+    BUILD_VERSION: 14
   before_script:
     - !reference [".rocm:cmake-minimum", before_script]
     - !reference [".rocm:rocrand-install", before_script]
@@ -449,6 +455,7 @@ test:nvcc-package:
       -D BUILD_FORTRAN_WRAPPER=OFF
       -D BUILD_FILE_REORG_BACKWARD_COMPATIBILITY=OFF
       -D CMAKE_CXX_COMPILER=${COMPILER}
+      -D CMAKE_CXX_STANDARD=14
       -D CMAKE_C_COMPILER_LAUNCHER=phc_sccache_c
       -D CMAKE_CXX_COMPILER_LAUNCHER=phc_sccache_cxx
       ${WITH_LIB_CUDA}
@@ -532,6 +539,7 @@ test:rocm-windows:
       -D CMAKE_BUILD_TYPE=$BUILD_TYPE
       -D CMAKE_CXX_COMPILER:FILEPATH="${env:HIP_PATH}/bin/clang++.exe"
       -D CMAKE_NO_SYSTEM_FROM_IMPORTED=TRUE
+      -D CMAKE_CXX_STANDARD=14
       -D CMAKE_PREFIX_PATH="$CI_PROJECT_DIR/build/install;$ROCRAND_DIR/build/install;${env:HIP_PATH}/lib/cmake" *>&1
     - \& cmake --build "$CI_PROJECT_DIR/build/install_test" *>&1
     - \& cmake -E copy "$ROCRAND_DIR/build/install/bin/rocRAND.dll" "$CI_PROJECT_DIR/build/install_test" *>&1
