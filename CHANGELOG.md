@@ -14,6 +14,7 @@ Documentation for hipRAND is available at
 
 ### Changed
 
+* Updated the default value for the `-a` argument from `rmake.py` to `gfx906:xnack-,gfx1030,gfx1100,gfx1101,gfx1102,gfx1151,gfx1200,gfx1201`.
 * For internal testing with HMM the environment variable `ROCRAND_USE_HMM` was used in previous
   versions, it is now changed to `HIPRAND_USE_HMM`.
 * The device API documentation is improved in this version.
@@ -28,6 +29,7 @@ Documentation for hipRAND is available at
 
 ### Resolved issues
 
+* Fixed an issue in `rmake.py` where the list storing cmake options would contain individual characters instead of a full string of options.
 * Build error when using Clang++ directly due to unsupported references to `amdgpu-target`
 
 ## hipRAND-2.10.17 for ROCm 5.6.0
