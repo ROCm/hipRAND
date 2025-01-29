@@ -11,7 +11,11 @@ Documentation for hipRAND is available at
 
 ### Changed
 
-* Changed the C++ version from 14 to 17. C++14 will be deprecated in the next major release.
+* Changed the C++ version from 14 to 17. 
+
+### Upcoming changes
+
+* C++14 will be deprecated in the next major release.
 
 ## hipRAND 2.11.0 for ROCm 6.2.0
 
