@@ -9,13 +9,10 @@ Documentation for hipRAND is available at
 
 * gfx950 support
 
-### Changed
-
-* Changed the C++ version from 14 to 17. 
-
 ### Upcoming changes
 
-* C++14 will be deprecated in the next major release.
+* Changed the C++ version from 14 to 17. C++14 will be deprecated in the next major release.
+* Deprecated hipRAND's Fortran API in favor of hipfort.
 
 ## hipRAND 2.12.0 for ROCm 6.4.0
 
