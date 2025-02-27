@@ -128,7 +128,7 @@ pyenv activate venv_hiprand
 
 ### Building
 
-After cloning this repository, and `cd`ing into it:
+After cloning this repository and navigating into its directory:
 
 ```shell
 # Install Python dependencies
