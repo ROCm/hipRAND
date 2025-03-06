@@ -12,7 +12,7 @@ Documentation for hipRAND is available at
   
 ### Resolved issues
 
-* Fixed an issue that was causing hipRAND build failures on Windows when the HIP SDK was installed to a location whose path contained spaces.
+* Fixed an issue that was causing hipRAND build failures on Windows when the HIP SDK was installed to a location with a path that contains spaces.
 
 ## hipRAND-2.11.1 for ROCm 6.2.4
 
