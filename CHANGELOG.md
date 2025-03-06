@@ -7,7 +7,7 @@ Documentation for hipRAND is available at
 
 ### Changed
 
-* When building hipRAND on Windows, please use `HIP_PATH` (instead of the former `HIP_DIR`) to specify the path to your HIP SDK installation.
+* When building hipRAND on Windows, use `HIP_PATH` (instead of the former `HIP_DIR`) to specify the path to the HIP SDK installation.
   * When building with the `rmake.py` script, if `HIP_PATH` is not set, it will default to `C:\hip`.
   
 ### Resolved issues
