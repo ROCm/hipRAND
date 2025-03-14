@@ -172,7 +172,7 @@ The hipRAND Python API Wrapper requires the following dependencies:
 
 .. note::
     
-   If hipRAND is built from source but is either not installed or iinstalled in a
+   If hipRAND is built from source but is either not installed or installed in a
    non-standard directory, then set the ``ROCRAND_PATH`` or ``HIPRAND_PATH`` environment variable to the
    path containing ``libhiprand.so`` as shown below:
 
