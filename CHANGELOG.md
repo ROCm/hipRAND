@@ -3,16 +3,23 @@
 Documentation for hipRAND is available at
 [https://rocm.docs.amd.com/projects/hipRAND/en/latest/](https://rocm.docs.amd.com/projects/hipRAND/en/latest/).
 
+## (unreleased) hipRAND x.y.z for ROCm 7.0
+
+* Deprecated hipRAND's Fortran API in favor of hipfort.
+
 ## hipRAND 2.13.0 for ROCm 6.5.0
 
 ### Added 
 
 * gfx950 support
 
+### Changed
+
+* Changed the C++ version from 14 to 17.
+
 ### Upcoming changes
 
-* Changed the C++ version from 14 to 17. C++14 will be deprecated in the next major release.
-* Deprecated hipRAND's Fortran API in favor of hipfort.
+* C++14 will be deprecated in the next major release.
 
 ## hipRAND 2.12.0 for ROCm 6.4.0
 
