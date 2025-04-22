@@ -17,6 +17,21 @@ Documentation for hipRAND is available at
 
 * C++14 will be deprecated in the next major release.
 
+## hipRAND-2.11.1 for ROCm 6.2.4
+
+### Added
+
+* GFX1151 Support
+
+### Changed
+
+* When building hipRAND on Windows, use `HIP_PATH` (instead of the former `HIP_DIR`) to specify the path to the HIP SDK installation.
+  * When building with the `rmake.py` script, if `HIP_PATH` is not set, it will default to `C:\hip`.
+  
+### Resolved issues
+
+* Fixed an issue that was causing hipRAND build failures on Windows when the HIP SDK was installed to a location with a path that contains spaces.
+
 ## hipRAND 2.11.0 for ROCm 6.2.0
 
 ### Added
