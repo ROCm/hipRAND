@@ -3,7 +3,7 @@
 Documentation for hipRAND is available at
 [https://rocm.docs.amd.com/projects/hipRAND/en/latest/](https://rocm.docs.amd.com/projects/hipRAND/en/latest/).
 
-## hipRAND 2.12.0 for ROCm 6.5
+## hipRAND 2.13.0 for ROCm 6.5.0
 
 ### Added 
 
@@ -17,11 +17,7 @@ Documentation for hipRAND is available at
 
 * C++14 will be deprecated in the next major release.
 
-## hipRAND-2.11.1 for ROCm 6.2.4
-
-### Added
-
-* GFX1151 Support
+## hipRAND 2.12.0 for ROCm 6.4.0
 
 ### Changed
 
@@ -31,6 +27,12 @@ Documentation for hipRAND is available at
 ### Resolved issues
 
 * Fixed an issue that was causing hipRAND build failures on Windows when the HIP SDK was installed to a location with a path that contains spaces.
+
+## hipRAND-2.11.1 for ROCm 6.2.4
+
+### Added
+
+* GFX1151 Support
 
 ## hipRAND 2.11.0 for ROCm 6.2.0
 
