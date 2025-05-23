@@ -125,6 +125,7 @@ else
     mkdir -p debug; cd debug
 fi
 
+cmake_common_options="--toolchain=toolchain-linux.cmake"
 # build type
 if [[ "${build_release}" == true ]]; then
     cmake_common_options="${cmake_common_options} -DCMAKE_BUILD_TYPE=Release"
@@ -142,8 +143,6 @@ fi
 # before 'cmake' or setting cmake option 'CMAKE_CXX_COMPILER' to path to the HIPCC compiler.
 #
 
-compiler="hipcc"
-
 cmake_executable="cmake"
 
 if($build_clients); then
@@ -159,7 +158,7 @@ cmake_common_options="${cmake_common_options} -DDEPENDENCIES_FORCE_DOWNLOAD=ON"
 fi
 
 if [[ "${build_relocatable}" == true ]]; then
-    CXX=${rocm_path}/bin/$compiler ${cmake_executable}  -DCMAKE_INSTALL_PREFIX="${rocm_path}" \
+    ${cmake_executable}  -DCMAKE_INSTALL_PREFIX="${rocm_path}" \
     -DBUILD_TEST=ON -DBUILD_BENCHMARK=ON ${cmake_common_options} \
     -DCMAKE_PREFIX_PATH="${rocm_path} ${rocm_path}/hip" \
     -DCMAKE_SHARED_LINKER_FLAGS="${rocm_rpath}" \
@@ -167,7 +166,7 @@ if [[ "${build_relocatable}" == true ]]; then
     -DCMAKE_MODULE_PATH="${rocm_path}/hip/cmake" \
     ../../. # or cmake-gui ../.
 else
-    CXX=${rocm_path}/bin/$compiler ${cmake_executable} ${clients} ${cmake_common_options} ../../. # or cmake-gui ../.
+    ${cmake_executable} ${clients} ${cmake_common_options} ../../. # or cmake-gui ../.
 fi
 check_exit_code "$?"
 
